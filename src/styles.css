@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme inline {
   /* ------------------------------------------------------------------ */
@@ -83,8 +83,8 @@
   /* ------------------------------------------------------------------ */
   /*  Typography — font families                                        */
   /* ------------------------------------------------------------------ */
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
   /* ------------------------------------------------------------------ */
   /*  Typography — scale (size + line-height)                           */
@@ -216,14 +216,6 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* ------------------------------------------------------------------ */
-/*  Focus-visible ring (WCAG 2.2 AA — keyboard-first)                */
-/* ------------------------------------------------------------------ */
-:focus-visible:not(input, select, textarea) {
-  outline: 2px solid var(--color-brand-base);
-  outline-offset: 2px;
 }
 
 /* ------------------------------------------------------------------ */
