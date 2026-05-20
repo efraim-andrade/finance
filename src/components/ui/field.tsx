@@ -1,0 +1,62 @@
+import { Mail, User } from "lucide-react";
+import type * as React from "react";
+import { cn } from "#/lib/utils";
+
+type FieldProps = {
+	label?: string;
+	helper?: string;
+	className?: string;
+	children: React.ReactNode;
+	type?: FieldType;
+};
+
+export enum FieldType {
+	text = "text",
+	email = "email",
+	user = "user",
+}
+
+const Field = ({ label, helper, className, children, type }: FieldProps) => {
+	const renderIcon = () => {
+		const iconMap: Record<FieldType, React.ReactNode> = {
+			[FieldType.email]: <Mail />,
+			[FieldType.user]: <User />,
+			[FieldType.text]: null,
+		};
+
+		return iconMap[type || FieldType.text] || null;
+	};
+
+	const icon = renderIcon();
+
+	return (
+		<div className={cn("group flex flex-col gap-1", className)}>
+			{label && (
+				<span className="text-sm text-muted-foreground group-focus-within:text-primary">
+					{label}
+				</span>
+			)}
+
+			<div
+				className={cn(
+					"relative flex h-10 w-full items-center gap-2 rounded-md border border-input bg-background py-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
+					className,
+				)}
+			>
+				{icon && (
+					<span className="absolute left-2 text-muted-foreground group-focus-within:text-primary [&>svg]:size-4">
+						{icon}
+					</span>
+				)}
+
+				{children}
+			</div>
+
+			{helper && (
+				<p className="text-caption-sm text-muted-foreground">{helper}</p>
+			)}
+		</div>
+	);
+};
+
+export { Field };
