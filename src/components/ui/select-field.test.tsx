@@ -1,13 +1,13 @@
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+import { FieldType } from "./field";
 import {
 	SelectField,
-	SelectItem,
 	SelectGroup,
+	SelectItem,
 	SelectLabel,
 	SelectSeparator,
 } from "./select-field";
-import { FieldType } from "./field";
 
 describe("SelectField", () => {
 	it("renders SelectTrigger with placeholder text", () => {

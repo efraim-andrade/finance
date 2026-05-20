@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { createRef } from "react";
-import { Input } from "./input";
+import { describe, expect, it } from "vitest";
 import { FieldType } from "./field";
+import { Input } from "./input";
 
 describe("Input", () => {
 	it("renders an <input> element", () => {

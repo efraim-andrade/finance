@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 import { Field, FieldType } from "./field";
 
 describe("Field", () => {
@@ -38,9 +38,7 @@ describe("Field", () => {
 	});
 
 	it("renders the Mail icon when type is FieldType.email", () => {
-		const { container } = render(
-			<Field type={FieldType.email}>child</Field>,
-		);
+		const { container } = render(<Field type={FieldType.email}>child</Field>);
 
 		const iconSpan = container.querySelector(
 			'span[class*="absolute"][class*="left-2"]',
@@ -51,9 +49,7 @@ describe("Field", () => {
 	});
 
 	it("renders the User icon when type is FieldType.user", () => {
-		const { container } = render(
-			<Field type={FieldType.user}>child</Field>,
-		);
+		const { container } = render(<Field type={FieldType.user}>child</Field>);
 
 		const iconSpan = container.querySelector(
 			'span[class*="absolute"][class*="left-2"]',
@@ -64,9 +60,7 @@ describe("Field", () => {
 	});
 
 	it("renders no icon when type is FieldType.text", () => {
-		const { container } = render(
-			<Field type={FieldType.text}>child</Field>,
-		);
+		const { container } = render(<Field type={FieldType.text}>child</Field>);
 
 		const iconSpan = container.querySelector(
 			'span[class*="absolute"][class*="left-2"]',
@@ -86,9 +80,7 @@ describe("Field", () => {
 	});
 
 	it("applies custom className to the wrapper div", () => {
-		const { container } = render(
-			<Field className="custom-class">child</Field>,
-		);
+		const { container } = render(<Field className="custom-class">child</Field>);
 
 		const wrapper = container.firstElementChild;
 
