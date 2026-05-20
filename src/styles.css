@@ -221,7 +221,7 @@ body {
 /* ------------------------------------------------------------------ */
 /*  Focus-visible ring (WCAG 2.2 AA — keyboard-first)                */
 /* ------------------------------------------------------------------ */
-:focus-visible {
+:focus-visible:not(input, select, textarea) {
   outline: 2px solid var(--color-brand-base);
   outline-offset: 2px;
 }
