@@ -16,7 +16,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 					type={type}
 					className={cn(
 						"flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed md:text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground",
-						type !== FieldType.text ? "pl-8" : "pl-3",
+						type && type !== FieldType.text ? "pl-8" : "pl-3",
 					)}
 					ref={ref}
 					{...props}
