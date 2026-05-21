@@ -20,13 +20,13 @@ const benefits = [
 
 export function LandingBenefits() {
 	return (
-		<section className="flex flex-col items-center gap-12 bg-gray-50 px-6 py-20 md:px-30">
+		<section className="flex flex-col items-center gap-12 bg-muted/30 px-6 py-20 md:px-30">
 			<motion.h2
 				initial={{ y: 30, opacity: 0 }}
 				whileInView={{ y: 0, opacity: 1 }}
 				viewport={{ once: true, margin: "-80px" }}
 				transition={{ duration: 0.5, ease: "easeOut" }}
-				className="max-w-xl text-center font-heading text-3xl font-semibold text-gray-800 md:text-[32px]"
+				className="max-w-xl text-center font-heading text-3xl font-semibold text-foreground md:text-[32px]"
 			>
 				Por que escolher a Finance?
 			</motion.h2>
@@ -48,7 +48,7 @@ export function LandingBenefits() {
 						<motion.div
 							whileHover={{ scale: 1.15, backgroundColor: "#dcfce7" }}
 							transition={{ duration: 0.2 }}
-							className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100"
+							className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted"
 						>
 							<svg
 								width="16"
@@ -59,7 +59,7 @@ export function LandingBenefits() {
 								strokeWidth="3"
 								strokeLinecap="round"
 								strokeLinejoin="round"
-								className="text-gray-700"
+								className="text-foreground"
 								aria-hidden="true"
 							>
 								<polyline points="20 6 9 17 4 12" />
@@ -67,10 +67,10 @@ export function LandingBenefits() {
 						</motion.div>
 
 						<div className="flex flex-col gap-2">
-							<h3 className="text-base font-semibold text-gray-800">
+							<h3 className="text-base font-semibold text-foreground">
 								{benefit.title}
 							</h3>
-							<p className="max-w-md text-sm leading-relaxed text-gray-500">
+							<p className="max-w-md text-sm leading-relaxed text-muted-foreground">
 								{benefit.description}
 							</p>
 						</div>

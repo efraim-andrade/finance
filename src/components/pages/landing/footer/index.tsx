@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 
-import { Logo } from "#/components/logo";
+import { Logo } from "~/components/logo";
 
 const footerLinks = {
 	produto: {
@@ -36,12 +36,12 @@ export function LandingFooter() {
 			whileInView={{ opacity: 1 }}
 			viewport={{ once: true }}
 			transition={{ duration: 0.5 }}
-			className="flex flex-col gap-8 bg-white px-6 py-12 md:px-30"
+			className="flex flex-col gap-8 bg-background px-6 py-12 md:px-30"
 		>
 			<div className="flex w-full flex-wrap justify-between gap-12">
 				<div className="flex max-w-xs flex-col gap-2">
 					<Logo />
-					<p className="text-sm text-gray-500">
+					<p className="text-sm text-muted-foreground">
 						Controle suas finanças de forma simples e gratuita.
 					</p>
 				</div>
@@ -55,14 +55,14 @@ export function LandingFooter() {
 						transition={{ duration: 0.4 }}
 						className="flex flex-col gap-3"
 					>
-						<span className="text-sm font-semibold text-gray-800">
+						<span className="text-sm font-semibold text-foreground">
 							{group.title}
 						</span>
 						{group.links.map((link) => (
 							<a
 								key={link.label}
 								href={link.href}
-								className="text-sm text-gray-500 transition-colors hover:text-gray-700"
+								className="text-sm text-muted-foreground transition-colors hover:text-foreground"
 							>
 								{link.label}
 							</a>
@@ -71,9 +71,9 @@ export function LandingFooter() {
 				))}
 			</div>
 
-			<div className="h-px w-full bg-gray-200" />
+			<div className="h-px w-full bg-border" />
 
-			<p className="text-center text-sm text-gray-400">
+			<p className="text-center text-sm text-muted-foreground/60">
 				© 2026 Finance. Todos os direitos reservados.
 			</p>
 		</motion.footer>

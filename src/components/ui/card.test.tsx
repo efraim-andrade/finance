@@ -71,12 +71,12 @@ describe("Card", () => {
 		expect(screen.getByText("Footer actions")).toBeInTheDocument();
 	});
 
-	it("applies border-gray-200 class on Card", () => {
+	it("applies border-border class on Card", () => {
 		const { container } = render(<Card>Bordered</Card>);
 
 		const cardElement = container.firstChild as HTMLElement;
 
-		expect(cardElement.className).toContain("border-gray-200");
+		expect(cardElement.className).toContain("border-border");
 	});
 
 	it("merges custom className with default classes", () => {
@@ -88,7 +88,7 @@ describe("Card", () => {
 
 		expect(cardElement.className).toContain("my-custom-class");
 		expect(cardElement.className).toContain("rounded-lg");
-		expect(cardElement.className).toContain("border-gray-200");
+		expect(cardElement.className).toContain("border-border");
 	});
 
 	it("forwards ref to the DOM element", () => {

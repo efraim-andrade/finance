@@ -15,7 +15,7 @@ const features = [
 				strokeWidth="2"
 				strokeLinecap="round"
 				strokeLinejoin="round"
-				className="text-gray-700"
+				className="text-foreground"
 				aria-hidden="true"
 			>
 				<rect width="20" height="14" x="2" y="5" rx="2" />
@@ -37,7 +37,7 @@ const features = [
 				strokeWidth="2"
 				strokeLinecap="round"
 				strokeLinejoin="round"
-				className="text-gray-700"
+				className="text-foreground"
 				aria-hidden="true"
 			>
 				<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -62,7 +62,7 @@ const features = [
 				strokeWidth="2"
 				strokeLinecap="round"
 				strokeLinejoin="round"
-				className="text-gray-700"
+				className="text-foreground"
 				aria-hidden="true"
 			>
 				<path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" />
@@ -83,7 +83,7 @@ export function LandingFeatures() {
 				whileInView={{ y: 0, opacity: 1 }}
 				viewport={{ once: true, margin: "-80px" }}
 				transition={{ duration: 0.5, ease: "easeOut" }}
-				className="max-w-2xl text-center font-heading text-3xl font-semibold text-gray-800 md:text-[32px]"
+				className="max-w-2xl text-center font-heading text-3xl font-semibold text-foreground md:text-[32px]"
 			>
 				Tudo que você precisa para
 				<br />
@@ -103,21 +103,21 @@ export function LandingFeatures() {
 							ease: "easeOut",
 						}}
 						whileHover={{ y: -4, transition: { duration: 0.2 } }}
-						className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+						className="flex flex-col gap-4 rounded-xl border border-border bg-card p-6 shadow-sm"
 					>
 						<motion.div
 							whileHover={{ rotate: [0, -10, 10, 0] }}
 							transition={{ duration: 0.3 }}
-							className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100"
+							className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted"
 						>
 							{feature.icon}
 						</motion.div>
 
-						<h3 className="font-heading text-lg font-semibold text-gray-800">
+						<h3 className="font-heading text-lg font-semibold text-foreground">
 							{feature.title}
 						</h3>
 
-						<p className="text-sm leading-relaxed text-gray-500">
+						<p className="text-sm leading-relaxed text-muted-foreground">
 							{feature.description}
 						</p>
 					</motion.div>

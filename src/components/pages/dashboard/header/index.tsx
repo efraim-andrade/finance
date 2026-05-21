@@ -7,9 +7,10 @@ import {
 	TrendingUp,
 } from "lucide-react";
 import { useState } from "react";
-import { Logo } from "#/components/logo";
-import { useAuth } from "#/hooks/useAuth";
-import { cn } from "#/lib/utils";
+import { Logo } from "~/components/logo";
+import { ThemeSwitcher } from "~/components/theme-switcher";
+import { useAuth } from "~/hooks/useAuth";
+import { cn } from "~/lib/utils";
 
 const navLinks = [
 	{ to: "/app", label: "Dashboard", icon: LayoutDashboard },
@@ -23,7 +24,7 @@ export function DashboardHeader() {
 	const { pathname } = useLocation();
 
 	return (
-		<header className="flex h-16 shrink-0 items-center border-b border-gray-200 bg-white px-12">
+		<header className="flex h-16 shrink-0 items-center border-b border-border bg-background px-12">
 <Link to="/app" aria-label="Dashboard home">
 	<Logo />
 </Link>
@@ -41,7 +42,7 @@ export function DashboardHeader() {
 								"flex items-center gap-1.5 text-sm transition-colors",
 								isActive
 									? "font-semibold text-brand-base"
-									: "font-normal text-gray-600 hover:text-brand-base",
+									: "font-normal text-muted-foreground hover:text-brand-base",
 							)}
 						>
 							<Icon className="size-4" />
@@ -51,7 +52,9 @@ export function DashboardHeader() {
 				})}
 			</nav>
 
-			<div className="relative flex items-center gap-3">
+			<div className="relative flex items-center gap-1">
+				<ThemeSwitcher />
+
 				<button
 					type="button"
 					className="flex cursor-pointer items-center gap-2 rounded-lg p-1.5 transition-colors hover:bg-accent"
@@ -59,7 +62,7 @@ export function DashboardHeader() {
 					aria-haspopup="true"
 					aria-expanded={menuOpen}
 				>
-					<div className="flex size-8 items-center justify-center rounded-full bg-gray-300 text-xs font-medium text-gray-800">
+					<div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs font-medium text-foreground">
 						CT
 					</div>
 

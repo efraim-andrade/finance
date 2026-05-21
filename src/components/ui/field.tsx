@@ -1,6 +1,6 @@
 import { Lock, Mail, User } from "lucide-react";
 import type * as React from "react";
-import { cn } from "#/lib/utils";
+import { cn } from "~/lib/utils";
 
 type FieldProps = {
 	label?: string;

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Button } from "#/components/ui/button";
-import { Card } from "#/components/ui/card";
+import { Button } from "~/components/ui/button";
+import { Card } from "~/components/ui/card";
 
 export const Route = createFileRoute("/_public/recuperar-senha")({
 	component: RecuperarSenha,
@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_public/recuperar-senha")({
 
 function RecuperarSenha() {
 	return (
-		<main className="flex min-h-screen items-center justify-center">
+		<main className="flex min-h-screen items-center justify-center bg-background text-foreground">
 			<Card className="w-full max-w-sm space-y-6 text-center">
 				<div className="space-y-2">
 					<h1 className="text-heading-md font-bold text-foreground">

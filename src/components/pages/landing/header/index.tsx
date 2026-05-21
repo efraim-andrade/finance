@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 
-import { Logo } from "#/components/logo";
+import { Logo } from "~/components/logo";
 
 type LandingHeaderProps = {
 	onNavClick: (section: string) => void;
@@ -13,7 +13,7 @@ export function LandingHeader({ onNavClick }: LandingHeaderProps) {
 			initial={{ y: -20, opacity: 0 }}
 			animate={{ y: 0, opacity: 1 }}
 			transition={{ duration: 0.5, ease: "easeOut" }}
-			className="sticky top-0 z-50 flex h-[72px] items-center justify-between border-b border-gray-200 bg-white px-4 md:px-12"
+			className="sticky top-0 z-50 flex h-[72px] items-center justify-between border-b border-border bg-background px-4 md:px-12"
 		>
 			<Link to="/" className="shrink-0">
 				<Logo />
@@ -22,7 +22,7 @@ export function LandingHeader({ onNavClick }: LandingHeaderProps) {
 			<div className="flex items-center gap-4">
 				<Link
 					to="/"
-					className="text-sm font-medium text-gray-500 transition-colors hover:text-gray-900"
+					className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
 				>
 					Login
 				</Link>

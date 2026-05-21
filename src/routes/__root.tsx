@@ -2,7 +2,8 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
-import { AuthProvider } from "#/hooks/useAuth";
+import { AuthProvider } from "~/hooks/useAuth";
+import { ThemeProvider } from "~/hooks/useTheme";
 import appCss from "../styles.css?url";
 
 export const Route = createRootRoute({
@@ -54,7 +55,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body suppressHydrationWarning>
+				<ThemeProvider>
 				<AuthProvider>{children}</AuthProvider>
+			</ThemeProvider>
 				<TanStackDevtools
 					config={{
 						position: "bottom-right",

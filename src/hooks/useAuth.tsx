@@ -4,6 +4,7 @@ type AuthContextType = {
 	isAuthenticated: boolean;
 	login: (email: string, password: string) => void;
 	logout: () => void;
+	register: (name: string, email: string, password: string) => void;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -43,8 +44,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 		persistAuth(false);
 	}, []);
 
+	const register = useCallback(
+		(_name: string, _email: string, _password: string) => {
+			setIsAuthenticated(true);
+			persistAuth(true);
+		},
+		[],
+	);
+
 	return (
-		<AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+		<AuthContext.Provider value={{ isAuthenticated, login, logout, register }}>
 			{children}
 		</AuthContext.Provider>
 	);

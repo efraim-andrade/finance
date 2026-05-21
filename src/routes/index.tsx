@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
-import { Login } from "#/components/pages/login";
-import { useAuth } from "#/hooks/useAuth";
+import { Login } from "~/components/pages/login";
+import { ThemeSwitcher } from "~/components/theme-switcher";
+import { useAuth } from "~/hooks/useAuth";
 
 export const Route = createFileRoute("/")({
 	component: HomePage,
@@ -20,5 +21,13 @@ function HomePage() {
 
 	if (isAuthenticated) return null;
 
-	return <Login />;
+	return (
+		<div className="relative min-h-screen bg-background text-foreground">
+			<div className="fixed right-4 top-4 z-50">
+				<ThemeSwitcher />
+			</div>
+
+			<Login />
+		</div>
+	);
 }

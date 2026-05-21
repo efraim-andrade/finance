@@ -4,12 +4,12 @@ import { LogIn } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Logo } from "#/components/logo";
-import { Button } from "#/components/ui/button";
-import { Card } from "#/components/ui/card";
-import { FieldType } from "#/components/ui/field";
-import { Input } from "#/components/ui/input";
-import { useAuth } from "#/hooks/useAuth";
+import { Logo } from "~/components/logo";
+import { Button } from "~/components/ui/button";
+import { Card } from "~/components/ui/card";
+import { FieldType } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+import { useAuth } from "~/hooks/useAuth";
 
 const signupSchema = z.object({
 	name: z.string().min(3, "O nome deve ter no mínimo 3 caracteres"),
@@ -35,7 +35,7 @@ export function Signup() {
 	}
 
 	return (
-		<main className="flex min-h-screen flex-col items-center justify-center gap-8">
+		<main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-background text-foreground">
 			<Logo />
 
 			<Card className="w-full max-w-sm">

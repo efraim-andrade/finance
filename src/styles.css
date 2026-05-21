@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   /* ------------------------------------------------------------------ */
   /*  Brand (primary)                                                    */
@@ -194,6 +196,47 @@
   --radius-sm: calc(var(--radius) - 0.25rem);
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 0.25rem);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Dark mode — overrides via .dark class                             */
+/* ------------------------------------------------------------------ */
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.185 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.185 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: #2d8a4e;
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.235 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.235 0 0);
+  --muted-foreground: oklch(0.632 0 0);
+  --accent: oklch(0.235 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.2 0 0);
+  --input: oklch(0.2 0 0);
+  --ring: #2d8a4e;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Smooth theme transitions                                          */
+/* ------------------------------------------------------------------ */
+html {
+  transition: color-scheme 0.3s;
+}
+
+html,
+html *,
+html *::before,
+html *::after {
+  transition-property: color, background-color, border-color, outline-color, box-shadow;
+  transition-duration: var(--duration-base);
+  transition-timing-function: var(--ease-standard);
 }
 
 /* ------------------------------------------------------------------ */
