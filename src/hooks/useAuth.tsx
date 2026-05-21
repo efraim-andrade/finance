@@ -10,7 +10,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const AUTH_KEY = "finance:auth";
 
-function loadAuth(): boolean {
+export function loadAuth(): boolean {
 	if (typeof window === "undefined") return false;
 
 	try {

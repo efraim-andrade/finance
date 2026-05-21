@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
 import { useState } from "react";
+import { Logo } from "#/components/logo";
 import { Button } from "#/components/ui/button";
 import { Card } from "#/components/ui/card";
 import { FieldType } from "#/components/ui/field";
@@ -20,7 +21,9 @@ export function Login() {
 	}
 
 	return (
-		<main className="flex min-h-screen items-center justify-center">
+		<main className="flex min-h-screen flex-col items-center justify-center gap-8">
+			<Logo />
+
 			<Card className="w-full max-w-sm">
 				<form onSubmit={handleSubmit} className="space-y-6">
 					<div className="space-y-2 text-center">
