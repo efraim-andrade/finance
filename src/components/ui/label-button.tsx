@@ -12,6 +12,7 @@ type LabelButtonProps = {
 } & Omit<ComponentProps<typeof Button>, 'size' | 'variant'>;
 
 function LabelButton({
+	asChild,
 	children,
 	className,
 	disabled,
@@ -22,13 +23,14 @@ function LabelButton({
 }: LabelButtonProps) {
 	return (
 		<Button
+			asChild={asChild}
 			variant={variant === 'primary' ? 'default' : 'outline'}
 			size={size === 'sm' ? 'sm' : 'default'}
 			className={cn('gap-1.5', className)}
 			disabled={disabled}
 			{...props}
 		>
-			{Icon && <Icon />}
+			{!asChild && Icon && <Icon />}
 
 			{children}
 		</Button>

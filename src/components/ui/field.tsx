@@ -1,4 +1,4 @@
-import { Mail, User } from "lucide-react";
+import { Lock, Mail, User } from "lucide-react";
 import type * as React from "react";
 import { cn } from "#/lib/utils";
 
@@ -11,8 +11,9 @@ type FieldProps = {
 };
 
 export enum FieldType {
-	text = "text",
 	email = "email",
+	password = "password",
+	text = "text",
 	user = "user",
 }
 
@@ -20,8 +21,9 @@ const Field = ({ label, helper, className, children, type }: FieldProps) => {
 	const renderIcon = () => {
 		const iconMap: Record<FieldType, React.ReactNode> = {
 			[FieldType.email]: <Mail />,
-			[FieldType.user]: <User />,
+			[FieldType.password]: <Lock />,
 			[FieldType.text]: null,
+			[FieldType.user]: <User />,
 		};
 
 		return iconMap[type || FieldType.text] || null;
