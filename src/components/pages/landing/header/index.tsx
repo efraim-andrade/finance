@@ -3,11 +3,7 @@ import { motion } from "motion/react";
 
 import { Logo } from "~/components/logo";
 
-type LandingHeaderProps = {
-	onNavClick: (section: string) => void;
-};
-
-export function LandingHeader({ onNavClick }: LandingHeaderProps) {
+export function LandingHeader() {
 	return (
 		<motion.header
 			initial={{ y: -20, opacity: 0 }}

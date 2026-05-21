@@ -6,17 +6,9 @@ import { LandingHeader } from "~/components/pages/landing/header";
 import { LandingHero } from "~/components/pages/landing/hero";
 
 export function Landing() {
-	const handleNavClick = (section: string) => {
-		const el = document.getElementById(section);
-
-		if (el) {
-			el.scrollIntoView({ behavior: "smooth" });
-		}
-	};
-
 	return (
 		<div className="flex min-h-screen flex-col bg-background text-foreground">
-			<LandingHeader onNavClick={handleNavClick} />
+			<LandingHeader />
 
 			<main className="flex-1">
 				<LandingHero />
