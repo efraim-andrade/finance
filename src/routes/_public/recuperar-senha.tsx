@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "#/components/ui/button";
 import { Card } from "#/components/ui/card";
 
-export const Route = createFileRoute("/recuperar-senha")({
+export const Route = createFileRoute("/_public/recuperar-senha")({
 	component: RecuperarSenha,
 });
 
@@ -16,7 +16,7 @@ function RecuperarSenha() {
 					</h1>
 
 					<p className="text-caption-sm text-muted-foreground">
-						Digite seu e-mail para receber instruções de recuperação
+						Receba um link de recuperação no seu e-mail
 					</p>
 				</div>
 

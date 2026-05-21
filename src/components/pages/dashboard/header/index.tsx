@@ -1,22 +1,55 @@
-import { ChevronDown, LogOut } from "lucide-react";
+import { Link, useLocation } from "@tanstack/react-router";
+import {
+	ChevronDown,
+	LayoutDashboard,
+	LogOut,
+	Tags,
+	TrendingUp,
+} from "lucide-react";
 import { useState } from "react";
+import { Logo } from "#/components/logo";
 import { useAuth } from "#/hooks/useAuth";
+import { cn } from "#/lib/utils";
+
+const navLinks = [
+	{ to: "/app", label: "Dashboard", icon: LayoutDashboard },
+	{ to: "/app/transacoes", label: "Transações", icon: TrendingUp },
+	{ to: "/app/categorias", label: "Categorias", icon: Tags },
+] as const;
 
 export function DashboardHeader() {
 	const { logout } = useAuth();
 	const [menuOpen, setMenuOpen] = useState(false);
+	const { pathname } = useLocation();
 
 	return (
-		<header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-background px-6">
-			<div className="flex items-center gap-2">
-				<div className="flex size-8 items-center justify-center rounded-lg bg-brand-base">
-					<span className="text-sm font-bold text-white">F</span>
-				</div>
+		<header className="flex h-16 shrink-0 items-center border-b border-gray-200 bg-white px-12">
+<Link to="/app" aria-label="Dashboard home">
+	<Logo />
+</Link>
 
-				<span className="text-heading-md font-bold text-foreground">
-					Finance
-				</span>
-			</div>
+			<nav className="flex flex-1 items-center justify-center gap-5">
+				{navLinks.map(({ to, label, icon: Icon }) => {
+					const isActive =
+						to === "/app" ? pathname === "/app" : pathname.startsWith(to);
+
+					return (
+						<Link
+							key={to}
+							to={to}
+							className={cn(
+								"flex items-center gap-1.5 text-sm transition-colors",
+								isActive
+									? "font-semibold text-brand-base"
+									: "font-normal text-gray-600 hover:text-brand-base",
+							)}
+						>
+							<Icon className="size-4" />
+							{label}
+						</Link>
+					);
+				})}
+			</nav>
 
 			<div className="relative flex items-center gap-3">
 				<button
@@ -26,8 +59,8 @@ export function DashboardHeader() {
 					aria-haspopup="true"
 					aria-expanded={menuOpen}
 				>
-					<div className="flex size-8 items-center justify-center rounded-full bg-brand-dark text-xs font-medium text-white">
-						U
+					<div className="flex size-8 items-center justify-center rounded-full bg-gray-300 text-xs font-medium text-gray-800">
+						CT
 					</div>
 
 					<ChevronDown className="size-4 text-muted-foreground" />

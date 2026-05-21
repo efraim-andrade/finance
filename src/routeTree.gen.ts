@@ -9,18 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
-import { Route as CriarContaRouteImport } from './routes/criar-conta'
+import { Route as AppRouteImport } from './routes/app'
+import { Route as PublicRouteImport } from './routes/_public'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as AppTransacoesRouteImport } from './routes/app/transacoes'
+import { Route as AppCategoriasRouteImport } from './routes/app/categorias'
+import { Route as PublicRecuperarSenhaRouteImport } from './routes/_public/recuperar-senha'
+import { Route as PublicLoginRouteImport } from './routes/_public/login'
+import { Route as PublicLandingRouteImport } from './routes/_public/landing'
+import { Route as PublicCriarContaRouteImport } from './routes/_public/criar-conta'
 
-const RecuperarSenhaRoute = RecuperarSenhaRouteImport.update({
-  id: '/recuperar-senha',
-  path: '/recuperar-senha',
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CriarContaRoute = CriarContaRouteImport.update({
-  id: '/criar-conta',
-  path: '/criar-conta',
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -28,51 +34,132 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTransacoesRoute = AppTransacoesRouteImport.update({
+  id: '/transacoes',
+  path: '/transacoes',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCategoriasRoute = AppCategoriasRouteImport.update({
+  id: '/categorias',
+  path: '/categorias',
+  getParentRoute: () => AppRoute,
+} as any)
+const PublicRecuperarSenhaRoute = PublicRecuperarSenhaRouteImport.update({
+  id: '/recuperar-senha',
+  path: '/recuperar-senha',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicLoginRoute = PublicLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicLandingRoute = PublicLandingRouteImport.update({
+  id: '/landing',
+  path: '/landing',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicCriarContaRoute = PublicCriarContaRouteImport.update({
+  id: '/criar-conta',
+  path: '/criar-conta',
+  getParentRoute: () => PublicRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/criar-conta': typeof CriarContaRoute
-  '/recuperar-senha': typeof RecuperarSenhaRoute
+  '/app': typeof AppRouteWithChildren
+  '/criar-conta': typeof PublicCriarContaRoute
+  '/landing': typeof PublicLandingRoute
+  '/login': typeof PublicLoginRoute
+  '/recuperar-senha': typeof PublicRecuperarSenhaRoute
+  '/app/categorias': typeof AppCategoriasRoute
+  '/app/transacoes': typeof AppTransacoesRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/criar-conta': typeof CriarContaRoute
-  '/recuperar-senha': typeof RecuperarSenhaRoute
+  '/criar-conta': typeof PublicCriarContaRoute
+  '/landing': typeof PublicLandingRoute
+  '/login': typeof PublicLoginRoute
+  '/recuperar-senha': typeof PublicRecuperarSenhaRoute
+  '/app/categorias': typeof AppCategoriasRoute
+  '/app/transacoes': typeof AppTransacoesRoute
+  '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/criar-conta': typeof CriarContaRoute
-  '/recuperar-senha': typeof RecuperarSenhaRoute
+  '/_public': typeof PublicRouteWithChildren
+  '/app': typeof AppRouteWithChildren
+  '/_public/criar-conta': typeof PublicCriarContaRoute
+  '/_public/landing': typeof PublicLandingRoute
+  '/_public/login': typeof PublicLoginRoute
+  '/_public/recuperar-senha': typeof PublicRecuperarSenhaRoute
+  '/app/categorias': typeof AppCategoriasRoute
+  '/app/transacoes': typeof AppTransacoesRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/criar-conta' | '/recuperar-senha'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/criar-conta'
+    | '/landing'
+    | '/login'
+    | '/recuperar-senha'
+    | '/app/categorias'
+    | '/app/transacoes'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/criar-conta' | '/recuperar-senha'
-  id: '__root__' | '/' | '/criar-conta' | '/recuperar-senha'
+  to:
+    | '/'
+    | '/criar-conta'
+    | '/landing'
+    | '/login'
+    | '/recuperar-senha'
+    | '/app/categorias'
+    | '/app/transacoes'
+    | '/app'
+  id:
+    | '__root__'
+    | '/'
+    | '/_public'
+    | '/app'
+    | '/_public/criar-conta'
+    | '/_public/landing'
+    | '/_public/login'
+    | '/_public/recuperar-senha'
+    | '/app/categorias'
+    | '/app/transacoes'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CriarContaRoute: typeof CriarContaRoute
-  RecuperarSenhaRoute: typeof RecuperarSenhaRoute
+  PublicRoute: typeof PublicRouteWithChildren
+  AppRoute: typeof AppRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/recuperar-senha': {
-      id: '/recuperar-senha'
-      path: '/recuperar-senha'
-      fullPath: '/recuperar-senha'
-      preLoaderRoute: typeof RecuperarSenhaRouteImport
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/criar-conta': {
-      id: '/criar-conta'
-      path: '/criar-conta'
-      fullPath: '/criar-conta'
-      preLoaderRoute: typeof CriarContaRouteImport
+    '/_public': {
+      id: '/_public'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -82,13 +169,93 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/transacoes': {
+      id: '/app/transacoes'
+      path: '/transacoes'
+      fullPath: '/app/transacoes'
+      preLoaderRoute: typeof AppTransacoesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/categorias': {
+      id: '/app/categorias'
+      path: '/categorias'
+      fullPath: '/app/categorias'
+      preLoaderRoute: typeof AppCategoriasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_public/recuperar-senha': {
+      id: '/_public/recuperar-senha'
+      path: '/recuperar-senha'
+      fullPath: '/recuperar-senha'
+      preLoaderRoute: typeof PublicRecuperarSenhaRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/login': {
+      id: '/_public/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof PublicLoginRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/landing': {
+      id: '/_public/landing'
+      path: '/landing'
+      fullPath: '/landing'
+      preLoaderRoute: typeof PublicLandingRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/criar-conta': {
+      id: '/_public/criar-conta'
+      path: '/criar-conta'
+      fullPath: '/criar-conta'
+      preLoaderRoute: typeof PublicCriarContaRouteImport
+      parentRoute: typeof PublicRoute
+    }
   }
 }
 
+interface PublicRouteChildren {
+  PublicCriarContaRoute: typeof PublicCriarContaRoute
+  PublicLandingRoute: typeof PublicLandingRoute
+  PublicLoginRoute: typeof PublicLoginRoute
+  PublicRecuperarSenhaRoute: typeof PublicRecuperarSenhaRoute
+}
+
+const PublicRouteChildren: PublicRouteChildren = {
+  PublicCriarContaRoute: PublicCriarContaRoute,
+  PublicLandingRoute: PublicLandingRoute,
+  PublicLoginRoute: PublicLoginRoute,
+  PublicRecuperarSenhaRoute: PublicRecuperarSenhaRoute,
+}
+
+const PublicRouteWithChildren =
+  PublicRoute._addFileChildren(PublicRouteChildren)
+
+interface AppRouteChildren {
+  AppCategoriasRoute: typeof AppCategoriasRoute
+  AppTransacoesRoute: typeof AppTransacoesRoute
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppCategoriasRoute: AppCategoriasRoute,
+  AppTransacoesRoute: AppTransacoesRoute,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CriarContaRoute: CriarContaRoute,
-  RecuperarSenhaRoute: RecuperarSenhaRoute,
+  PublicRoute: PublicRouteWithChildren,
+  AppRoute: AppRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

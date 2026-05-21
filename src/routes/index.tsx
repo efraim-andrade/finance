@@ -1,14 +1,24 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Dashboard } from "#/components/dashboard";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+
 import { Login } from "#/components/login";
 import { useAuth } from "#/hooks/useAuth";
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({
+	component: HomePage,
+});
 
-function Home() {
+function HomePage() {
 	const { isAuthenticated } = useAuth();
+	const navigate = useNavigate();
 
-	if (isAuthenticated) return <Dashboard />;
+	useEffect(() => {
+		if (isAuthenticated) {
+			navigate({ to: "/app" });
+		}
+	}, [isAuthenticated, navigate]);
+
+	if (isAuthenticated) return null;
 
 	return <Login />;
 }

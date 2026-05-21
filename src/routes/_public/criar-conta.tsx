@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "#/components/ui/button";
 import { Card } from "#/components/ui/card";
 
-export const Route = createFileRoute("/criar-conta")({
+export const Route = createFileRoute("/_public/criar-conta")({
 	component: CriarConta,
 });
 
