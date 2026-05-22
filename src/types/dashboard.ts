@@ -29,6 +29,15 @@ export type CategorySummary = {
 	total: number;
 };
 
+export type CategoryDetail = {
+	id: string;
+	name: string;
+	description: string;
+	color: CategoryColor;
+	icon: string;
+	itemCount: number;
+};
+
 export type DashboardSummary = {
 	totalBalance: number;
 	monthlyIncome: number;

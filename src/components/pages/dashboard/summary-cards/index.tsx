@@ -1,8 +1,7 @@
 import { CircleArrowDown, CircleArrowUp, Wallet } from "lucide-react";
 
-import { Card } from "@/components/ui/card";
+import { SummaryCard } from "@/components/ui/summary-card";
 import type { DashboardSummary } from "@/types/dashboard";
-import { cn } from "@/lib/utils";
 
 type SummaryCardsProps = {
 	summary: DashboardSummary;
@@ -45,19 +44,13 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
 	return (
 		<div className="grid grid-cols-3 gap-6">
 			{cards.map(({ icon: Icon, label, formatValue, iconColor }) => (
-				<Card key={label} className="p-6">
-					<div className="flex items-center gap-2">
-						<Icon className={cn("size-5", iconColor)} />
-
-						<span className="text-caption-sm font-medium text-muted-foreground">
-							{label}
-						</span>
-					</div>
-
-					<p className="mt-4 text-heading-lg font-bold text-foreground">
-						{formatValue(summary)}
-					</p>
-				</Card>
+				<SummaryCard
+					key={label}
+					icon={Icon}
+					iconColor={iconColor}
+					label={label}
+					value={formatValue(summary)}
+				/>
 			))}
 		</div>
 	);
