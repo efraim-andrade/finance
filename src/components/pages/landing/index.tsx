@@ -6,18 +6,18 @@ import { LandingHeader } from "~/components/pages/landing/header";
 import { LandingHero } from "~/components/pages/landing/hero";
 
 export function Landing() {
-	return (
-		<div className="flex min-h-screen flex-col bg-background text-foreground">
-			<LandingHeader />
+  return (
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <LandingHeader />
 
-			<main className="flex-1">
-				<LandingHero />
-				<LandingFeatures />
-				<LandingBenefits />
-				<LandingCTA />
-			</main>
+      <main className="flex-1">
+        <LandingHero />
+        <LandingFeatures />
+        <LandingBenefits />
+        <LandingCTA />
+      </main>
 
-			<LandingFooter />
-		</div>
-	);
+      <LandingFooter />
+    </div>
+  );
 }

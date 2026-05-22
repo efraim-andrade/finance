@@ -2,21 +2,21 @@ import type { TypedDocumentNode } from "@apollo/client";
 import { gql } from "@apollo/client";
 
 import type {
-	CategorySummary,
-	DashboardSummary,
-	Transaction,
+  CategorySummary,
+  DashboardSummary,
+  Transaction,
 } from "@/types/dashboard";
 
 type DashboardSummaryData = {
-	dashboardSummary: DashboardSummary;
+  dashboardSummary: DashboardSummary;
 };
 
 type RecentTransactionsData = {
-	recentTransactions: Transaction[];
+  recentTransactions: Transaction[];
 };
 
 type CategorySummariesData = {
-	categorySummaries: CategorySummary[];
+  categorySummaries: CategorySummary[];
 };
 
 export const GET_DASHBOARD_SUMMARY: TypedDocumentNode<DashboardSummaryData> = gql`
