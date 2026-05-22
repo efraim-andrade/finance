@@ -7,7 +7,7 @@ type FieldProps = {
 	helper?: string;
 	className?: string;
 	children: React.ReactNode;
-	type?: FieldType;
+	type?: FieldType | string;
 };
 
 export enum FieldType {
@@ -17,19 +17,16 @@ export enum FieldType {
 	user = "user",
 }
 
+const iconMap: Record<FieldType, React.ReactNode> = {
+	[FieldType.email]: <Mail />,
+	[FieldType.password]: <Lock />,
+	[FieldType.text]: null,
+	[FieldType.user]: <User />,
+};
+
 const Field = ({ label, helper, className, children, type }: FieldProps) => {
-	const renderIcon = () => {
-		const iconMap: Record<FieldType, React.ReactNode> = {
-			[FieldType.email]: <Mail />,
-			[FieldType.password]: <Lock />,
-			[FieldType.text]: null,
-			[FieldType.user]: <User />,
-		};
-
-		return iconMap[type || FieldType.text] || null;
-	};
-
-	const icon = renderIcon();
+	const icon =
+		type && type in iconMap ? (iconMap[type as FieldType] ?? null) : null;
 
 	return (
 		<div className={cn("group flex flex-col gap-1", className)}>
@@ -39,12 +36,7 @@ const Field = ({ label, helper, className, children, type }: FieldProps) => {
 				</span>
 			)}
 
-			<div
-				className={cn(
-					"relative flex h-10 w-full items-center gap-2 rounded-md border border-input bg-background py-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
-					className,
-				)}
-			>
+			<div className="relative flex h-10 w-full items-center gap-2 rounded-md border border-input bg-background py-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
 				{icon && (
 					<span className="absolute left-2 text-muted-foreground group-focus-within:text-primary [&>svg]:size-4">
 						{icon}

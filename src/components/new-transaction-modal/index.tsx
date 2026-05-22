@@ -113,25 +113,21 @@ export function NewTransactionModal({
 					/>
 
 					<div className="flex gap-4">
-						<Field label="Data">
-							<input
-								type="date"
-								value={date}
-								onChange={(e) => setDate(e.target.value)}
-								className="flex-1 bg-transparent pl-3 text-sm outline-none"
-							/>
-						</Field>
+						<Input
+							label="Data"
+							type="date"
+							value={date}
+							onChange={(e) => setDate(e.target.value)}
+						/>
 
-						<Field label="Valor">
-							<input
-								type="number"
-								step="0.01"
-								placeholder="R$ 0,00"
-								value={amount}
-								onChange={(e) => setAmount(e.target.value)}
-								className="flex-1 bg-transparent pl-3 text-sm outline-none placeholder:text-muted-foreground"
-							/>
-						</Field>
+						<Input
+							label="Valor"
+							type="number"
+							step="0.01"
+							placeholder="R$ 0,00"
+							value={amount}
+							onChange={(e) => setAmount(e.target.value)}
+						/>
 					</div>
 
 					<Field label="Categoria">

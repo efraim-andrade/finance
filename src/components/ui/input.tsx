@@ -3,16 +3,20 @@ import * as React from "react";
 import { cn } from "~/lib/utils";
 import { Field, FieldType } from "./field";
 
-type InputProps = React.ComponentProps<"input"> & {
+type InputProps = Omit<React.ComponentProps<"input">, "type"> & {
 	label?: string;
 	helper?: string;
-	type?: FieldType;
+	type?: FieldType | string;
 };
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
 	({ className, type, label, helper, ...props }, ref) => {
 		const [showPassword, setShowPassword] = React.useState(false);
 
+		const hasIcon =
+			type === FieldType.email ||
+			type === FieldType.password ||
+			type === FieldType.user;
 		const nativeType =
 			type === FieldType.password && showPassword ? "text" : type;
 
@@ -22,7 +26,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 					type={nativeType}
 					className={cn(
 						"flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed md:text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground",
-						type && type !== FieldType.text ? "pl-8" : "pl-3",
+						hasIcon ? "pl-8" : "pl-3",
 						type === FieldType.password && "pr-8",
 					)}
 					ref={ref}
