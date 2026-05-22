@@ -2,14 +2,28 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Pencil, Plus, Trash } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { Field, FieldType } from "@/components/ui/field";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { LabelButton } from "@/components/ui/label-button";
 import { Link } from "@/components/ui/link";
 import { PaginationButton } from "@/components/ui/pagination-button";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Tag } from "@/components/ui/tag";
 import { TransactionType } from "@/components/ui/transaction-type";
 
@@ -17,7 +31,13 @@ export const Route = createFileRoute("/ui")({
 	component: UiExamplePage,
 });
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+	title,
+	children,
+}: {
+	title: string;
+	children: React.ReactNode;
+}) {
 	return (
 		<section className="space-y-4">
 			<h2 className="text-heading-md font-semibold text-foreground">{title}</h2>
@@ -27,10 +47,18 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 	);
 }
 
-function VariantRow({ label, children }: { label: string; children: React.ReactNode }) {
+function VariantRow({
+	label,
+	children,
+}: {
+	label: string;
+	children: React.ReactNode;
+}) {
 	return (
 		<div className="flex items-center gap-3">
-			<span className="w-28 shrink-0 text-caption-sm text-muted-foreground">{label}</span>
+			<span className="w-28 shrink-0 text-caption-sm text-muted-foreground">
+				{label}
+			</span>
 
 			<div className="flex flex-wrap items-center gap-3">{children}</div>
 		</div>
@@ -41,7 +69,9 @@ function UiExamplePage() {
 	return (
 		<main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-12 bg-background p-8 text-foreground">
 			<div>
-				<h1 className="text-display-lg font-bold text-foreground">UI Components</h1>
+				<h1 className="text-display-lg font-bold text-foreground">
+					UI Components
+				</h1>
 
 				<p className="text-body-lg text-muted-foreground">
 					Example page showcasing all UI components in the design system.
@@ -54,7 +84,9 @@ function UiExamplePage() {
 					<CardHeader>
 						<CardTitle>Variants</CardTitle>
 
-						<CardDescription>Default shadcn/ui button with all variants and sizes.</CardDescription>
+						<CardDescription>
+							Default shadcn/ui button with all variants and sizes.
+						</CardDescription>
 					</CardHeader>
 
 					<CardContent className="space-y-3">
@@ -90,7 +122,9 @@ function UiExamplePage() {
 					<CardHeader>
 						<CardTitle>Variants</CardTitle>
 
-						<CardDescription>Label button with icon support, built on top of Button.</CardDescription>
+						<CardDescription>
+							Label button with icon support, built on top of Button.
+						</CardDescription>
 					</CardHeader>
 
 					<CardContent className="space-y-3">
@@ -101,7 +135,9 @@ function UiExamplePage() {
 
 						<VariantRow label="With icon">
 							<LabelButton icon={Plus}>Add</LabelButton>
-							<LabelButton icon={Pencil} variant="primary">Edit</LabelButton>
+							<LabelButton icon={Pencil} variant="primary">
+								Edit
+							</LabelButton>
 						</VariantRow>
 
 						<VariantRow label="Sizes">
@@ -129,17 +165,27 @@ function UiExamplePage() {
 
 					<CardContent className="space-y-3">
 						<VariantRow label="Outline">
-							<IconButton aria-label="Edit"><Pencil /></IconButton>
-							<IconButton aria-label="Add"><Plus /></IconButton>
-							<IconButton aria-label="Delete"><Trash /></IconButton>
+							<IconButton aria-label="Edit">
+								<Pencil />
+							</IconButton>
+							<IconButton aria-label="Add">
+								<Plus />
+							</IconButton>
+							<IconButton aria-label="Delete">
+								<Trash />
+							</IconButton>
 						</VariantRow>
 
 						<VariantRow label="Danger">
-							<IconButton variant="danger" aria-label="Delete"><Trash /></IconButton>
+							<IconButton variant="danger" aria-label="Delete">
+								<Trash />
+							</IconButton>
 						</VariantRow>
 
 						<VariantRow label="States">
-							<IconButton disabled aria-label="Disabled"><Trash /></IconButton>
+							<IconButton disabled aria-label="Disabled">
+								<Trash />
+							</IconButton>
 						</VariantRow>
 					</CardContent>
 				</Card>
@@ -152,7 +198,8 @@ function UiExamplePage() {
 						<CardTitle>Variants</CardTitle>
 
 						<CardDescription>
-							Brand-colored text link. Supports underline behavior and asChild for use with router links.
+							Brand-colored text link. Supports underline behavior and asChild
+							for use with router links.
 						</CardDescription>
 					</CardHeader>
 
@@ -169,11 +216,15 @@ function UiExamplePage() {
 						</VariantRow>
 
 						<VariantRow label="Always underline">
-							<Link href="#" underline="always">Link sublinhado</Link>
+							<Link href="#" underline="always">
+								Link sublinhado
+							</Link>
 						</VariantRow>
 
 						<VariantRow label="Never underline">
-							<Link href="#" underline="never">Sem sublinhado</Link>
+							<Link href="#" underline="never">
+								Sem sublinhado
+							</Link>
 						</VariantRow>
 
 						<VariantRow label="With asChild">
@@ -192,7 +243,8 @@ function UiExamplePage() {
 						<CardTitle>Variants</CardTitle>
 
 						<CardDescription>
-							Pagination page number button (32×32). Default, active, and disabled states.
+							Pagination page number button (32×32). Default, active, and
+							disabled states.
 						</CardDescription>
 					</CardHeader>
 
@@ -226,7 +278,9 @@ function UiExamplePage() {
 					<CardHeader>
 						<CardTitle>Color variants</CardTitle>
 
-						<CardDescription>Pill-shaped tag with 8 color categories.</CardDescription>
+						<CardDescription>
+							Pill-shaped tag with 8 color categories.
+						</CardDescription>
 					</CardHeader>
 
 					<CardContent className="space-y-3">
@@ -250,7 +304,9 @@ function UiExamplePage() {
 					<CardHeader>
 						<CardTitle>Variants</CardTitle>
 
-						<CardDescription>Income/expense indicator with icon and label.</CardDescription>
+						<CardDescription>
+							Income/expense indicator with icon and label.
+						</CardDescription>
 					</CardHeader>
 
 					<CardContent className="space-y-3">
@@ -271,7 +327,9 @@ function UiExamplePage() {
 					<CardHeader>
 						<CardTitle>Variants</CardTitle>
 
-						<CardDescription>Form field with label, icon, and input.</CardDescription>
+						<CardDescription>
+							Form field with label, icon, and input.
+						</CardDescription>
 					</CardHeader>
 
 					<CardContent className="max-w-sm space-y-4">
@@ -328,8 +386,9 @@ function UiExamplePage() {
 
 					<CardContent>
 						<p className="text-body-md text-muted-foreground">
-							Card content with body text. This is a sample card showing the shadcn/ui card
-							component with header, content, and footer sections.
+							Card content with body text. This is a sample card showing the
+							shadcn/ui card component with header, content, and footer
+							sections.
 						</p>
 					</CardContent>
 

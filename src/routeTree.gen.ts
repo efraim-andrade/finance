@@ -15,6 +15,7 @@ import { Route as PublicRouteImport } from './routes/_public'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppTransacoesRouteImport } from './routes/app/transacoes'
+import { Route as AppProfileRouteImport } from './routes/app/profile'
 import { Route as AppCategoriasRouteImport } from './routes/app/categorias'
 import { Route as PublicRecuperarSenhaRouteImport } from './routes/_public/recuperar-senha'
 import { Route as PublicLoginRouteImport } from './routes/_public/login'
@@ -48,6 +49,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const AppTransacoesRoute = AppTransacoesRouteImport.update({
   id: '/transacoes',
   path: '/transacoes',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCategoriasRoute = AppCategoriasRouteImport.update({
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof PublicLoginRoute
   '/recuperar-senha': typeof PublicRecuperarSenhaRoute
   '/app/categorias': typeof AppCategoriasRoute
+  '/app/profile': typeof AppProfileRoute
   '/app/transacoes': typeof AppTransacoesRoute
   '/app/': typeof AppIndexRoute
 }
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/login': typeof PublicLoginRoute
   '/recuperar-senha': typeof PublicRecuperarSenhaRoute
   '/app/categorias': typeof AppCategoriasRoute
+  '/app/profile': typeof AppProfileRoute
   '/app/transacoes': typeof AppTransacoesRoute
   '/app': typeof AppIndexRoute
 }
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/_public/login': typeof PublicLoginRoute
   '/_public/recuperar-senha': typeof PublicRecuperarSenhaRoute
   '/app/categorias': typeof AppCategoriasRoute
+  '/app/profile': typeof AppProfileRoute
   '/app/transacoes': typeof AppTransacoesRoute
   '/app/': typeof AppIndexRoute
 }
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/recuperar-senha'
     | '/app/categorias'
+    | '/app/profile'
     | '/app/transacoes'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/recuperar-senha'
     | '/app/categorias'
+    | '/app/profile'
     | '/app/transacoes'
     | '/app'
   id:
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/_public/login'
     | '/_public/recuperar-senha'
     | '/app/categorias'
+    | '/app/profile'
     | '/app/transacoes'
     | '/app/'
   fileRoutesById: FileRoutesById
@@ -201,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/transacoes'
       fullPath: '/app/transacoes'
       preLoaderRoute: typeof AppTransacoesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/profile': {
+      id: '/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/categorias': {
@@ -260,12 +279,14 @@ const PublicRouteWithChildren =
 
 interface AppRouteChildren {
   AppCategoriasRoute: typeof AppCategoriasRoute
+  AppProfileRoute: typeof AppProfileRoute
   AppTransacoesRoute: typeof AppTransacoesRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCategoriasRoute: AppCategoriasRoute,
+  AppProfileRoute: AppProfileRoute,
   AppTransacoesRoute: AppTransacoesRoute,
   AppIndexRoute: AppIndexRoute,
 }

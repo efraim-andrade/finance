@@ -32,12 +32,7 @@ type LinkProps = React.ComponentProps<"a"> &
 		asChild?: boolean;
 	};
 
-function Link({
-	asChild = false,
-	className,
-	underline,
-	...props
-}: LinkProps) {
+function Link({ asChild = false, className, underline, ...props }: LinkProps) {
 	const Comp = asChild ? Slot : "a";
 
 	return (

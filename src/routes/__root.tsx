@@ -56,8 +56,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			</head>
 			<body suppressHydrationWarning>
 				<ThemeProvider>
-				<AuthProvider>{children}</AuthProvider>
-			</ThemeProvider>
+					<AuthProvider>{children}</AuthProvider>
+				</ThemeProvider>
 				<TanStackDevtools
 					config={{
 						position: "bottom-right",

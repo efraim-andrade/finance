@@ -1,13 +1,16 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
-
 import { Trash } from "lucide-react";
+import { describe, expect, it } from "vitest";
 
 import { IconButton } from "./index";
 
 describe("IconButton", () => {
 	it("renders a button element", () => {
-		render(<IconButton aria-label="Delete"><Trash /></IconButton>);
+		render(
+			<IconButton aria-label="Delete">
+				<Trash />
+			</IconButton>,
+		);
 
 		const button = screen.getByRole("button");
 
@@ -15,7 +18,11 @@ describe("IconButton", () => {
 	});
 
 	it("renders children (icon)", () => {
-		render(<IconButton aria-label="Delete"><Trash /></IconButton>);
+		render(
+			<IconButton aria-label="Delete">
+				<Trash />
+			</IconButton>,
+		);
 
 		const button = screen.getByRole("button");
 
@@ -23,7 +30,11 @@ describe("IconButton", () => {
 	});
 
 	it("has data-slot attribute set to icon-button", () => {
-		render(<IconButton aria-label="Delete"><Trash /></IconButton>);
+		render(
+			<IconButton aria-label="Delete">
+				<Trash />
+			</IconButton>,
+		);
 
 		const button = screen.getByRole("button");
 
@@ -31,7 +42,11 @@ describe("IconButton", () => {
 	});
 
 	it("uses outline variant by default", () => {
-		render(<IconButton aria-label="Delete"><Trash /></IconButton>);
+		render(
+			<IconButton aria-label="Delete">
+				<Trash />
+			</IconButton>,
+		);
 
 		const button = screen.getByRole("button");
 
@@ -39,7 +54,11 @@ describe("IconButton", () => {
 	});
 
 	it("renders with outline variant classes", () => {
-		render(<IconButton aria-label="Delete"><Trash /></IconButton>);
+		render(
+			<IconButton aria-label="Delete">
+				<Trash />
+			</IconButton>,
+		);
 
 		const button = screen.getByRole("button");
 
@@ -47,7 +66,11 @@ describe("IconButton", () => {
 	});
 
 	it("renders with danger variant", () => {
-		render(<IconButton variant="danger" aria-label="Delete"><Trash /></IconButton>);
+		render(
+			<IconButton variant="danger" aria-label="Delete">
+				<Trash />
+			</IconButton>,
+		);
 
 		const button = screen.getByRole("button");
 
@@ -56,7 +79,11 @@ describe("IconButton", () => {
 	});
 
 	it("is 32x32 (size-8)", () => {
-		render(<IconButton aria-label="Delete"><Trash /></IconButton>);
+		render(
+			<IconButton aria-label="Delete">
+				<Trash />
+			</IconButton>,
+		);
 
 		const button = screen.getByRole("button");
 
@@ -64,7 +91,11 @@ describe("IconButton", () => {
 	});
 
 	it("forwards aria-label to the button", () => {
-		render(<IconButton aria-label="Edit item"><Trash /></IconButton>);
+		render(
+			<IconButton aria-label="Edit item">
+				<Trash />
+			</IconButton>,
+		);
 
 		const button = screen.getByRole("button", { name: "Edit item" });
 
@@ -72,7 +103,11 @@ describe("IconButton", () => {
 	});
 
 	it("applies disabled attribute and styling", () => {
-		render(<IconButton disabled aria-label="Delete"><Trash /></IconButton>);
+		render(
+			<IconButton disabled aria-label="Delete">
+				<Trash />
+			</IconButton>,
+		);
 
 		const button = screen.getByRole("button");
 
@@ -81,7 +116,11 @@ describe("IconButton", () => {
 	});
 
 	it("merges custom className", () => {
-		render(<IconButton className="my-custom" aria-label="Delete"><Trash /></IconButton>);
+		render(
+			<IconButton className="my-custom" aria-label="Delete">
+				<Trash />
+			</IconButton>,
+		);
 
 		const button = screen.getByRole("button");
 

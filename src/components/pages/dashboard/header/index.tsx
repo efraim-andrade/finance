@@ -5,6 +5,7 @@ import {
 	LogOut,
 	Tags,
 	TrendingUp,
+	User,
 } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "~/components/logo";
@@ -25,9 +26,9 @@ export function DashboardHeader() {
 
 	return (
 		<header className="flex h-16 shrink-0 items-center border-b border-border bg-background px-12">
-<Link to="/app" aria-label="Dashboard home">
-	<Logo />
-</Link>
+			<Link to="/app" aria-label="Dashboard home">
+				<Logo />
+			</Link>
 
 			<nav className="flex flex-1 items-center justify-center gap-5">
 				{navLinks.map(({ to, label, icon: Icon }) => {
@@ -93,6 +94,16 @@ export function DashboardHeader() {
 									user@email.com
 								</p>
 							</div>
+
+							<Link
+								to="/app/profile"
+								className="flex w-full items-center gap-2 px-4 py-2 text-caption-sm text-foreground transition-colors hover:bg-accent"
+								role="menuitem"
+								onClick={() => setMenuOpen(false)}
+							>
+								<User className="size-4" />
+								Perfil
+							</Link>
 
 							<button
 								type="button"

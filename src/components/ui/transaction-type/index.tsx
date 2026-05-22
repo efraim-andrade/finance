@@ -5,10 +5,7 @@ import type * as React from "react";
 import { cn } from "@/lib/utils";
 
 const transactionTypeVariants = cva(
-	[
-		"inline-flex items-center gap-2",
-		"text-sm font-medium",
-	],
+	["inline-flex items-center gap-2", "text-sm font-medium"],
 	{
 		variants: {
 			variant: {

@@ -1,5 +1,8 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Plus } from "lucide-react";
+import { useState } from "react";
 
+import { NewCategoryModal } from "@/components/new-category-modal";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "@/components/ui/link";
 import { Tag } from "@/components/ui/tag";
@@ -9,9 +12,9 @@ type CategoriesSectionProps = {
 	categories: CategorySummary[];
 };
 
-export function CategoriesSection({
-	categories,
-}: CategoriesSectionProps) {
+export function CategoriesSection({ categories }: CategoriesSectionProps) {
+	const [isModalOpen, setIsModalOpen] = useState(false);
+
 	return (
 		<Card className="overflow-hidden p-0">
 			<div className="flex items-center justify-between border-b border-border px-6 py-4">
@@ -43,6 +46,20 @@ export function CategoriesSection({
 					</div>
 				))}
 			</div>
+
+			<div className="flex justify-center border-t border-border px-6 py-3">
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => setIsModalOpen(true)}
+					className="gap-2 text-brand-base hover:text-brand-base hover:underline"
+				>
+					<Plus className="size-4" />
+					Nova categoria
+				</Button>
+			</div>
+
+			<NewCategoryModal open={isModalOpen} onOpenChange={setIsModalOpen} />
 		</Card>
 	);
 }

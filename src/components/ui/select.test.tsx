@@ -1,16 +1,16 @@
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 import {
 	Select,
-	SelectGroup,
-	SelectTrigger,
-	SelectValue,
 	SelectContent,
+	SelectGroup,
 	SelectItem,
 	SelectLabel,
-	SelectSeparator,
-	SelectScrollUpButton,
 	SelectScrollDownButton,
+	SelectScrollUpButton,
+	SelectSeparator,
+	SelectTrigger,
+	SelectValue,
 } from "./select";
 
 describe("Select", () => {

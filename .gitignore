@@ -25,3 +25,7 @@ test-results/
 
 .graphify
 .vscode
+
+# Design files
+financy-design
+designs/*.pen

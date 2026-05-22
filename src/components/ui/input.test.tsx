@@ -96,9 +96,7 @@ describe("Input", () => {
 		it("applies pr-8 class to the input", () => {
 			const { container } = render(<Input type={FieldType.password} />);
 
-			expect(container.querySelector("input")?.className).toContain(
-				"pr-8",
-			);
+			expect(container.querySelector("input")?.className).toContain("pr-8");
 		});
 
 		it("renders a button to toggle visibility", () => {
@@ -132,9 +130,7 @@ describe("Input", () => {
 
 			render(<Input type={FieldType.password} placeholder="Digite" />);
 
-			await user.click(
-				screen.getByRole("button", { name: "Show password" }),
-			);
+			await user.click(screen.getByRole("button", { name: "Show password" }));
 
 			const input = screen.getByPlaceholderText("Digite");
 
@@ -154,9 +150,7 @@ describe("Input", () => {
 			});
 
 			await user.click(button);
-			await user.click(
-				screen.getByRole("button", { name: "Hide password" }),
-			);
+			await user.click(screen.getByRole("button", { name: "Hide password" }));
 
 			const input = screen.getByPlaceholderText("Digite");
 

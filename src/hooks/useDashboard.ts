@@ -67,7 +67,13 @@ const MOCK_CATEGORIES: CategorySummary[] = [
 	{ id: "1", name: "Alimentação", color: "blue", itemCount: 12, total: 542.3 },
 	{ id: "2", name: "Transporte", color: "purple", itemCount: 8, total: 385.5 },
 	{ id: "3", name: "Mercado", color: "orange", itemCount: 3, total: 298.75 },
-	{ id: "4", name: "Entretenimento", color: "pink", itemCount: 2, total: 186.2 },
+	{
+		id: "4",
+		name: "Entretenimento",
+		color: "pink",
+		itemCount: 2,
+		total: 186.2,
+	},
 	{ id: "5", name: "Utilidades", color: "yellow", itemCount: 7, total: 245.8 },
 ];
 

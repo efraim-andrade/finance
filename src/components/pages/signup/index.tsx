@@ -71,16 +71,15 @@ export function Signup() {
 							label="Senha"
 							type={FieldType.password}
 							placeholder="Digite sua senha"
-							helper={errors.password?.message || "A senha deve ter no mínimo 8 caracteres"}
+							helper={
+								errors.password?.message ||
+								"A senha deve ter no mínimo 8 caracteres"
+							}
 							{...register("password")}
 						/>
 					</div>
 
-					<Button
-						type="submit"
-						className="w-full"
-						disabled={isSubmitting}
-					>
+					<Button type="submit" className="w-full" disabled={isSubmitting}>
 						Cadastrar
 					</Button>
 
@@ -99,14 +98,9 @@ export function Signup() {
 							Já tem uma conta?
 						</p>
 
-						<Button
-							variant="outline"
-							className="w-full gap-1.5"
-							asChild
-						>
+						<Button variant="outline" className="w-full gap-1.5" asChild>
 							<Link to="/">
 								<LogIn />
-
 								Fazer login
 							</Link>
 						</Button>

@@ -94,7 +94,15 @@ describe("Card", () => {
 	it("forwards ref to the DOM element", () => {
 		let ref: HTMLDivElement | null = null;
 
-		render(<Card ref={(el) => { ref = el; }}>Ref test</Card>);
+		render(
+			<Card
+				ref={(el) => {
+					ref = el;
+				}}
+			>
+				Ref test
+			</Card>,
+		);
 
 		expect(ref).toBeInstanceOf(HTMLDivElement);
 	});

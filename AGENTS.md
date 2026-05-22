@@ -346,3 +346,26 @@ const getData = createServerFn({ method: "GET" }).handler(async () => {
 10. **No loading states:** No `Suspense` boundaries or loading skeletons exist yet.
 11. **pnpm only:** `pnpm-lock.yaml` is checked in. Don't use npm or yarn.
 12. **No `.env` in git:** `.env` is gitignored. Use `.env.example` as template.
+
+## Clean Code Conventions
+
+- **Single Responsibility:** Each function, component, and module should do one thing and do it well.
+- **Descriptive Naming:** Use meaningful names that reveal intent. Avoid abbreviations, single-letter variables (except in loops), and cryptic names.
+- **Small Functions:** Keep functions short and focused. If a function does more than one thing, extract parts into separate functions.
+- **DRY (Don't Repeat Yourself):** Extract repeated logic into reusable functions, hooks, or utilities.
+- **Pure Functions:** Prefer pure functions without side effects. Isolate side effects (API calls, DOM manipulations) into dedicated functions/hooks.
+- **Early Returns:** Use guard clauses and early returns to reduce nesting and improve readability.
+- **Magic Numbers/Strings:** Extract magic values into named constants or enums.
+- **Comments:** Code should be self-documenting. Use comments only for complex business logic or explaining *why*, not *what*.
+- **Error Handling:** Handle errors explicitly. Don't swallow exceptions. Return meaningful error messages.
+- **Immutability:** Prefer immutable data patterns. Don't mutate props or state directly.
+- **Composition over Inheritance:** Build complex UIs by composing smaller, reusable components.
+
+## Backend Integration Rules
+
+When integrating with a backend API:
+
+1. **Normalization Layer Required:** Always create a normalization layer in `src/services/` that transforms API responses into internal domain types before consumption by components or hooks.
+2. **Service Separation:** Keep API calls, data transformation, and business logic in separate service files — never inline API calls in components.
+3. **Type Safety:** Define TypeScript types for both raw API responses and normalized domain models.
+4. **Error Boundaries:** Handle API errors at the service layer and propagate meaningful error states to the UI.

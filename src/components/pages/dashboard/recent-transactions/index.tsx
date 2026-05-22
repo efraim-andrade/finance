@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import {
 	BriefcaseBusiness,
 	CarFront,
@@ -9,13 +10,15 @@ import {
 	ShoppingCart,
 	Utensils,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { useState } from "react";
 
+import { NewTransactionModal } from "@/components/new-transaction-modal";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Link } from "@/components/ui/link";
 import { Tag } from "@/components/ui/tag";
 import { cn } from "@/lib/utils";
 import type { Transaction } from "@/types/dashboard";
-import { Link } from "@/components/ui/link";
 
 type RecentTransactionsProps = {
 	transactions: Transaction[];
@@ -36,9 +39,9 @@ const colorMap: Record<string, string> = {
 	orange: "bg-orange-light dark:bg-orange-dark",
 };
 
-export function RecentTransactions({
-	transactions,
-}: RecentTransactionsProps) {
+export function RecentTransactions({ transactions }: RecentTransactionsProps) {
+	const [isModalOpen, setIsModalOpen] = useState(false);
+
 	return (
 		<Card className="overflow-hidden p-0">
 			<div className="flex items-center justify-between border-b border-border px-6 py-4">
@@ -55,14 +58,12 @@ export function RecentTransactions({
 			<div className="divide-y divide-border">
 				{transactions.map((transaction) => {
 					const Icon =
-						iconMap[transaction.description] ?? (transaction.type === "INCOME" ? BriefcaseBusiness : Utensils);
+						iconMap[transaction.description] ??
+						(transaction.type === "INCOME" ? BriefcaseBusiness : Utensils);
 					const isIncome = transaction.type === "INCOME";
 
 					return (
-						<div
-							key={transaction.id}
-							className="flex h-20 items-center px-6"
-						>
+						<div key={transaction.id} className="flex h-20 items-center px-6">
 							<div className="flex flex-1 items-center gap-4">
 								<div
 									className={cn(
@@ -85,9 +86,7 @@ export function RecentTransactions({
 							</div>
 
 							<div className="flex w-40 items-center justify-center">
-								<Tag variant={transaction.categoryColor}>
-									{transaction.tag}
-								</Tag>
+								<Tag variant={transaction.categoryColor}>{transaction.tag}</Tag>
 							</div>
 
 							<div className="flex w-40 items-center justify-end gap-2">
@@ -111,11 +110,18 @@ export function RecentTransactions({
 			</div>
 
 			<div className="flex justify-center border-t border-border px-6 py-3">
-				<Link underline="hover" className="gap-2 text-sm">
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => setIsModalOpen(true)}
+					className="gap-2 text-brand-base hover:text-brand-base hover:underline"
+				>
 					<Plus className="size-4" />
 					Nova transação
-				</Link>
+				</Button>
 			</div>
+
+			<NewTransactionModal open={isModalOpen} onOpenChange={setIsModalOpen} />
 		</Card>
 	);
 }

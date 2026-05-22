@@ -37,7 +37,11 @@ describe("Link", () => {
 	});
 
 	it("renders with always underline", () => {
-		render(<Link href="/test" underline="always">Link</Link>);
+		render(
+			<Link href="/test" underline="always">
+				Link
+			</Link>,
+		);
 
 		const link = screen.getByRole("link");
 
@@ -46,7 +50,11 @@ describe("Link", () => {
 	});
 
 	it("renders with never underline", () => {
-		render(<Link href="/test" underline="never">Link</Link>);
+		render(
+			<Link href="/test" underline="never">
+				Link
+			</Link>,
+		);
 
 		const link = screen.getByRole("link");
 
@@ -63,7 +71,11 @@ describe("Link", () => {
 	});
 
 	it("forwards the target attribute", () => {
-		render(<Link href="/test" target="_blank">Link</Link>);
+		render(
+			<Link href="/test" target="_blank">
+				Link
+			</Link>,
+		);
 
 		const link = screen.getByRole("link");
 
@@ -71,7 +83,11 @@ describe("Link", () => {
 	});
 
 	it("passes additional HTML attributes through", () => {
-		render(<Link href="/test" aria-label="Go home">Home</Link>);
+		render(
+			<Link href="/test" aria-label="Go home">
+				Home
+			</Link>,
+		);
 
 		const link = screen.getByRole("link", { name: "Go home" });
 
@@ -94,7 +110,11 @@ describe("Link", () => {
 	});
 
 	it("merges custom className", () => {
-		render(<Link href="/test" className="my-class">Link</Link>);
+		render(
+			<Link href="/test" className="my-class">
+				Link
+			</Link>,
+		);
 
 		const link = screen.getByRole("link");
 

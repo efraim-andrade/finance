@@ -14,12 +14,16 @@ const tagVariants = cva(
 			variant: {
 				gray: "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200",
 				blue: "bg-blue-light text-blue-dark dark:bg-blue-dark dark:text-blue-light",
-				purple: "bg-purple-light text-purple-dark dark:bg-purple-dark dark:text-purple-light",
+				purple:
+					"bg-purple-light text-purple-dark dark:bg-purple-dark dark:text-purple-light",
 				pink: "bg-pink-light text-pink-dark dark:bg-pink-dark dark:text-pink-light",
 				red: "bg-red-light text-red-dark dark:bg-red-dark dark:text-red-light",
-				orange: "bg-orange-light text-orange-dark dark:bg-orange-dark dark:text-orange-light",
-				yellow: "bg-yellow-light text-yellow-dark dark:bg-yellow-dark dark:text-yellow-light",
-				green: "bg-green-light text-green-dark dark:bg-green-dark dark:text-green-light",
+				orange:
+					"bg-orange-light text-orange-dark dark:bg-orange-dark dark:text-orange-light",
+				yellow:
+					"bg-yellow-light text-yellow-dark dark:bg-yellow-dark dark:text-yellow-light",
+				green:
+					"bg-green-light text-green-dark dark:bg-green-dark dark:text-green-light",
 			},
 		},
 		defaultVariants: {
@@ -28,8 +32,7 @@ const tagVariants = cva(
 	},
 );
 
-type TagProps = React.ComponentProps<"span"> &
-	VariantProps<typeof tagVariants>;
+type TagProps = React.ComponentProps<"span"> & VariantProps<typeof tagVariants>;
 
 function Tag({ className, variant, ...props }: TagProps) {
 	return (

@@ -112,7 +112,11 @@ describe("Tag", () => {
 	});
 
 	it("forwards additional HTML attributes", () => {
-		render(<Tag id="tag-id" data-ref="test">Label</Tag>);
+		render(
+			<Tag id="tag-id" data-ref="test">
+				Label
+			</Tag>,
+		);
 
 		const tag = screen.getByText("Label");
 

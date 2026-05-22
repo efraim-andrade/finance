@@ -21,8 +21,8 @@ export function LandingHero() {
 				transition={{ duration: 0.6, delay: 0.25, ease: "easeOut" }}
 				className="max-w-2xl text-center text-lg text-muted-foreground"
 			>
-				Organize seus gastos, acompanhe suas receitas e alcance seus
-				objetivos financeiros com uma plataforma simples e poderosa.
+				Organize seus gastos, acompanhe suas receitas e alcance seus objetivos
+				financeiros com uma plataforma simples e poderosa.
 			</motion.p>
 
 			<motion.div

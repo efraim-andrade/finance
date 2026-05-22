@@ -7,9 +7,9 @@ type LabelButtonProps = {
 	children: ReactNode;
 	className?: string;
 	icon?: React.ElementType;
-	size?: 'md' | 'sm';
-	variant?: 'primary' | 'secondary';
-} & Omit<ComponentProps<typeof Button>, 'size' | 'variant'>;
+	size?: "md" | "sm";
+	variant?: "primary" | "secondary";
+} & Omit<ComponentProps<typeof Button>, "size" | "variant">;
 
 function LabelButton({
 	asChild,
@@ -17,16 +17,16 @@ function LabelButton({
 	className,
 	disabled,
 	icon: Icon,
-	size = 'md',
-	variant = 'secondary',
+	size = "md",
+	variant = "secondary",
 	...props
 }: LabelButtonProps) {
 	return (
 		<Button
 			asChild={asChild}
-			variant={variant === 'primary' ? 'default' : 'outline'}
-			size={size === 'sm' ? 'sm' : 'default'}
-			className={cn('gap-1.5', className)}
+			variant={variant === "primary" ? "default" : "outline"}
+			size={size === "sm" ? "sm" : "default"}
+			className={cn("gap-1.5", className)}
 			disabled={disabled}
 			{...props}
 		>

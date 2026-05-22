@@ -34,7 +34,7 @@ const Field = ({ label, helper, className, children, type }: FieldProps) => {
 	return (
 		<div className={cn("group flex flex-col gap-1", className)}>
 			{label && (
-				<span className="text-sm text-muted-foreground group-focus-within:text-primary">
+				<span className="text-xs font-semibold text-foreground group-focus-within:text-primary">
 					{label}
 				</span>
 			)}
