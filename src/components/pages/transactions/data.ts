@@ -9,6 +9,11 @@ import {
 
 export type TransactionType = "income" | "expense";
 
+export const TRANSACTION_TYPE_LABEL: Record<TransactionType, string> = {
+	income: "Entrada",
+	expense: "Saída",
+};
+
 export type CategoryVariant =
 	| "blue"
 	| "purple"

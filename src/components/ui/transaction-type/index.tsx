@@ -22,7 +22,7 @@ const transactionTypeVariants = cva(
 type TransactionTypeProps = React.ComponentProps<"span"> &
 	VariantProps<typeof transactionTypeVariants>;
 
-const iconMap = {
+const typeIconMap = {
 	income: ArrowUp,
 	expense: ArrowDown,
 } as const;
@@ -33,13 +33,14 @@ function TransactionType({
 	children,
 	...props
 }: TransactionTypeProps) {
-	const Icon = iconMap[variant ?? "income"];
+	const safeVariant = variant ?? "income";
+	const Icon = typeIconMap[safeVariant];
 
 	return (
 		<span
 			data-slot="transaction-type"
-			data-variant={variant ?? "income"}
-			className={cn(transactionTypeVariants({ variant, className }))}
+			data-variant={safeVariant}
+			className={cn(transactionTypeVariants({ variant: safeVariant, className }))}
 			{...props}
 		>
 			<Icon className="size-4" />

@@ -38,7 +38,7 @@ export function LandingFooter() {
 			transition={{ duration: 0.5 }}
 			className="flex flex-col gap-8 bg-background px-6 py-12 md:px-30"
 		>
-			<div className="flex w-full flex-wrap justify-between gap-12">
+			<div className="grid w-full grid-cols-2 gap-8 sm:flex sm:flex-wrap sm:justify-between sm:gap-12">
 				<div className="flex max-w-xs flex-col gap-2">
 					<Logo />
 					<p className="text-sm text-muted-foreground">

@@ -16,15 +16,15 @@ export function Dashboard() {
 	}
 
 	return (
-		<div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-8">
+		<div className="mx-auto flex w-full max-w-7xl flex-col gap-4 p-4 sm:gap-6 sm:p-8">
 			<SummaryCards summary={summary} />
 
-			<div className="grid grid-cols-5 gap-6">
-				<div className="col-span-3">
+			<div className="grid grid-cols-1 gap-4 lg:grid-cols-5 lg:gap-6">
+				<div className="lg:col-span-3">
 					<RecentTransactions transactions={transactions} />
 				</div>
 
-				<div className="col-span-2">
+				<div className="lg:col-span-2">
 					<CategoriesSection categories={categories} />
 				</div>
 			</div>

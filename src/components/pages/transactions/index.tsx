@@ -26,22 +26,22 @@ export function TransactionsPage() {
 		if (search.trim()) {
 			const term = search.toLowerCase();
 
-			result = result.filter((t) => t.description.toLowerCase().includes(term));
+			result = result.filter((transaction) => transaction.description.toLowerCase().includes(term));
 		}
 
 		if (typeFilter !== "all") {
-			result = result.filter((t) => t.type === typeFilter);
+			result = result.filter((transaction) => transaction.type === typeFilter);
 		}
 
 		if (categoryFilter !== "all") {
-			result = result.filter((t) => t.category === categoryFilter);
+			result = result.filter((transaction) => transaction.category === categoryFilter);
 		}
 
 		if (periodFilter) {
 			const [month, year] = periodFilter.split("/");
 
-			result = result.filter((t) => {
-				const [_day, tMonth, tYear] = t.date.split("/");
+			result = result.filter((transaction) => {
+				const [_day, tMonth, tYear] = transaction.date.split("/");
 
 				return tMonth === month && tYear === year;
 			});
@@ -50,14 +50,12 @@ export function TransactionsPage() {
 		return result;
 	}, [transactions, search, typeFilter, categoryFilter, periodFilter]);
 
-	const totalPages = Math.max(1, Math.ceil(filtered.length / RESULTS_PER_PAGE));
-	const safePage = Math.min(currentPage, totalPages);
+	const totalPages = Math.ceil(filtered.length / RESULTS_PER_PAGE);
+	const safePage = Math.max(1, Math.min(currentPage, totalPages));
 
 	useEffect(() => {
-		if (currentPage > totalPages) {
-			setCurrentPage(totalPages);
-		}
-	}, [currentPage, totalPages]);
+		setCurrentPage((prev) => Math.min(prev, totalPages));
+	}, [totalPages]);
 
 	const paginated = useMemo(() => {
 		const start = (safePage - 1) * RESULTS_PER_PAGE;
@@ -65,92 +63,95 @@ export function TransactionsPage() {
 		return filtered.slice(start, start + RESULTS_PER_PAGE);
 	}, [filtered, safePage]);
 
+	const resetPage = () => setCurrentPage(1);
+
 	const handleDelete = (id: string) => {
-		setTransactions((prev) => prev.filter((t) => t.id !== id));
+		setTransactions((prev) => prev.filter((transaction) => transaction.id !== id));
 	};
 
 	return (
-		<div className="flex flex-1 flex-col gap-8 bg-gray-100 p-12">
+		<div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4 p-4 md:gap-8 md:p-12">
 			<div className="flex items-center justify-between">
 				<div className="flex flex-col gap-0.5">
-					<h1 className="text-heading-md font-bold text-gray-800">
+					<h1 className="text-heading-md font-bold text-foreground">
 						Transações
 					</h1>
 
-					<p className="text-body-md text-gray-600">
+					<p className="text-body-md text-muted-foreground">
 						Gerencie todas as suas transações financeiras
 					</p>
 				</div>
 
 				<NewTransactionModal
-					onAdd={(t) => setTransactions((prev) => [t, ...prev])}
+					onAdd={(transaction) => setTransactions((prev) => [transaction, ...prev])}
 				>
 					<Button size="sm" className="gap-1.5">
 						<Plus className="size-4" />
-						Nova transação
+						<span className="hidden sm:inline">Nova transação</span>
+						<span className="sm:hidden">Nova</span>
 					</Button>
 				</NewTransactionModal>
 			</div>
 
-			<div className="rounded-xl border border-gray-200 bg-white p-6">
+			<div className="rounded-xl border border-border bg-card p-6">
 				<Filters
 					search={search}
 					onSearchChange={(value) => {
 						setSearch(value);
-						setCurrentPage(1);
+						resetPage();
 					}}
 					typeFilter={typeFilter}
 					onTypeFilterChange={(value) => {
 						setTypeFilter(value);
-						setCurrentPage(1);
+						resetPage();
 					}}
 					categoryFilter={categoryFilter}
 					onCategoryFilterChange={(value) => {
 						setCategoryFilter(value);
-						setCurrentPage(1);
+						resetPage();
 					}}
 					periodFilter={periodFilter}
 					onPeriodFilterChange={(value) => {
 						setPeriodFilter(value);
-						setCurrentPage(1);
+						resetPage();
 					}}
 				/>
 			</div>
 
-			<div className="rounded-xl border border-gray-200 bg-white">
-				<div className="flex h-14 items-center border-b border-gray-200 px-6">
+			<div className="rounded-xl border border-border bg-card">
+				<div className="hidden h-14 items-center border-b border-border px-6 md:flex">
 					<div className="flex flex-1 items-center">
-						<span className="text-xs font-medium uppercase tracking-wider text-gray-500">
+						<span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
 							Descrição
 						</span>
 					</div>
 
 					<div className="flex w-28 items-center justify-center">
-						<span className="text-xs font-medium uppercase tracking-wider text-gray-500">
+						<span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
 							Data
 						</span>
 					</div>
 
 					<div className="flex w-52 items-center justify-center">
-						<span className="text-xs font-medium uppercase tracking-wider text-gray-500">
+						<span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
 							Categoria
 						</span>
 					</div>
 
 					<div className="flex w-36 items-center justify-center">
-						<span className="text-xs font-medium uppercase tracking-wider text-gray-500">
+						<span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
 							Tipo
 						</span>
 					</div>
 
 					<div className="flex w-52 items-center justify-end">
-						<span className="text-xs font-medium uppercase tracking-wider text-gray-500">
+						<span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
 							Valor
 						</span>
 					</div>
 
 					<div className="flex w-28 items-center justify-end">
-						<span className="text-xs font-medium uppercase tracking-wider text-gray-500">
+						<span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
 							Ações
 						</span>
 					</div>
@@ -166,7 +167,7 @@ export function TransactionsPage() {
 					))
 				) : (
 					<div className="flex h-40 items-center justify-center">
-						<p className="text-sm text-gray-500">
+						<p className="text-sm text-muted-foreground">
 							Nenhuma transação encontrada
 						</p>
 					</div>

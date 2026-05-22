@@ -16,7 +16,12 @@ import {
 	SelectValue,
 } from "~/components/ui/select";
 
-import { categories, categoryMeta, type Transaction } from "./data";
+import {
+	TRANSACTION_TYPE_LABEL,
+	categories,
+	categoryMeta,
+	type Transaction,
+} from "./data";
 
 type NewTransactionModalProps = {
 	onAdd: (transaction: Transaction) => void;
@@ -33,9 +38,11 @@ export function NewTransactionModal({
 	const [type, setType] = useState<"income" | "expense">("expense");
 	const [category, setCategory] = useState("");
 	const [date, setDate] = useState("");
+	const [error, setError] = useState<string | null>(null);
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
+		setError(null);
 
 		if (!description || !value || !category || !date) return;
 
@@ -45,28 +52,35 @@ export function NewTransactionModal({
 			return;
 		}
 
-		const numericValue = Number.parseFloat(value.replace(",", "."));
+		const normalized = value.includes(",")
+			? value.replace(/\./g, "").replace(",", ".")
+			: value.replace(/,/g, "");
+		const numericValue = Number.parseFloat(normalized);
 
 		if (Number.isNaN(numericValue)) {
 			return;
 		}
 
-		const newTransaction: Transaction = {
-			id: String(Date.now()),
-			description,
-			date,
-			category,
-			categoryVariant: meta.variant,
-			iconBg: meta.iconBg,
-			iconColor: meta.iconColor,
-			Icon: meta.Icon,
-			type,
-			value: numericValue,
-		};
+		try {
+			const newTransaction: Transaction = {
+				id: crypto.randomUUID(),
+				description,
+				date,
+				category,
+				categoryVariant: meta.variant,
+				iconBg: meta.iconBg,
+				iconColor: meta.iconColor,
+				Icon: meta.Icon,
+				type,
+				value: numericValue,
+			};
 
-		onAdd(newTransaction);
-		setOpen(false);
-		resetForm();
+			onAdd(newTransaction);
+			setOpen(false);
+			resetForm();
+		} catch {
+			setError("Erro ao criar transação. Tente novamente.");
+		}
 	};
 
 	const resetForm = () => {
@@ -84,6 +98,12 @@ export function NewTransactionModal({
 			<DialogContent className="sm:max-w-md">
 				<form onSubmit={handleSubmit}>
 					<DialogHeader title="Nova transação" />
+
+					{error && (
+						<p className="px-4 pt-2 text-sm text-red-base" role="alert">
+							{error}
+						</p>
+					)}
 
 					<div className="flex flex-col gap-4 py-4">
 						<Input
@@ -105,7 +125,7 @@ export function NewTransactionModal({
 
 							<Input
 								label="Data"
-								placeholder="DD/MM/AA"
+								placeholder="DD/MM/AAAA"
 								value={date}
 								onChange={(e) => setDate(e.target.value)}
 								required
@@ -129,8 +149,12 @@ export function NewTransactionModal({
 								</SelectTrigger>
 
 								<SelectContent>
-									<SelectItem value="income">Entrada</SelectItem>
-									<SelectItem value="expense">Saída</SelectItem>
+									<SelectItem value="income">
+										{TRANSACTION_TYPE_LABEL.income}
+									</SelectItem>
+									<SelectItem value="expense">
+										{TRANSACTION_TYPE_LABEL.expense}
+									</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>

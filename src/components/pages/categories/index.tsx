@@ -60,12 +60,12 @@ export function CategoriesPage() {
 	}
 
 	return (
-		<div className="mx-auto flex w-full max-w-7xl flex-col gap-8 p-12">
+		<div className="mx-auto flex w-full max-w-7xl flex-col gap-4 p-4 md:gap-8 md:p-12">
 			<div className="flex items-center justify-between">
 				<div className="flex flex-col gap-0.5">
 					<h1 className="text-2xl font-bold text-foreground">Categorias</h1>
 
-					<p className="text-base text-muted-foreground">
+					<p className="hidden text-base text-muted-foreground sm:block">
 						Organize suas transações por categorias
 					</p>
 				</div>
@@ -76,11 +76,11 @@ export function CategoriesPage() {
 					className="inline-flex h-9 items-center gap-2 rounded-lg bg-brand-base px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-dark"
 				>
 					<UserRoundPlus className="size-4" />
-					Nova categoria
+					<span className="hidden sm:inline">Nova categoria</span>
 				</button>
 			</div>
 
-			<div className="grid grid-cols-3 gap-6">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
 				{summaryCards.map(({ icon, iconColor, label, value }) => (
 					<SummaryCard
 						key={label}
@@ -92,7 +92,7 @@ export function CategoriesPage() {
 				))}
 			</div>
 
-			<div className="grid grid-cols-4 gap-5">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
 				{categories.map((category) => (
 					<CategoryCard
 						key={category.id}

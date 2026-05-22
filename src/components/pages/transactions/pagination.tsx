@@ -32,7 +32,7 @@ function getWindowedPages(
 		pages.push(i);
 	}
 
-	if (currentPage < totalPages - 2) {
+	if (currentPage < totalPages - 3) {
 		pages.push("ellipsis");
 	}
 
@@ -48,20 +48,28 @@ export function Pagination({
 	resultsPerPage,
 	onPageChange,
 }: PaginationProps) {
+	if (totalPages === 0) {
+		return (
+			<div className="flex flex-col gap-3 border-t border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5">
+				<span className="text-center text-sm text-muted-foreground sm:text-left">
+					0 resultados
+				</span>
+			</div>
+		);
+	}
+
 	const startResult = (currentPage - 1) * resultsPerPage + 1;
 	const endResult = Math.min(currentPage * resultsPerPage, totalResults);
 
 	const pages = getWindowedPages(currentPage, totalPages);
 
 	return (
-		<div className="flex items-center justify-between border-t border-gray-200 px-6 py-5">
-			<span className="text-sm text-gray-700">
-				{totalResults === 0
-					? "0 resultados"
-					: `${startResult} a ${endResult} | ${totalResults} resultados`}
+		<div className="flex flex-col gap-3 border-t border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5">
+			<span className="text-center text-sm text-muted-foreground sm:text-left">
+				{`${startResult} a ${endResult} | ${totalResults} resultados`}
 			</span>
 
-			<div className="flex items-center gap-2">
+			<div className="flex items-center justify-center gap-2">
 				<IconButton
 					variant="outline"
 					aria-label="Página anterior"
@@ -73,7 +81,7 @@ export function Pagination({
 
 				{pages.map((page) =>
 					page === "ellipsis" ? (
-						<span key="ellipsis" className="px-1 text-sm text-gray-400">
+						<span key="ellipsis" className="px-1 text-sm text-muted-foreground">
 							...
 						</span>
 					) : (

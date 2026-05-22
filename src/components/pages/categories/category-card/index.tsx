@@ -58,18 +58,18 @@ export function CategoryCard({
 	itemCount,
 }: CategoryCardProps) {
 	const Icon = categoryIconMap[icon] ?? Utensils;
-	const styles = iconCircleStyles[color];
+	const circleStyle = iconCircleStyles[color];
 
 	return (
-		<Card className="flex w-[284px] flex-col gap-5 p-6">
+		<Card className="flex flex-col gap-5 p-6">
 			<div className="flex items-center justify-between">
 				<div
 					className={cn(
 						"flex size-10 items-center justify-center rounded-lg",
-						styles.bg,
+						circleStyle.bg,
 					)}
 				>
-					<Icon className={cn("size-4", styles.icon)} />
+					<Icon className={cn("size-4", circleStyle.icon)} />
 				</div>
 
 				<div className="flex items-center gap-2">

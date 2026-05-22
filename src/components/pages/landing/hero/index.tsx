@@ -29,7 +29,7 @@ export function LandingHero() {
 				initial={{ y: 20, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-				className="flex items-center gap-4"
+				className="flex flex-col items-center gap-3 sm:flex-row sm:gap-4"
 			>
 				<Link to="/criar-conta">
 					<motion.button
@@ -56,9 +56,9 @@ export function LandingHero() {
 				initial={{ y: 40, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ duration: 0.7, delay: 0.55, ease: "easeOut" }}
-				className="mt-8 h-[360px] w-full max-w-4xl rounded-2xl border border-border bg-muted/30"
+				className="mt-8 h-[200px] w-full max-w-4xl rounded-2xl border border-border bg-muted/30 sm:h-[360px]"
 			>
-				<div className="flex h-full flex-col justify-end gap-4 p-10">
+				<div className="flex h-full flex-col justify-end gap-4 p-6 sm:p-10">
 					<p className="font-heading text-2xl font-semibold text-muted-foreground">
 						Dashboard Preview
 					</p>

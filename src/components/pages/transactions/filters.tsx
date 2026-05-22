@@ -48,7 +48,7 @@ export function Filters({
 	return (
 		<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 			<Field label="Buscar">
-				<Search className="absolute left-2 size-4 text-gray-400" />
+				<Search className="absolute left-2 size-4 text-muted-foreground" />
 
 				<input
 					type="text"
