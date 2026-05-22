@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UiRouteImport } from './routes/ui'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as IndexRouteImport } from './routes/index'
@@ -20,6 +21,11 @@ import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as PublicLandingRouteImport } from './routes/_public/landing'
 import { Route as PublicCriarContaRouteImport } from './routes/_public/criar-conta'
 
+const UiRoute = UiRouteImport.update({
+  id: '/ui',
+  path: '/ui',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -73,6 +79,7 @@ const PublicCriarContaRoute = PublicCriarContaRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/ui': typeof UiRoute
   '/criar-conta': typeof PublicCriarContaRoute
   '/landing': typeof PublicLandingRoute
   '/login': typeof PublicLoginRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ui': typeof UiRoute
   '/criar-conta': typeof PublicCriarContaRoute
   '/landing': typeof PublicLandingRoute
   '/login': typeof PublicLoginRoute
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_public': typeof PublicRouteWithChildren
   '/app': typeof AppRouteWithChildren
+  '/ui': typeof UiRoute
   '/_public/criar-conta': typeof PublicCriarContaRoute
   '/_public/landing': typeof PublicLandingRoute
   '/_public/login': typeof PublicLoginRoute
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/app'
+    | '/ui'
     | '/criar-conta'
     | '/landing'
     | '/login'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ui'
     | '/criar-conta'
     | '/landing'
     | '/login'
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_public'
     | '/app'
+    | '/ui'
     | '/_public/criar-conta'
     | '/_public/landing'
     | '/_public/login'
@@ -144,10 +156,18 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PublicRoute: typeof PublicRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
+  UiRoute: typeof UiRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/ui': {
+      id: '/ui'
+      path: '/ui'
+      fullPath: '/ui'
+      preLoaderRoute: typeof UiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app': {
       id: '/app'
       path: '/app'
@@ -256,6 +276,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PublicRoute: PublicRouteWithChildren,
   AppRoute: AppRouteWithChildren,
+  UiRoute: UiRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -22,3 +22,6 @@ test-results/
 
 # Windows ADS markers
 *.Zone.Identifier
+
+.graphify
+.vscode

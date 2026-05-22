@@ -31,7 +31,7 @@ export function LandingCTA() {
 				transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
 				whileHover={{ scale: 1.04 }}
 				whileTap={{ scale: 0.97 }}
-				className="inline-flex h-12 items-center justify-center rounded-lg bg-white px-8 text-base font-semibold text-brand-base shadow-sm transition-colors hover:bg-gray-100"
+				className="inline-flex h-12 items-center justify-center rounded-lg bg-white px-8 text-base font-semibold text-brand-base shadow-sm transition-colors hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700"
 			>
 				Criar Conta Grátis
 			</motion.button>

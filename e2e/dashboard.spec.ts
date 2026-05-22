@@ -19,14 +19,10 @@ test.describe("Dashboard (authenticated)", () => {
 		await loginAndGoToApp(page);
 	});
 
-	test("shows dashboard welcome message after login", async ({ page }) => {
-		await expect(
-			page.getByRole("heading", { name: "Welcome back" }),
-		).toBeVisible();
-
-		await expect(
-			page.getByText("Your financial dashboard is ready."),
-		).toBeVisible();
+	test("shows dashboard summary cards after login", async ({ page }) => {
+		await expect(page.getByText("Saldo total")).toBeVisible();
+		await expect(page.getByText("Receitas do mês")).toBeVisible();
+		await expect(page.getByText("Despesas do mês")).toBeVisible();
 	});
 
 	test("navigates between dashboard pages via header nav", async ({ page }) => {
