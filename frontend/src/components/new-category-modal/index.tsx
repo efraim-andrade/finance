@@ -1,26 +1,9 @@
 import { useMutation } from "@apollo/client/react";
-import type { LucideIcon } from "lucide-react";
-import {
-  BaggageClaim,
-  BookOpen,
-  BriefcaseBusiness,
-  CarFront,
-  Dumbbell,
-  Gift,
-  HeartPulse,
-  House,
-  Mailbox,
-  PawPrint,
-  PiggyBank,
-  ReceiptText,
-  ShoppingCart,
-  Ticket,
-  Utensils,
-  Wrench,
-} from "lucide-react";
 import { useState } from "react";
+import { COLOR_OPTIONS, ICON_OPTIONS } from "#/lib/category-form-data";
 import { cn } from "#/lib/utils";
-import { CREATE_CATEGORY } from "#/services/categories";
+import { CREATE_CATEGORY, UPDATE_CATEGORY } from "#/services/categories";
+import type { CategoryDetail } from "#/types/dashboard";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,82 +13,93 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
-const ICON_OPTIONS: { key: string; icon: LucideIcon }[] = [
-  { key: "briefcase", icon: BriefcaseBusiness },
-  { key: "car", icon: CarFront },
-  { key: "heart", icon: HeartPulse },
-  { key: "piggy", icon: PiggyBank },
-  { key: "cart", icon: ShoppingCart },
-  { key: "ticket", icon: Ticket },
-  { key: "wrench", icon: Wrench },
-  { key: "utensils", icon: Utensils },
-  { key: "paw", icon: PawPrint },
-  { key: "house", icon: House },
-  { key: "gift", icon: Gift },
-  { key: "dumbbell", icon: Dumbbell },
-  { key: "book", icon: BookOpen },
-  { key: "baggage", icon: BaggageClaim },
-  { key: "mailbox", icon: Mailbox },
-  { key: "receipt", icon: ReceiptText },
-];
-
-const COLOR_OPTIONS = [
-  { key: "green", color: "#16a34a" },
-  { key: "blue", color: "#2563eb" },
-  { key: "purple", color: "#9333ea" },
-  { key: "pink", color: "#db2777" },
-  { key: "red", color: "#dc2626" },
-  { key: "orange", color: "#ea580c" },
-  { key: "yellow", color: "#ca8a04" },
-];
-
 type NewCategoryModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  editCategory?: CategoryDetail | null;
 };
 
 export function NewCategoryModal({
   open,
   onOpenChange,
+  editCategory,
 }: NewCategoryModalProps) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [selectedIcon, setSelectedIcon] = useState("briefcase");
-  const [selectedColor, setSelectedColor] = useState("green");
+  const [title, setTitle] = useState(editCategory?.name ?? "");
+  const [description, setDescription] = useState(
+    editCategory?.description ?? "",
+  );
+  const [selectedIcon, setSelectedIcon] = useState<string>(
+    editCategory?.icon ?? "briefcase",
+  );
+  const [selectedColor, setSelectedColor] = useState<string>(
+    editCategory?.color ?? "green",
+  );
 
-  const [doCreate, { loading }] = useMutation(CREATE_CATEGORY, {
+  const isEditing = !!editCategory;
+
+  const [doCreate, { loading: createLoading }] = useMutation(CREATE_CATEGORY, {
     refetchQueries: ["ListCategories"],
   });
+
+  const [doUpdate, { loading: updateLoading }] = useMutation(UPDATE_CATEGORY, {
+    refetchQueries: ["ListCategories"],
+  });
+
+  const loading = createLoading || updateLoading;
+
+  const resetForm = () => {
+    if (!isEditing) {
+      setTitle("");
+      setDescription("");
+      setSelectedIcon("briefcase");
+      setSelectedColor("green");
+    }
+  };
 
   const handleSave = async () => {
     if (!title.trim() || loading) {
       return;
     }
 
-    await doCreate({
-      variables: {
-        input: {
-          name: title.trim(),
-          description: description || null,
-          color: selectedColor,
-          icon: selectedIcon,
+    if (isEditing) {
+      await doUpdate({
+        variables: {
+          id: editCategory.id,
+          input: {
+            name: title.trim(),
+            description: description || null,
+            color: selectedColor,
+            icon: selectedIcon,
+          },
         },
-      },
-    });
+      });
+    } else {
+      await doCreate({
+        variables: {
+          input: {
+            name: title.trim(),
+            description: description || null,
+            color: selectedColor,
+            icon: selectedIcon,
+          },
+        },
+      });
+    }
 
     onOpenChange(false);
-    setTitle("");
-    setDescription("");
-    setSelectedIcon("briefcase");
-    setSelectedColor("green");
+    resetForm();
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader
-          title="Nova categoria"
-          description="Organize suas transações com categorias"
+          title={isEditing ? "Editar categoria" : "Nova categoria"}
+          description={
+            isEditing
+              ? "Altere as informações da categoria"
+              : "Organize suas transações com categorias"
+          }
         />
 
         <div className="flex flex-col gap-4">
@@ -180,7 +174,7 @@ export function NewCategoryModal({
             onClick={handleSave}
             disabled={loading}
           >
-            Salvar
+            {isEditing ? "Salvar alterações" : "Salvar"}
           </Button>
         </DialogFooter>
       </DialogContent>

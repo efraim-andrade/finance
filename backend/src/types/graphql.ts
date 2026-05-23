@@ -32,3 +32,10 @@ export type CreateCategoryInput = {
   color: string;
   icon: string;
 };
+
+export type UpdateCategoryInput = {
+  name?: string;
+  description?: string | null;
+  color?: string;
+  icon?: string;
+};

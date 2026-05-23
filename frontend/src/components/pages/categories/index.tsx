@@ -1,11 +1,12 @@
-import { ArrowUpDown, Tag, UserRoundPlus } from "lucide-react";
+import { useMutation } from "@apollo/client/react";
+import { ArrowUpDown, Tag, UserRoundPlus, Utensils } from "lucide-react";
 import { useMemo, useState } from "react";
-
+import { DELETE_CATEGORY } from "#/services/categories";
+import type { CategoryColor, CategoryDetail } from "#/types/dashboard";
 import { NewCategoryModal } from "@/components/new-category-modal";
 import { SummaryCard } from "@/components/ui/summary-card";
 import { useCategories } from "@/hooks/useCategories";
 import { categoryIconMap } from "@/lib/category-icons";
-import type { CategoryColor } from "@/types/dashboard";
 
 import { CategoryCard } from "./category-card";
 
@@ -23,9 +24,16 @@ const summaryIconColorMap: Record<CategoryColor, string> = {
 export function CategoriesPage() {
   const { categories, stats, isLoading } = useCategories();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<CategoryDetail | null>(
+    null,
+  );
+
+  const [doDelete] = useMutation(DELETE_CATEGORY, {
+    refetchQueries: ["ListCategories"],
+  });
 
   const mostUsed = stats.mostUsedCategory;
-  const MostUsedIcon = categoryIconMap[mostUsed.icon];
+  const MostUsedIcon = categoryIconMap[mostUsed.icon] ?? Utensils;
 
   const summaryCards = useMemo(
     () => [
@@ -101,11 +109,24 @@ export function CategoriesPage() {
             icon={category.icon}
             color={category.color}
             itemCount={category.itemCount}
+            onEdit={() => {
+              setEditingCategory(category);
+              setIsModalOpen(true);
+            }}
+            onDelete={() => doDelete({ variables: { id: category.id } })}
           />
         ))}
       </div>
 
-      <NewCategoryModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+      <NewCategoryModal
+        key={editingCategory?.id ?? "new"}
+        open={isModalOpen}
+        onOpenChange={(open) => {
+          setIsModalOpen(open);
+          if (!open) setEditingCategory(null);
+        }}
+        editCategory={editingCategory}
+      />
     </div>
   );
 }

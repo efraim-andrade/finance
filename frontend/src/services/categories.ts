@@ -11,11 +11,26 @@ type CreateCategoryData = {
   createCategory: CategoryDetail;
 };
 
+type UpdateCategoryData = {
+  updateCategory: CategoryDetail;
+};
+
+type DeleteCategoryData = {
+  deleteCategory: string;
+};
+
 export type CreateCategoryInput = {
   name: string;
   description?: string | null;
   color: string;
   icon: string;
+};
+
+export type UpdateCategoryInput = {
+  name?: string;
+  description?: string | null;
+  color?: string;
+  icon?: string;
 };
 
 export const LIST_CATEGORIES: TypedDocumentNode<ListCategoriesData> = gql`
@@ -42,5 +57,29 @@ export const CREATE_CATEGORY: TypedDocumentNode<
 			color
 			icon
 		}
+	}
+`;
+
+export const UPDATE_CATEGORY: TypedDocumentNode<
+  UpdateCategoryData,
+  { id: string; input: UpdateCategoryInput }
+> = gql`
+	mutation UpdateCategory($id: ID!, $input: UpdateCategoryInput!) {
+		updateCategory(id: $id, input: $input) {
+			id
+			name
+			description
+			color
+			icon
+		}
+	}
+`;
+
+export const DELETE_CATEGORY: TypedDocumentNode<
+  DeleteCategoryData,
+  { id: string }
+> = gql`
+	mutation DeleteCategory($id: ID!) {
+		deleteCategory(id: $id)
 	}
 `;

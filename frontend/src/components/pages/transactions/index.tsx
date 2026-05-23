@@ -28,6 +28,7 @@ export function TransactionsPage() {
     createTransaction,
     updateTransaction,
     deleteTransaction,
+    categoryMetaMap,
   } = useTransactions();
 
   const [search, setSearch] = useState("");
@@ -288,6 +289,7 @@ export function TransactionsPage() {
             <TransactionRow
               key={transaction.id}
               transaction={transaction}
+              categoryMetaMap={categoryMetaMap}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />

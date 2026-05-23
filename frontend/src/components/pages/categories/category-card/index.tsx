@@ -48,6 +48,8 @@ type CategoryCardProps = {
   icon: string;
   color: CategoryColor;
   itemCount: number;
+  onEdit?: () => void;
+  onDelete?: () => void;
 };
 
 export function CategoryCard({
@@ -56,6 +58,8 @@ export function CategoryCard({
   icon,
   color,
   itemCount,
+  onEdit,
+  onDelete,
 }: CategoryCardProps) {
   const Icon = categoryIconMap[icon] ?? Utensils;
   const circleStyle = iconCircleStyles[color];
@@ -73,11 +77,19 @@ export function CategoryCard({
         </div>
 
         <div className="flex items-center gap-2">
-          <IconButton variant="danger" aria-label="Excluir categoria">
+          <IconButton
+            variant="danger"
+            aria-label="Excluir categoria"
+            onClick={() => {
+              if (window.confirm(`Excluir a categoria "${name}"?`)) {
+                onDelete?.();
+              }
+            }}
+          >
             <Trash2 />
           </IconButton>
 
-          <IconButton aria-label="Editar categoria">
+          <IconButton aria-label="Editar categoria" onClick={onEdit}>
             <Pencil />
           </IconButton>
         </div>

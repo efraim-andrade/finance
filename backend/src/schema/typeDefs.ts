@@ -79,11 +79,20 @@ export const typeDefs = gql`
     icon: String!
   }
 
+  input UpdateCategoryInput {
+    name: String
+    description: String
+    color: String
+    icon: String
+  }
+
   type Mutation {
     createUser(input: CreateUserInput!): User!
     createTransaction(input: CreateTransactionInput!): Transaction!
     updateTransaction(id: ID!, input: UpdateTransactionInput!): Transaction!
     deleteTransaction(id: ID!): ID!
     createCategory(input: CreateCategoryInput!): Category!
+    updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
+    deleteCategory(id: ID!): ID!
   }
 `;
