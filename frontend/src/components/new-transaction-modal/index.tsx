@@ -8,7 +8,9 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
+import { DateInput } from "@/components/ui/date-input";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import {
   Select,
   SelectContent,
@@ -44,15 +46,16 @@ export function NewTransactionModal({
   const [type, setType] = useState<TransactionType>("EXPENSE");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(0);
   const [category, setCategory] = useState("");
 
   const handleSave = () => {
-    if (!description || !date || !amount || !category) {
+    if (!description || !date || amount <= 0 || !category) {
       return;
     }
 
     // TODO: create transaction via Apollo mutation
+    //   date is DD/MM/AAAA — convert with dateToISO() before sending
     onOpenChange(false);
   };
 
@@ -113,20 +116,17 @@ export function NewTransactionModal({
           />
 
           <div className="flex gap-4">
-            <Input
+            <DateInput
               label="Data"
-              type="date"
               value={date}
-              onChange={(e) => setDate(e.target.value)}
+              onChange={setDate}
             />
 
-            <Input
+            <MoneyInput
               label="Valor"
-              type="number"
-              step="0.01"
               placeholder="R$ 0,00"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={setAmount}
             />
           </div>
 

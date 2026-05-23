@@ -7,7 +7,9 @@ import {
   DialogFooter,
   DialogHeader,
 } from "~/components/ui/dialog";
+import { DateInput } from "~/components/ui/date-input";
 import { Input } from "~/components/ui/input";
+import { MoneyInput } from "~/components/ui/money-input";
 import {
   Select,
   SelectContent,
@@ -34,9 +36,7 @@ export function EditTransactionModal({
   onSubmit,
 }: EditTransactionModalProps) {
   const [description, setDescription] = useState(transaction.description);
-  const [value, setValue] = useState(
-    transaction.amount.toFixed(2).replace(".", ","),
-  );
+  const [value, setValue] = useState(transaction.amount);
   const [type, setType] = useState<"INCOME" | "EXPENSE">(transaction.type);
   const [category, setCategory] = useState(transaction.category);
   const [date, setDate] = useState(transaction.date);
@@ -47,21 +47,14 @@ export function EditTransactionModal({
     e.preventDefault();
     setError(null);
 
-    if (!description || !value || !category || !date) return;
-
-    const normalized = value.includes(",")
-      ? value.replace(/\./g, "").replace(",", ".")
-      : value.replace(/,/g, "");
-    const numericValue = Number.parseFloat(normalized);
-
-    if (Number.isNaN(numericValue)) return;
+    if (!description || value <= 0 || !category || !date) return;
 
     setSaving(true);
 
     try {
       await onSubmit({
         description,
-        amount: numericValue,
+        amount: value,
         type,
         category,
         date,
@@ -96,19 +89,19 @@ export function EditTransactionModal({
             />
 
             <div className="grid grid-cols-2 gap-4">
-              <Input
+              <MoneyInput
                 label="Valor"
                 placeholder="0,00"
                 value={value}
-                onChange={(e) => setValue(e.target.value)}
+                onChange={setValue}
                 required
               />
 
-              <Input
+              <DateInput
                 label="Data"
                 placeholder="DD/MM/AAAA"
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={setDate}
                 required
               />
             </div>
