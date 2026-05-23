@@ -4,7 +4,10 @@ import { IconButton } from "~/components/ui/icon-button";
 import { Tag } from "~/components/ui/tag";
 import { TransactionType } from "~/components/ui/transaction-type";
 
-import { TRANSACTION_TYPE_LABEL, type Transaction } from "./data";
+import { getCategoryMeta } from "#/lib/category-icons";
+import type { Transaction } from "#/types/dashboard";
+
+import { TRANSACTION_TYPE_LABEL } from "./data";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -13,23 +16,22 @@ const currencyFormatter = new Intl.NumberFormat("pt-BR", {
 
 type TransactionRowProps = {
   transaction: Transaction;
+  onEdit: (transaction: Transaction) => void;
   onDelete: (id: string) => void;
 };
 
-export function TransactionRow({ transaction, onDelete }: TransactionRowProps) {
-  const {
-    description,
-    date,
-    category,
-    categoryVariant,
-    iconBg,
-    iconColor,
-    Icon,
-    type,
-    value,
-  } = transaction;
+export function TransactionRow({
+  transaction,
+  onEdit,
+  onDelete,
+}: TransactionRowProps) {
+  const { description, date, category, type, amount } = transaction;
 
-  const formattedValue = currencyFormatter.format(value);
+  const { iconBg, iconColor, Icon, variant } = getCategoryMeta(category);
+
+  const formattedValue = currencyFormatter.format(amount);
+
+  const typeVariant = type === "INCOME" ? "income" : "expense";
 
   const iconCircle = (
     <div
@@ -53,6 +55,7 @@ export function TransactionRow({ transaction, onDelete }: TransactionRowProps) {
       <IconButton
         variant="outline"
         aria-label="Editar transação"
+        onClick={() => onEdit(transaction)}
         className={compact ? "size-7" : ""}
       >
         <Pencil className={compact ? "size-3.5" : "size-4"} />
@@ -80,11 +83,11 @@ export function TransactionRow({ transaction, onDelete }: TransactionRowProps) {
 
             <span className="text-xs text-border">|</span>
 
-            <Tag variant={categoryVariant}>{category}</Tag>
+            <Tag variant={variant}>{category}</Tag>
 
             <span className="text-xs text-border">|</span>
 
-            <TransactionType variant={type}>
+            <TransactionType variant={typeVariant}>
               {TRANSACTION_TYPE_LABEL[type]}
             </TransactionType>
 
@@ -110,11 +113,11 @@ export function TransactionRow({ transaction, onDelete }: TransactionRowProps) {
         </div>
 
         <div className="flex w-52 items-center justify-center">
-          <Tag variant={categoryVariant}>{category}</Tag>
+          <Tag variant={variant}>{category}</Tag>
         </div>
 
         <div className="flex w-36 items-center justify-center">
-          <TransactionType variant={type}>
+          <TransactionType variant={typeVariant}>
             {TRANSACTION_TYPE_LABEL[type]}
           </TransactionType>
         </div>

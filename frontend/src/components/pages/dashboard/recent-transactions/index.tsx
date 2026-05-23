@@ -1,14 +1,8 @@
-import type { LucideIcon } from "lucide-react";
 import {
-  BriefcaseBusiness,
-  CarFront,
   ChevronRight,
   CircleArrowDown,
   CircleArrowUp,
-  PiggyBank,
   Plus,
-  ShoppingCart,
-  Utensils,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -17,26 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "@/components/ui/link";
 import { Tag } from "@/components/ui/tag";
-import { cn } from "@/lib/utils";
-import type { Transaction } from "@/types/dashboard";
+import { getCategoryMeta } from "#/lib/category-icons";
+import { cn } from "#/lib/utils";
+import type { Transaction } from "#/types/dashboard";
 
 type RecentTransactionsProps = {
   transactions: Transaction[];
-};
-
-const iconMap: Record<string, LucideIcon> = {
-  "Pagamento de Salário": BriefcaseBusiness,
-  "Jantar no Restaurante": Utensils,
-  "Posto de Gasolina": CarFront,
-  "Compras no Mercado": ShoppingCart,
-  "Retorno de Investimento": PiggyBank,
-};
-
-const colorMap: Record<string, string> = {
-  green: "bg-green-light dark:bg-green-dark",
-  blue: "bg-blue-light dark:bg-blue-dark",
-  purple: "bg-purple-light dark:bg-purple-dark",
-  orange: "bg-orange-light dark:bg-orange-dark",
 };
 
 export function RecentTransactions({ transactions }: RecentTransactionsProps) {
@@ -57,9 +37,9 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
 
       <div className="divide-y divide-border">
         {transactions.map((transaction) => {
-          const Icon =
-            iconMap[transaction.description] ??
-            (transaction.type === "INCOME" ? BriefcaseBusiness : Utensils);
+          const { iconBg, iconColor, Icon } = getCategoryMeta(
+            transaction.category,
+          );
           const isIncome = transaction.type === "INCOME";
 
           return (
@@ -68,10 +48,10 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
                 <div
                   className={cn(
                     "flex size-10 items-center justify-center rounded-lg",
-                    colorMap[transaction.categoryColor] ?? "bg-muted",
+                    iconBg,
                   )}
                 >
-                  <Icon className="size-4 text-foreground" />
+                  <Icon className={cn("size-4", iconColor)} />
                 </div>
 
                 <div>
@@ -86,7 +66,9 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
               </div>
 
               <div className="flex w-40 items-center justify-center">
-                <Tag variant={transaction.categoryColor}>{transaction.tag}</Tag>
+                <Tag variant={getCategoryMeta(transaction.category).variant}>
+                  {transaction.category}
+                </Tag>
               </div>
 
               <div className="flex w-40 items-center justify-end gap-2">

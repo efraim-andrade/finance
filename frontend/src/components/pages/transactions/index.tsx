@@ -3,7 +3,16 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "~/components/ui/button";
 
-import { allTransactions, type Transaction } from "./data";
+import { useAuth } from "#/hooks/useAuth";
+import { useTransactions } from "#/hooks/useTransactions";
+import type {
+  CreateTransactionInput,
+  UpdateTransactionInput,
+} from "#/services/transactions";
+import type { Transaction } from "#/types/dashboard";
+
+import { DeleteDialog } from "./delete-dialog";
+import { EditTransactionModal } from "./edit-transaction-modal";
 import { Filters } from "./filters";
 import { NewTransactionModal } from "./new-transaction-modal";
 import { Pagination } from "./pagination";
@@ -12,13 +21,29 @@ import { TransactionRow } from "./transaction-row";
 const RESULTS_PER_PAGE = 10;
 
 export function TransactionsPage() {
-  const [transactions, setTransactions] =
-    useState<Transaction[]>(allTransactions);
+  const { userId } = useAuth();
+
+  const {
+    transactions,
+    loading,
+    error,
+    createTransaction,
+    updateTransaction,
+    deleteTransaction,
+  } = useTransactions();
+
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [periodFilter, setPeriodFilter] = useState("11/2025");
+  const [periodFilter, setPeriodFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [editingTransaction, setEditingTransaction] =
+    useState<Transaction | null>(null);
+
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const filtered = useMemo(() => {
     let result = [...transactions];
@@ -26,29 +51,24 @@ export function TransactionsPage() {
     if (search.trim()) {
       const term = search.toLowerCase();
 
-      result = result.filter((transaction) =>
-        transaction.description.toLowerCase().includes(term),
-      );
+      result = result.filter((t) => t.description.toLowerCase().includes(term));
     }
 
     if (typeFilter !== "all") {
-      result = result.filter((transaction) => transaction.type === typeFilter);
+      result = result.filter((t) => t.type === typeFilter);
     }
 
     if (categoryFilter !== "all") {
-      result = result.filter(
-        (transaction) => transaction.category === categoryFilter,
-      );
+      result = result.filter((t) => t.category === categoryFilter);
     }
 
-    if (periodFilter) {
+    if (periodFilter && periodFilter !== "all") {
       const [month, year] = periodFilter.split("/");
 
-      result = result.filter((transaction) => {
-        const [_day, transactionMonth, transactionYear] =
-          transaction.date.split("/");
+      result = result.filter((t) => {
+        const parts = t.date.split("/");
 
-        return transactionMonth === month && transactionYear === year;
+        return parts[1] === month && parts[2] === year;
       });
     }
 
@@ -70,11 +90,114 @@ export function TransactionsPage() {
 
   const resetPage = () => setCurrentPage(1);
 
-  const handleDelete = (id: string) => {
-    setTransactions((prev) =>
-      prev.filter((transaction) => transaction.id !== id),
-    );
+  const handleCreate = async (
+    input: Omit<CreateTransactionInput, "userId">,
+  ) => {
+    await createTransaction({ ...input, userId: userId ?? "" });
   };
+
+  const handleEdit = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+  };
+
+  const handleEditSubmit = async (input: UpdateTransactionInput) => {
+    if (!editingTransaction) return;
+
+    await updateTransaction(editingTransaction.id, input);
+    setEditingTransaction(null);
+  };
+
+  const handleDelete = (id: string) => {
+    setDeletingId(id);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingId) return;
+
+    setIsDeleting(true);
+
+    try {
+      await deleteTransaction(deletingId);
+      setShowDeleteDialog(false);
+      setDeletingId(null);
+    } catch {
+      // Error state handled by Apollo
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4 p-4 md:gap-8 md:p-12">
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-0.5">
+            <div className="h-7 w-48 animate-pulse rounded bg-muted" />
+            <div className="h-5 w-64 animate-pulse rounded bg-muted" />
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton
+              <div key={i} className="h-10 animate-pulse rounded-md bg-muted" />
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card">
+          {Array.from({ length: 5 }).map(() => (
+            <div
+              key={crypto.randomUUID()}
+              className="flex h-[72px] items-center border-b border-border px-6"
+            >
+              <div className="flex flex-1 items-center gap-4">
+                <div className="size-10 animate-pulse rounded-lg bg-muted" />
+                <div className="h-4 w-48 animate-pulse rounded bg-muted" />
+              </div>
+
+              <div className="flex w-28 items-center justify-center">
+                <div className="h-4 w-20 animate-pulse rounded bg-muted" />
+              </div>
+
+              <div className="flex w-52 items-center justify-center">
+                <div className="h-6 w-28 animate-pulse rounded-full bg-muted" />
+              </div>
+
+              <div className="flex w-36 items-center justify-center">
+                <div className="h-5 w-16 animate-pulse rounded bg-muted" />
+              </div>
+
+              <div className="flex w-52 items-center justify-end">
+                <div className="h-5 w-24 animate-pulse rounded bg-muted" />
+              </div>
+
+              <div className="flex w-28 items-center justify-center gap-2">
+                <div className="size-8 animate-pulse rounded-md bg-muted" />
+                <div className="size-8 animate-pulse rounded-md bg-muted" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col items-center justify-center gap-4 p-4 md:p-12">
+        <p className="text-body-md text-red-base">
+          Erro ao carregar transações.
+        </p>
+
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Tentar novamente
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4 p-4 md:gap-8 md:p-12">
@@ -89,11 +212,7 @@ export function TransactionsPage() {
           </p>
         </div>
 
-        <NewTransactionModal
-          onAdd={(transaction) =>
-            setTransactions((prev) => [transaction, ...prev])
-          }
-        >
+        <NewTransactionModal onSubmit={handleCreate}>
           <Button size="sm" className="gap-1.5">
             <Plus className="size-4" />
             <span className="hidden sm:inline">Nova transação</span>
@@ -171,6 +290,7 @@ export function TransactionsPage() {
             <TransactionRow
               key={transaction.id}
               transaction={transaction}
+              onEdit={handleEdit}
               onDelete={handleDelete}
             />
           ))
@@ -190,6 +310,24 @@ export function TransactionsPage() {
           onPageChange={setCurrentPage}
         />
       </div>
+
+      {editingTransaction && (
+        <EditTransactionModal
+          transaction={editingTransaction}
+          open={true}
+          onOpenChange={(open) => {
+            if (!open) setEditingTransaction(null);
+          }}
+          onSubmit={handleEditSubmit}
+        />
+      )}
+
+      <DeleteDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={confirmDelete}
+        loading={isDeleting}
+      />
     </div>
   );
 }

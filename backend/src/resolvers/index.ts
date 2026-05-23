@@ -1,12 +1,18 @@
 import * as userService from "@/services/user.js";
 import * as transactionService from "@/services/transaction.js";
 import type { GraphQLContext } from "@/types/index.js";
-import type { CreateUserInput, CreateTransactionInput } from "@/types/graphql.js";
+import type {
+  CreateTransactionInput,
+  CreateUserInput,
+  UpdateTransactionInput,
+} from "@/types/graphql.js";
 
 export const resolvers = {
   Query: {
     users: () => userService.listUsers(),
     user: (_parent: unknown, { id }: { id: string }) => userService.getUserById(id),
+    userByEmail: (_parent: unknown, { email }: { email: string }) =>
+      userService.getUserByEmail(email),
     transactions: (_parent: unknown, { userId }: { userId?: string }) =>
       transactionService.listTransactions(userId ?? undefined),
     transaction: (_parent: unknown, { id }: { id: string }) =>
@@ -18,6 +24,12 @@ export const resolvers = {
       userService.createUser(input),
     createTransaction: (_parent: unknown, { input }: { input: CreateTransactionInput }) =>
       transactionService.createTransaction(input),
+    updateTransaction: (
+      _parent: unknown,
+      { id, input }: { id: string; input: UpdateTransactionInput },
+    ) => transactionService.updateTransaction(id, input),
+    deleteTransaction: (_parent: unknown, { id }: { id: string }) =>
+      transactionService.deleteTransaction(id),
   },
 
   User: {

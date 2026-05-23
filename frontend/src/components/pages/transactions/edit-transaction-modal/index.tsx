@@ -6,7 +6,6 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTrigger,
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import {
@@ -17,25 +16,30 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 
-import type { CreateTransactionInput } from "~/services/transactions";
+import { categories, TRANSACTION_TYPE_LABEL } from "../data";
+import type { UpdateTransactionInput } from "#/services/transactions";
+import type { Transaction } from "#/types/dashboard";
 
-import { categories, TRANSACTION_TYPE_LABEL } from "./data";
-
-type NewTransactionModalProps = {
-  onSubmit: (input: Omit<CreateTransactionInput, "userId">) => Promise<void>;
-  children: React.ReactNode;
+type EditTransactionModalProps = {
+  transaction: Transaction;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (input: UpdateTransactionInput) => Promise<void>;
 };
 
-export function NewTransactionModal({
+export function EditTransactionModal({
+  transaction,
+  open,
+  onOpenChange,
   onSubmit,
-  children,
-}: NewTransactionModalProps) {
-  const [open, setOpen] = useState(false);
-  const [description, setDescription] = useState("");
-  const [value, setValue] = useState("");
-  const [type, setType] = useState<"INCOME" | "EXPENSE">("EXPENSE");
-  const [category, setCategory] = useState("");
-  const [date, setDate] = useState("");
+}: EditTransactionModalProps) {
+  const [description, setDescription] = useState(transaction.description);
+  const [value, setValue] = useState(
+    transaction.amount.toFixed(2).replace(".", ","),
+  );
+  const [type, setType] = useState<"INCOME" | "EXPENSE">(transaction.type);
+  const [category, setCategory] = useState(transaction.category);
+  const [date, setDate] = useState(transaction.date);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -62,30 +66,19 @@ export function NewTransactionModal({
         category,
         date,
       });
-      setOpen(false);
-      resetForm();
+      onOpenChange(false);
     } catch {
-      setError("Erro ao criar transação. Tente novamente.");
+      setError("Erro ao atualizar transação. Tente novamente.");
     } finally {
       setSaving(false);
     }
   };
 
-  const resetForm = () => {
-    setDescription("");
-    setValue("");
-    setType("EXPENSE");
-    setCategory("");
-    setDate("");
-  };
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
-          <DialogHeader title="Nova transação" />
+          <DialogHeader title="Editar transação" />
 
           {error && (
             <p className="px-4 pt-2 text-sm text-red-base" role="alert">
@@ -122,7 +115,7 @@ export function NewTransactionModal({
 
             <div className="flex flex-col gap-1">
               <label
-                htmlFor="modal-tipo"
+                htmlFor="edit-tipo"
                 className="text-xs font-semibold text-foreground"
               >
                 Tipo
@@ -132,7 +125,7 @@ export function NewTransactionModal({
                 value={type}
                 onValueChange={(v) => setType(v as "INCOME" | "EXPENSE")}
               >
-                <SelectTrigger id="modal-tipo">
+                <SelectTrigger id="edit-tipo">
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
 
@@ -149,14 +142,14 @@ export function NewTransactionModal({
 
             <div className="flex flex-col gap-1">
               <label
-                htmlFor="modal-categoria"
+                htmlFor="edit-categoria"
                 className="text-xs font-semibold text-foreground"
               >
                 Categoria
               </label>
 
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger id="modal-categoria">
+                <SelectTrigger id="edit-categoria">
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
 
@@ -175,16 +168,13 @@ export function NewTransactionModal({
             <Button
               type="button"
               variant="outline"
-              onClick={() => {
-                setOpen(false);
-                resetForm();
-              }}
+              onClick={() => onOpenChange(false)}
             >
               Cancelar
             </Button>
 
             <Button type="submit" disabled={saving}>
-              {saving ? "Salvando..." : "Salvar transação"}
+              {saving ? "Salvando..." : "Salvar alterações"}
             </Button>
           </DialogFooter>
         </form>

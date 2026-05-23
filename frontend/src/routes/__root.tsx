@@ -1,9 +1,11 @@
+import { ApolloProvider } from "@apollo/client/react";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
 import { AuthProvider } from "~/hooks/useAuth";
 import { ThemeProvider } from "~/hooks/useTheme";
+import { apolloClient } from "~/lib/apollo";
 import appCss from "../styles.css?url";
 
 export const Route = createRootRoute({
@@ -55,9 +57,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body suppressHydrationWarning>
-        <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </ThemeProvider>
+        <ApolloProvider client={apolloClient}>
+          <ThemeProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </ThemeProvider>
+        </ApolloProvider>
         <TanStackDevtools
           config={{
             position: "bottom-right",

@@ -24,11 +24,12 @@ type FiltersProps = {
 
 const typeOptions = [
   { label: "Todos", value: "all" },
-  { label: "Entrada", value: "income" },
-  { label: "Saída", value: "expense" },
+  { label: "Entrada", value: "INCOME" },
+  { label: "Saída", value: "EXPENSE" },
 ];
 
 const periodOptions = [
+  { label: "Todos os períodos", value: "all" },
   { label: "Novembro / 2025", value: "11/2025" },
   { label: "Dezembro / 2025", value: "12/2025" },
   { label: "Outubro / 2025", value: "10/2025" },

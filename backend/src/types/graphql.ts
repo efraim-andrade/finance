@@ -17,3 +17,11 @@ export type CreateTransactionInput = {
   date: string;
   userId: string;
 };
+
+export type UpdateTransactionInput = {
+  description?: string;
+  amount?: number;
+  type?: TransactionType;
+  category?: string;
+  date?: string;
+};

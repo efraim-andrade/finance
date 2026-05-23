@@ -20,18 +20,28 @@ const signupSchema = z.object({
 type SignupForm = z.infer<typeof signupSchema>;
 
 export function Signup() {
-  const { register: signup } = useAuth();
+  const { register: signup, error } = useAuth();
 
   const {
     register,
     handleSubmit,
+    setError: setFormError,
     formState: { errors, isSubmitting },
   } = useForm<SignupForm>({
     resolver: zodResolver(signupSchema),
   });
 
-  function onSubmit(data: SignupForm) {
-    signup(data.name, data.email, data.password);
+  async function onSubmit(data: SignupForm) {
+    try {
+      await signup(data.name, data.email, data.password);
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Erro ao criar conta. Tente novamente.";
+
+      setFormError("root", { message });
+    }
   }
 
   return (
@@ -49,6 +59,18 @@ export function Signup() {
               Comece a controlar suas finanças ainda hoje
             </p>
           </div>
+
+          {errors.root?.message && (
+            <p className="text-sm text-red-base" role="alert">
+              {errors.root.message}
+            </p>
+          )}
+
+          {error && (
+            <p className="text-sm text-red-base" role="alert">
+              {error}
+            </p>
+          )}
 
           <div className="space-y-4">
             <Input
@@ -80,7 +102,7 @@ export function Signup() {
           </div>
 
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            Cadastrar
+            {isSubmitting ? "Cadastrando..." : "Cadastrar"}
           </Button>
 
           <div className="relative flex items-center">

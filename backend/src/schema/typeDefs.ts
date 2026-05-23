@@ -32,6 +32,7 @@ export const typeDefs = gql`
   type Query {
     users: [User!]!
     user(id: ID!): User
+    userByEmail(email: String!): User
     transactions(userId: ID): [Transaction!]!
     transaction(id: ID!): Transaction
   }
@@ -51,8 +52,18 @@ export const typeDefs = gql`
     userId: ID!
   }
 
+  input UpdateTransactionInput {
+    description: String
+    amount: Float
+    type: TransactionType
+    category: String
+    date: DateTime
+  }
+
   type Mutation {
     createUser(input: CreateUserInput!): User!
     createTransaction(input: CreateTransactionInput!): Transaction!
+    updateTransaction(id: ID!, input: UpdateTransactionInput!): Transaction!
+    deleteTransaction(id: ID!): ID!
   }
 `;

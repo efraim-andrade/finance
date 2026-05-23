@@ -16,9 +16,9 @@ export type Transaction = {
   amount: number;
   type: TransactionType;
   category: string;
-  categoryColor: CategoryColor;
   date: string;
-  tag: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type CategorySummary = {

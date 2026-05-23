@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
 import { useState } from "react";
+
 import { Logo } from "~/components/logo";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
@@ -11,15 +12,35 @@ import { LabelButton } from "~/components/ui/label-button";
 import { useAuth } from "~/hooks/useAuth";
 
 export function Login() {
-  const { login } = useAuth();
+  const { login, error } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    login(email, password);
+    setFormError(null);
+
+    if (!email || !password) {
+      setFormError("Preencha todos os campos.");
+
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await login(email, password);
+    } catch {
+      // error is set in context
+    } finally {
+      setLoading(false);
+    }
   }
+
+  const displayError = formError || error;
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-8">
@@ -32,10 +53,16 @@ export function Login() {
               Fazer login
             </h1>
 
-            <p className="text-caption-sm text-muted-foreground">
+            <p className="text-body-md text-muted-foreground">
               Entre na sua conta para continuar
             </p>
           </div>
+
+          {displayError && (
+            <p className="text-sm text-red-base" role="alert">
+              {displayError}
+            </p>
+          )}
 
           <div className="space-y-4">
             <Input
@@ -80,8 +107,8 @@ export function Login() {
             </div>
           </div>
 
-          <Button type="submit" className="w-full">
-            Entrar
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Entrando..." : "Entrar"}
           </Button>
 
           <div className="relative flex items-center">
