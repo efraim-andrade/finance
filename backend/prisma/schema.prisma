@@ -10,6 +10,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// User-defined category for grouping transactions.
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String   @default("")
+  color       String
+  icon        String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("categories")
+}
+
 // ─── Models ──────────────────────────────────────────────────────────────────
 
 /// Core user account.

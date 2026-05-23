@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 import { formatBRL, parseBRL } from "~/lib/format-brl";
-import { INPUT_CLASSES, cn } from "~/lib/utils";
+import { cn, INPUT_CLASSES } from "~/lib/utils";
 import { Field } from "../field";
 
 type MoneyInputProps = Omit<
@@ -20,7 +20,10 @@ type MoneyInputProps = Omit<
 };
 
 const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(
-  ({ className, label, helper, value, onChange, onBlur, onFocus, ...props }, ref) => {
+  (
+    { className, label, helper, value, onChange, onBlur, onFocus, ...props },
+    ref,
+  ) => {
     const [internalDisplay, setInternalDisplay] = useState(() =>
       formatBRL(value ?? 0),
     );

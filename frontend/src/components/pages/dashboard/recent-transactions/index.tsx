@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import {
   ChevronRight,
   CircleArrowDown,
@@ -5,15 +6,13 @@ import {
   Plus,
 } from "lucide-react";
 import { useState } from "react";
-
-import { NewTransactionModal } from "@/components/new-transaction-modal";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Link } from "@/components/ui/link";
-import { Tag } from "@/components/ui/tag";
 import { getCategoryMeta } from "#/lib/category-icons";
 import { cn } from "#/lib/utils";
 import type { Transaction } from "#/types/dashboard";
+import { NewTransactionModal } from "@/components/new-transaction-modal";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tag } from "@/components/ui/tag";
 
 type RecentTransactionsProps = {
   transactions: Transaction[];
@@ -29,7 +28,10 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
           Transações recentes
         </span>
 
-        <Link underline="hover" className="gap-0.5 text-sm">
+        <Link
+          to="/app/transacoes"
+          className="inline-flex items-center gap-0.5 text-sm font-medium text-brand-base transition-all outline-none hover:underline focus-visible:underline"
+        >
           Ver todas
           <ChevronRight className="size-4" />
         </Link>

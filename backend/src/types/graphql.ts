@@ -25,3 +25,10 @@ export type UpdateTransactionInput = {
   category?: string;
   date?: string;
 };
+
+export type CreateCategoryInput = {
+  name: string;
+  description?: string | null;
+  color: string;
+  icon: string;
+};

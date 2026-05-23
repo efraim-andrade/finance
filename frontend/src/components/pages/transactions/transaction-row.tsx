@@ -1,11 +1,9 @@
 import { Pencil, Trash2 } from "lucide-react";
-
+import { getCategoryMeta } from "#/lib/category-icons";
+import type { Transaction } from "#/types/dashboard";
 import { IconButton } from "~/components/ui/icon-button";
 import { Tag } from "~/components/ui/tag";
 import { TransactionType } from "~/components/ui/transaction-type";
-
-import { getCategoryMeta } from "#/lib/category-icons";
-import type { Transaction } from "#/types/dashboard";
 
 import { TRANSACTION_TYPE_LABEL } from "./data";
 

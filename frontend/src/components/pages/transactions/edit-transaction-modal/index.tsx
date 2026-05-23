@@ -1,13 +1,16 @@
 import { useState } from "react";
 
+import { useCategoryOptions } from "#/hooks/useCategoryOptions";
+import type { UpdateTransactionInput } from "#/services/transactions";
+import type { Transaction } from "#/types/dashboard";
 import { Button } from "~/components/ui/button";
+import { DateInput } from "~/components/ui/date-input";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
 } from "~/components/ui/dialog";
-import { DateInput } from "~/components/ui/date-input";
 import { Input } from "~/components/ui/input";
 import { MoneyInput } from "~/components/ui/money-input";
 import {
@@ -17,10 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-
-import { categories, TRANSACTION_TYPE_LABEL } from "../data";
-import type { UpdateTransactionInput } from "#/services/transactions";
-import type { Transaction } from "#/types/dashboard";
+import { TRANSACTION_TYPE_LABEL } from "../data";
 
 type EditTransactionModalProps = {
   transaction: Transaction;
@@ -39,6 +39,7 @@ export function EditTransactionModal({
   const [value, setValue] = useState(transaction.amount);
   const [type, setType] = useState<"INCOME" | "EXPENSE">(transaction.type);
   const [category, setCategory] = useState(transaction.category);
+  const categoryOptions = useCategoryOptions();
   const [date, setDate] = useState(transaction.date);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -147,7 +148,7 @@ export function EditTransactionModal({
                 </SelectTrigger>
 
                 <SelectContent>
-                  {categories.map((cat) => (
+                  {categoryOptions.map((cat) => (
                     <SelectItem key={cat.value} value={cat.value}>
                       {cat.label}
                     </SelectItem>

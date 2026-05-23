@@ -1,7 +1,9 @@
+import * as categoryService from "@/services/category.js";
 import * as userService from "@/services/user.js";
 import * as transactionService from "@/services/transaction.js";
 import type { GraphQLContext } from "@/types/index.js";
 import type {
+  CreateCategoryInput,
   CreateTransactionInput,
   CreateUserInput,
   UpdateTransactionInput,
@@ -17,6 +19,8 @@ export const resolvers = {
       transactionService.listTransactions(userId ?? undefined),
     transaction: (_parent: unknown, { id }: { id: string }) =>
       transactionService.getTransactionById(id),
+    categories: () => categoryService.listCategories(),
+    category: (_parent: unknown, { id }: { id: string }) => categoryService.getCategoryById(id),
   },
 
   Mutation: {
@@ -30,6 +34,8 @@ export const resolvers = {
     ) => transactionService.updateTransaction(id, input),
     deleteTransaction: (_parent: unknown, { id }: { id: string }) =>
       transactionService.deleteTransaction(id),
+    createCategory: (_parent: unknown, { input }: { input: CreateCategoryInput }) =>
+      categoryService.createCategory(input),
   },
 
   User: {

@@ -1,6 +1,7 @@
 import { CircleArrowDown, CircleArrowUp } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { DateInput } from "@/components/ui/date-input";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +9,6 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
-import { DateInput } from "@/components/ui/date-input";
 import { Input } from "@/components/ui/input";
 import { MoneyInput } from "@/components/ui/money-input";
 import {
@@ -116,11 +116,7 @@ export function NewTransactionModal({
           />
 
           <div className="flex gap-4">
-            <DateInput
-              label="Data"
-              value={date}
-              onChange={setDate}
-            />
+            <DateInput label="Data" value={date} onChange={setDate} />
 
             <MoneyInput
               label="Valor"

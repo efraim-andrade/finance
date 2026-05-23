@@ -1,6 +1,8 @@
 import { useState } from "react";
 
+import { useCategoryOptions } from "#/hooks/useCategoryOptions";
 import { Button } from "~/components/ui/button";
+import { DateInput } from "~/components/ui/date-input";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +10,6 @@ import {
   DialogHeader,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { DateInput } from "~/components/ui/date-input";
 import { Input } from "~/components/ui/input";
 import { MoneyInput } from "~/components/ui/money-input";
 import {
@@ -21,7 +22,7 @@ import {
 
 import type { CreateTransactionInput } from "~/services/transactions";
 
-import { categories, TRANSACTION_TYPE_LABEL } from "./data";
+import { TRANSACTION_TYPE_LABEL } from "./data";
 
 type NewTransactionModalProps = {
   onSubmit: (input: Omit<CreateTransactionInput, "userId">) => Promise<void>;
@@ -37,6 +38,7 @@ export function NewTransactionModal({
   const [value, setValue] = useState(0);
   const [type, setType] = useState<"INCOME" | "EXPENSE">("EXPENSE");
   const [category, setCategory] = useState("");
+  const categoryOptions = useCategoryOptions();
   const [date, setDate] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -156,7 +158,7 @@ export function NewTransactionModal({
                 </SelectTrigger>
 
                 <SelectContent>
-                  {categories.map((cat) => (
+                  {categoryOptions.map((cat) => (
                     <SelectItem key={cat.value} value={cat.value}>
                       {cat.label}
                     </SelectItem>

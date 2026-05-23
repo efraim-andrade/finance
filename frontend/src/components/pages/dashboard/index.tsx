@@ -5,7 +5,16 @@ import { RecentTransactions } from "./recent-transactions";
 import { SummaryCards } from "./summary-cards";
 
 export function Dashboard() {
-  const { summary, transactions, categories, isLoading } = useDashboard();
+  const { summary, transactions, categories, isLoading, error } =
+    useDashboard();
+
+  if (error) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-8">
+        <p className="text-destructive">Erro ao carregar dados</p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

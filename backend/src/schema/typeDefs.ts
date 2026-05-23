@@ -29,12 +29,24 @@ export const typeDefs = gql`
     updatedAt: DateTime!
   }
 
+  type Category {
+    id: ID!
+    name: String!
+    description: String!
+    color: String!
+    icon: String!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
   type Query {
     users: [User!]!
     user(id: ID!): User
     userByEmail(email: String!): User
     transactions(userId: ID): [Transaction!]!
     transaction(id: ID!): Transaction
+    categories: [Category!]!
+    category(id: ID!): Category
   }
 
   input CreateUserInput {
@@ -60,10 +72,18 @@ export const typeDefs = gql`
     date: DateTime
   }
 
+  input CreateCategoryInput {
+    name: String!
+    description: String
+    color: String!
+    icon: String!
+  }
+
   type Mutation {
     createUser(input: CreateUserInput!): User!
     createTransaction(input: CreateTransactionInput!): Transaction!
     updateTransaction(id: ID!, input: UpdateTransactionInput!): Transaction!
     deleteTransaction(id: ID!): ID!
+    createCategory(input: CreateCategoryInput!): Category!
   }
 `;

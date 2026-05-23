@@ -1,8 +1,5 @@
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-
-import { Button } from "~/components/ui/button";
-
 import { useAuth } from "#/hooks/useAuth";
 import { useTransactions } from "#/hooks/useTransactions";
 import type {
@@ -10,6 +7,7 @@ import type {
   UpdateTransactionInput,
 } from "#/services/transactions";
 import type { Transaction } from "#/types/dashboard";
+import { Button } from "~/components/ui/button";
 
 import { DeleteDialog } from "./delete-dialog";
 import { EditTransactionModal } from "./edit-transaction-modal";

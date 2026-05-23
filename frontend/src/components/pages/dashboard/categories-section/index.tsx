@@ -1,10 +1,10 @@
+import { Link } from "@tanstack/react-router";
 import { ChevronRight, Plus } from "lucide-react";
 import { useState } from "react";
 
 import { NewCategoryModal } from "@/components/new-category-modal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Link } from "@/components/ui/link";
 import { Tag } from "@/components/ui/tag";
 import type { CategorySummary } from "@/types/dashboard";
 
@@ -22,7 +22,10 @@ export function CategoriesSection({ categories }: CategoriesSectionProps) {
           Categorias
         </span>
 
-        <Link underline="hover" className="gap-0.5 text-sm">
+        <Link
+          to="/app/categorias"
+          className="inline-flex items-center gap-0.5 text-sm font-medium text-brand-base transition-all outline-none hover:underline focus-visible:underline"
+        >
           Gerenciar
           <ChevronRight className="size-4" />
         </Link>

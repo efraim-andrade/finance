@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 
+import { useCategoryOptions } from "#/hooks/useCategoryOptions";
 import { Field } from "~/components/ui/field";
 import {
   Select,
@@ -8,8 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-
-import { categories } from "./data";
 
 type FiltersProps = {
   search: string;
@@ -46,6 +45,7 @@ export function Filters({
   periodFilter,
   onPeriodFilterChange,
 }: FiltersProps) {
+  const categoryOptions = useCategoryOptions();
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <Field label="Buscar">
@@ -99,7 +99,7 @@ export function Filters({
           <SelectContent>
             <SelectItem value="all">Todas</SelectItem>
 
-            {categories.map((cat) => (
+            {categoryOptions.map((cat) => (
               <SelectItem key={cat.value} value={cat.value}>
                 {cat.label}
               </SelectItem>

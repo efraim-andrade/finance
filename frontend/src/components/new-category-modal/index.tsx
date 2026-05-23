@@ -1,3 +1,4 @@
+import { useMutation } from "@apollo/client/react";
 import type { LucideIcon } from "lucide-react";
 import {
   BaggageClaim,
@@ -18,6 +19,8 @@ import {
   Wrench,
 } from "lucide-react";
 import { useState } from "react";
+import { cn } from "#/lib/utils";
+import { CREATE_CATEGORY } from "#/services/categories";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,7 +29,6 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 
 const ICON_OPTIONS: { key: string; icon: LucideIcon }[] = [
   { key: "briefcase", icon: BriefcaseBusiness },
@@ -71,13 +73,31 @@ export function NewCategoryModal({
   const [selectedIcon, setSelectedIcon] = useState("briefcase");
   const [selectedColor, setSelectedColor] = useState("green");
 
-  const handleSave = () => {
-    if (!title.trim()) {
+  const [doCreate, { loading }] = useMutation(CREATE_CATEGORY, {
+    refetchQueries: ["ListCategories"],
+  });
+
+  const handleSave = async () => {
+    if (!title.trim() || loading) {
       return;
     }
 
-    // TODO: create category via Apollo mutation
+    await doCreate({
+      variables: {
+        input: {
+          name: title.trim(),
+          description: description || null,
+          color: selectedColor,
+          icon: selectedIcon,
+        },
+      },
+    });
+
     onOpenChange(false);
+    setTitle("");
+    setDescription("");
+    setSelectedIcon("briefcase");
+    setSelectedColor("green");
   };
 
   return (
@@ -158,6 +178,7 @@ export function NewCategoryModal({
             size="lg"
             className="w-full"
             onClick={handleSave}
+            disabled={loading}
           >
             Salvar
           </Button>
