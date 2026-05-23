@@ -26,6 +26,12 @@ test-results/
 .graphify
 .vscode
 
+# SQLite database
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
 # Design files
 financy-design
 designs/*.pen
