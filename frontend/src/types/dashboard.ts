@@ -17,6 +17,7 @@ export type Transaction = {
   type: TransactionType;
   category: string;
   date: string;
+  isExample?: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -35,6 +36,7 @@ export type CategoryDetail = {
   description: string;
   color: CategoryColor;
   icon: string;
+  userId?: string | null;
   itemCount: number;
 };
 

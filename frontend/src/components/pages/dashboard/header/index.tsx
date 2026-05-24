@@ -83,9 +83,17 @@ type UserMenuProps = {
   isOpen: boolean;
   onClose: () => void;
   onLogout: () => void;
+  userName: string | null;
+  userEmail: string | null;
 };
 
-function UserMenu({ isOpen, onClose, onLogout }: UserMenuProps) {
+function UserMenu({
+  isOpen,
+  onClose,
+  onLogout,
+  userName,
+  userEmail,
+}: UserMenuProps) {
   if (!isOpen) return null;
 
   return (
@@ -106,10 +114,12 @@ function UserMenu({ isOpen, onClose, onLogout }: UserMenuProps) {
         role="menu"
       >
         <div className="border-b border-border px-4 py-3">
-          <p className="text-caption-sm font-medium text-foreground">User</p>
+          <p className="text-caption-sm font-medium text-foreground">
+            {userName ?? "Usuário"}
+          </p>
 
           <p className="text-caption-sm text-muted-foreground">
-            user@email.com
+            {userEmail ?? "-"}
           </p>
         </div>
 
@@ -137,8 +147,17 @@ function UserMenu({ isOpen, onClose, onLogout }: UserMenuProps) {
   );
 }
 
+function computeInitials(name: string | null): string {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 1).toUpperCase();
+  return (
+    parts[0].slice(0, 1) + parts[parts.length - 1].slice(0, 1)
+  ).toUpperCase();
+}
+
 export function DashboardHeader() {
-  const { logout } = useAuth();
+  const { logout, userName, userEmail } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const { pathname } = useLocation();
@@ -200,7 +219,7 @@ export function DashboardHeader() {
           aria-expanded={menuOpen}
         >
           <div className="flex size-8 items-center justify-center rounded-full bg-muted text-xs font-medium text-foreground">
-            CT
+            {computeInitials(userName)}
           </div>
 
           <ChevronDown className="hidden size-4 text-muted-foreground md:block" />
@@ -210,6 +229,8 @@ export function DashboardHeader() {
           isOpen={menuOpen}
           onClose={() => setMenuOpen(false)}
           onLogout={logout}
+          userName={userName}
+          userEmail={userEmail}
         />
       </div>
     </header>

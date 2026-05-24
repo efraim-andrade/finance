@@ -25,6 +25,7 @@ export const typeDefs = gql`
     category: String!
     date: DateTime!
     user: User!
+    isExample: Boolean!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -35,8 +36,14 @@ export const typeDefs = gql`
     description: String!
     color: String!
     icon: String!
+    userId: ID
     createdAt: DateTime!
     updatedAt: DateTime!
+  }
+
+  type AuthPayload {
+    user: User!
+    token: String!
   }
 
   type Query {
@@ -45,12 +52,17 @@ export const typeDefs = gql`
     userByEmail(email: String!): User
     transactions(userId: ID): [Transaction!]!
     transaction(id: ID!): Transaction
-    categories: [Category!]!
+    categories(userId: ID): [Category!]!
     category(id: ID!): Category
   }
 
   input CreateUserInput {
     name: String!
+    email: String!
+    password: String!
+  }
+
+  input LoginInput {
     email: String!
     password: String!
   }
@@ -62,6 +74,7 @@ export const typeDefs = gql`
     category: String!
     date: DateTime!
     userId: ID!
+    isExample: Boolean
   }
 
   input UpdateTransactionInput {
@@ -77,6 +90,7 @@ export const typeDefs = gql`
     description: String
     color: String!
     icon: String!
+    userId: ID
   }
 
   input UpdateCategoryInput {
@@ -87,12 +101,15 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createUser(input: CreateUserInput!): User!
+    createUser(input: CreateUserInput!): AuthPayload!
+    login(input: LoginInput!): AuthPayload!
+    deleteUser(id: ID!): ID!
     createTransaction(input: CreateTransactionInput!): Transaction!
     updateTransaction(id: ID!, input: UpdateTransactionInput!): Transaction!
     deleteTransaction(id: ID!): ID!
     createCategory(input: CreateCategoryInput!): Category!
     updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
     deleteCategory(id: ID!): ID!
+    deleteExampleTransactions(userId: ID!): Int!
   }
 `;

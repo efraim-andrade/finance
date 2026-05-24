@@ -9,6 +9,22 @@ export type CreateUserInput = {
   password: string;
 };
 
+export type LoginInput = {
+  email: string;
+  password: string;
+};
+
+export type AuthPayload = {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+  token: string;
+};
+
 export type CreateTransactionInput = {
   description: string;
   amount: number;
@@ -16,6 +32,7 @@ export type CreateTransactionInput = {
   category: string;
   date: string;
   userId: string;
+  isExample?: boolean;
 };
 
 export type UpdateTransactionInput = {
@@ -24,6 +41,7 @@ export type UpdateTransactionInput = {
   type?: TransactionType;
   category?: string;
   date?: string;
+  isExample?: boolean;
 };
 
 export type CreateCategoryInput = {
@@ -31,6 +49,7 @@ export type CreateCategoryInput = {
   description?: string | null;
   color: string;
   icon: string;
+  userId?: string;
 };
 
 export type UpdateCategoryInput = {

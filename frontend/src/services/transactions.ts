@@ -36,15 +36,19 @@ export type UpdateTransactionInput = {
   date?: string;
 };
 
-export const GET_TRANSACTIONS: TypedDocumentNode<TransactionsData> = gql`
-	query GetTransactions {
-		transactions {
+export const GET_TRANSACTIONS: TypedDocumentNode<
+  TransactionsData,
+  { userId?: string | null }
+> = gql`
+	query GetTransactions($userId: ID) {
+		transactions(userId: $userId) {
 			id
 			description
 			amount
 			type
 			category
 			date
+			isExample
 			createdAt
 			updatedAt
 		}
@@ -63,6 +67,7 @@ export const CREATE_TRANSACTION: TypedDocumentNode<
 			type
 			category
 			date
+			isExample
 			createdAt
 			updatedAt
 		}
@@ -81,6 +86,7 @@ export const UPDATE_TRANSACTION: TypedDocumentNode<
 			type
 			category
 			date
+			isExample
 			createdAt
 			updatedAt
 		}
@@ -95,5 +101,14 @@ export const DELETE_TRANSACTION: TypedDocumentNode<
 		deleteTransaction(id: $id) {
 			id
 		}
+	}
+`;
+
+export const DELETE_EXAMPLE_TRANSACTIONS: TypedDocumentNode<
+  { deleteExampleTransactions: number },
+  { userId: string }
+> = gql`
+	mutation DeleteExampleTransactions($userId: ID!) {
+		deleteExampleTransactions(userId: $userId)
 	}
 `;

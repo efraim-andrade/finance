@@ -35,6 +35,7 @@ export async function createTransaction(input: CreateTransactionInput) {
       category: input.category,
       date: new Date(input.date),
       userId: input.userId,
+      isExample: input.isExample ?? false,
     },
     include: { user: true },
   });
@@ -58,4 +59,12 @@ export async function deleteTransaction(id: string): Promise<string> {
   await prisma.transaction.delete({ where: { id } });
 
   return id;
+}
+
+export async function deleteExampleTransactions(userId: string): Promise<number> {
+  const result = await prisma.transaction.deleteMany({
+    where: { userId, isExample: true },
+  });
+
+  return result.count;
 }

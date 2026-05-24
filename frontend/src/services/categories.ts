@@ -24,6 +24,7 @@ export type CreateCategoryInput = {
   description?: string | null;
   color: string;
   icon: string;
+  userId?: string;
 };
 
 export type UpdateCategoryInput = {
@@ -33,14 +34,18 @@ export type UpdateCategoryInput = {
   icon?: string;
 };
 
-export const LIST_CATEGORIES: TypedDocumentNode<ListCategoriesData> = gql`
-	query ListCategories {
-		categories {
+export const LIST_CATEGORIES: TypedDocumentNode<
+  ListCategoriesData,
+  { userId?: string | null }
+> = gql`
+	query ListCategories($userId: ID) {
+		categories(userId: $userId) {
 			id
 			name
 			description
 			color
 			icon
+			userId
 		}
 	}
 `;
@@ -56,6 +61,7 @@ export const CREATE_CATEGORY: TypedDocumentNode<
 			description
 			color
 			icon
+			userId
 		}
 	}
 `;
@@ -71,6 +77,7 @@ export const UPDATE_CATEGORY: TypedDocumentNode<
 			description
 			color
 			icon
+			userId
 		}
 	}
 `;

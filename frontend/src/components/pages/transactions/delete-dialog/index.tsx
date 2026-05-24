@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -6,6 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "~/components/ui/dialog";
 
 type DeleteDialogProps = {
@@ -13,6 +15,9 @@ type DeleteDialogProps = {
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   loading?: boolean;
+  children?: ReactNode;
+  title?: string;
+  description?: string;
 };
 
 export function DeleteDialog({
@@ -20,17 +25,19 @@ export function DeleteDialog({
   onOpenChange,
   onConfirm,
   loading,
+  children,
+  title = "Excluir transação",
+  description = "Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.",
 }: DeleteDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
+
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Excluir transação</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
 
-          <DialogDescription>
-            Tem certeza que deseja excluir esta transação? Esta ação não pode
-            ser desfeita.
-          </DialogDescription>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
         <DialogFooter>

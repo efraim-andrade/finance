@@ -1,16 +1,24 @@
 import type { TypedDocumentNode } from "@apollo/client";
 import { gql } from "@apollo/client";
 
+import type { Transaction } from "#/types/dashboard";
+
 type User = {
   id: string;
   name: string;
   email: string;
+  transactions?: Transaction[];
   createdAt: string;
   updatedAt: string;
 };
 
+type AuthPayload = {
+  user: User;
+  token: string;
+};
+
 type CreateUserData = {
-  createUser: User;
+  createUser: AuthPayload;
 };
 
 export type CreateUserInput = {
@@ -25,11 +33,38 @@ export const CREATE_USER: TypedDocumentNode<
 > = gql`
 	mutation CreateUser($input: CreateUserInput!) {
 		createUser(input: $input) {
-			id
-			name
-			email
-			createdAt
-			updatedAt
+			user {
+				id
+				name
+				email
+				createdAt
+				updatedAt
+			}
+			token
+		}
+	}
+`;
+
+type LoginData = {
+  login: AuthPayload;
+};
+
+export type LoginInput = {
+  email: string;
+  password: string;
+};
+
+export const LOGIN: TypedDocumentNode<LoginData, { input: LoginInput }> = gql`
+	mutation Login($input: LoginInput!) {
+		login(input: $input) {
+			user {
+				id
+				name
+				email
+				createdAt
+				updatedAt
+			}
+			token
 		}
 	}
 `;

@@ -1,5 +1,8 @@
-import { Plus } from "lucide-react";
+import { Plus, Receipt, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { EmptyState } from "#/components/empty-state";
+import { NewTransactionModal } from "#/components/new-transaction-modal";
 import { PageHeader } from "#/components/page-header";
 import { Button } from "#/components/ui/button";
 import { useAuth } from "#/hooks/useAuth";
@@ -9,8 +12,6 @@ import type {
   UpdateTransactionInput,
 } from "#/services/transactions";
 import type { Transaction } from "#/types/dashboard";
-
-import { NewTransactionModal } from "#/components/new-transaction-modal";
 import { DeleteDialog } from "./delete-dialog";
 import { EditTransactionModal } from "./edit-transaction-modal";
 import { Filters } from "./filters";
@@ -30,6 +31,8 @@ export function TransactionsPage() {
     updateTransaction,
     deleteTransaction,
     categoryMetaMap,
+    deleteExampleTransactions,
+    deleteExamplesLoading,
   } = useTransactions();
 
   const [search, setSearch] = useState("");
@@ -44,6 +47,9 @@ export function TransactionsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteExamplesDialog, setShowDeleteExamplesDialog] =
+    useState(false);
+  const [isDeletingExamples, setIsDeletingExamples] = useState(false);
 
   const filtered = useMemo(() => {
     let result = [...transactions];
@@ -93,13 +99,7 @@ export function TransactionsPage() {
   const handleCreate = async (
     input: Omit<CreateTransactionInput, "userId">,
   ) => {
-    if (!userId) {
-      throw new Error(
-        "Usuário não autenticado. Faça login novamente.",
-      );
-    }
-
-    await createTransaction({ ...input, userId });
+    await createTransaction({ ...input, userId: userId! });
   };
 
   const handleEdit = (transaction: Transaction) => {
@@ -133,6 +133,29 @@ export function TransactionsPage() {
       setIsDeleting(false);
     }
   };
+
+  const handleDeleteExamples = () => {
+    setShowDeleteExamplesDialog(true);
+  };
+
+  const confirmDeleteExamples = async () => {
+    if (!userId) return;
+
+    setIsDeletingExamples(true);
+
+    try {
+      const count = await deleteExampleTransactions(userId);
+
+      setShowDeleteExamplesDialog(false);
+      toast.success(`${count} transações de exemplo removidas`);
+    } catch {
+      toast.error("Erro ao remover transações de exemplo");
+    } finally {
+      setIsDeletingExamples(false);
+    }
+  };
+
+  const hasExamples = transactions.some((t) => "isExample" in t && t.isExample);
 
   if (loading) {
     return (
@@ -211,13 +234,38 @@ export function TransactionsPage() {
         title="Transações"
         description="Gerencie todas as suas transações financeiras"
         action={
-          <NewTransactionModal onSubmit={handleCreate}>
-            <Button size="sm" className="gap-1.5">
-              <Plus className="size-4" />
-              <span className="hidden sm:inline">Nova transação</span>
-              <span className="sm:hidden">Nova</span>
-            </Button>
-          </NewTransactionModal>
+          <div className="flex items-center gap-2">
+            {hasExamples && (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5"
+                  onClick={handleDeleteExamples}
+                  disabled={deleteExamplesLoading}
+                >
+                  <Trash2 className="size-4" />
+                  <span className="hidden sm:inline">Remover exemplos</span>
+                  <span className="sm:hidden">Exemplos</span>
+                </Button>
+                <DeleteDialog
+                  open={showDeleteExamplesDialog}
+                  onOpenChange={setShowDeleteExamplesDialog}
+                  onConfirm={confirmDeleteExamples}
+                  loading={isDeletingExamples}
+                  title="Remover transações de exemplo"
+                  description="Tem certeza que deseja remover todas as transações de exemplo? Suas transações reais não serão afetadas."
+                />
+              </>
+            )}
+            <NewTransactionModal onSubmit={handleCreate}>
+              <Button size="sm" className="gap-1.5">
+                <Plus className="size-4" />
+                <span className="hidden sm:inline">Nova transação</span>
+                <span className="sm:hidden">Nova</span>
+              </Button>
+            </NewTransactionModal>
+          </div>
         }
       />
 
@@ -296,11 +344,19 @@ export function TransactionsPage() {
             />
           ))
         ) : (
-          <div className="flex h-40 items-center justify-center">
-            <p className="text-sm text-muted-foreground">
-              Nenhuma transação encontrada
-            </p>
-          </div>
+          <EmptyState
+            icon={Receipt}
+            title="Nenhuma transação encontrada"
+            description="Tente ajustar os filtros ou criar uma nova transação"
+            action={
+              <NewTransactionModal onSubmit={handleCreate}>
+                <Button size="sm" className="gap-1.5">
+                  <Plus className="size-4" />
+                  Nova transação
+                </Button>
+              </NewTransactionModal>
+            }
+          />
         )}
 
         <Pagination

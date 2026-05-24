@@ -12,6 +12,7 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/useAuth";
 
 type NewCategoryModalProps = {
   open: boolean;
@@ -24,6 +25,8 @@ export function NewCategoryModal({
   onOpenChange,
   editCategory,
 }: NewCategoryModalProps) {
+  const { userId } = useAuth();
+
   const [title, setTitle] = useState(editCategory?.name ?? "");
   const [description, setDescription] = useState(
     editCategory?.description ?? "",
@@ -81,6 +84,7 @@ export function NewCategoryModal({
             description: description || null,
             color: selectedColor,
             icon: selectedIcon,
+            userId: userId ?? undefined,
           },
         },
       });

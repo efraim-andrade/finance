@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Logo } from "~/components/logo";
 import { Button } from "~/components/ui/button";
@@ -12,7 +12,11 @@ import { LabelButton } from "~/components/ui/label-button";
 import { useAuth } from "~/hooks/useAuth";
 
 export function Login() {
-  const { login, error } = useAuth();
+  const { login, error, clearError } = useAuth();
+
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);

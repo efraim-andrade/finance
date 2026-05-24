@@ -11,16 +11,21 @@ datasource db {
 }
 
 /// User-defined category for grouping transactions.
+/// `userId` is null for global seed categories, non-null for user-specific categories.
 model Category {
   id          String   @id @default(uuid())
-  name        String   @unique
+  name        String
   description String   @default("")
   color       String
   icon        String
+  userId      String?  @map("user_id")
+
+  user User? @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([userId])
   @@map("categories")
 }
 
@@ -34,6 +39,7 @@ model User {
   passwordHash String @map("password_hash")
 
   transactions Transaction[]
+  categories   Category[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -49,6 +55,7 @@ model Transaction {
   type        String   // "INCOME" | "EXPENSE"
   category    String
   date        DateTime
+  isExample   Boolean  @default(false) @map("is_example")
 
   user   User   @relation(fields: [userId], references: [id])
   userId String @map("user_id")

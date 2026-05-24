@@ -1,14 +1,15 @@
 import * as categoryService from "@/services/category.js";
-import * as userService from "@/services/user.js";
 import * as transactionService from "@/services/transaction.js";
-import type { GraphQLContext } from "@/types/index.js";
+import * as userService from "@/services/user.js";
 import type {
   CreateCategoryInput,
   CreateTransactionInput,
   CreateUserInput,
+  LoginInput,
   UpdateCategoryInput,
   UpdateTransactionInput,
 } from "@/types/graphql.js";
+import type { GraphQLContext } from "@/types/index.js";
 
 export const resolvers = {
   Query: {
@@ -20,13 +21,17 @@ export const resolvers = {
       transactionService.listTransactions(userId ?? undefined),
     transaction: (_parent: unknown, { id }: { id: string }) =>
       transactionService.getTransactionById(id),
-    categories: () => categoryService.listCategories(),
+    categories: (_parent: unknown, { userId }: { userId?: string }) =>
+      categoryService.listCategories(userId ?? undefined),
     category: (_parent: unknown, { id }: { id: string }) => categoryService.getCategoryById(id),
   },
 
   Mutation: {
     createUser: (_parent: unknown, { input }: { input: CreateUserInput }) =>
       userService.createUser(input),
+    login: (_parent: unknown, { input }: { input: LoginInput }) =>
+      userService.loginUser(input.email, input.password),
+    deleteUser: (_parent: unknown, { id }: { id: string }) => userService.deleteUser(id),
     createTransaction: (_parent: unknown, { input }: { input: CreateTransactionInput }) =>
       transactionService.createTransaction(input),
     updateTransaction: (
@@ -41,6 +46,8 @@ export const resolvers = {
       categoryService.updateCategory(id, input),
     deleteCategory: (_parent: unknown, { id }: { id: string }) =>
       categoryService.deleteCategory(id),
+    deleteExampleTransactions: (_parent: unknown, { userId }: { userId: string }) =>
+      transactionService.deleteExampleTransactions(userId),
   },
 
   User: {

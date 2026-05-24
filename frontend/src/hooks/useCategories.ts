@@ -1,6 +1,7 @@
 import { useQuery } from "@apollo/client/react";
 import { useMemo } from "react";
 
+import { useAuth } from "#/hooks/useAuth";
 import { LIST_CATEGORIES } from "#/services/categories";
 import type { CategoryDetail } from "#/types/dashboard";
 
@@ -18,14 +19,25 @@ type UseCategoriesResult = {
 };
 
 export function useCategories(): UseCategoriesResult {
-  const { data, loading, error } = useQuery(LIST_CATEGORIES);
+  const { userId } = useAuth();
+
+  const { data, loading, error } = useQuery(LIST_CATEGORIES, {
+    variables: { userId: userId ?? undefined },
+  });
 
   const categories: CategoryDetail[] = useMemo(
     () =>
-      (data?.categories ?? []).map((category) => ({
-        ...category,
-        itemCount: 0,
-      })),
+      (data?.categories ?? []).map(
+        (cat: { id: string; name: string; description: string; color: string; icon: string; userId?: string | null }): CategoryDetail => ({
+          id: cat.id,
+          name: cat.name,
+          description: cat.description ?? "",
+          color: cat.color as CategoryDetail["color"],
+          icon: cat.icon,
+          userId: cat.userId,
+          itemCount: 0,
+        }),
+      ),
     [data],
   );
 

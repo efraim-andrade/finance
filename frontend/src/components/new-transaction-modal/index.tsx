@@ -1,200 +1,205 @@
 import { CircleArrowDown, CircleArrowUp } from "lucide-react";
 import { useState } from "react";
-
-import { useCategoryOptions } from "#/hooks/useCategoryOptions";
 import { Button } from "#/components/ui/button";
 import { DateInput } from "#/components/ui/date-input";
 import {
-	Dialog,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTrigger,
 } from "#/components/ui/dialog";
 import { Field } from "#/components/ui/field";
 import { Input } from "#/components/ui/input";
 import { MoneyInput } from "#/components/ui/money-input";
 import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "#/components/ui/select";
+import { useCategoryOptions } from "#/hooks/useCategoryOptions";
 import { cn } from "#/lib/utils";
 import type { CreateTransactionInput } from "#/services/transactions";
 import type { TransactionType } from "#/types/dashboard";
 
 type NewTransactionModalProps = {
-	onSubmit: (input: Omit<CreateTransactionInput, "userId">) => Promise<void>;
-	children: React.ReactNode;
+  onSubmit: (input: Omit<CreateTransactionInput, "userId">) => Promise<void>;
+  children: React.ReactNode;
 };
 
 export function NewTransactionModal({
-	onSubmit,
-	children,
+  onSubmit,
+  children,
 }: NewTransactionModalProps) {
-	const [open, setOpen] = useState(false);
-	const [type, setType] = useState<TransactionType>("EXPENSE");
-	const [description, setDescription] = useState("");
-	const [date, setDate] = useState("");
-	const [amount, setAmount] = useState(0);
-	const [category, setCategory] = useState("");
-	const [error, setError] = useState<string | null>(null);
-	const [saving, setSaving] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [type, setType] = useState<TransactionType>("EXPENSE");
+  const [description, setDescription] = useState("");
+  const [date, setDate] = useState("");
+  const [amount, setAmount] = useState(0);
+  const [category, setCategory] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
-	const categoryOptions = useCategoryOptions();
+  const categoryOptions = useCategoryOptions();
 
-	const resetForm = () => {
-		setType("EXPENSE");
-		setDescription("");
-		setDate("");
-		setAmount(0);
-		setCategory("");
-		setError(null);
-	};
+  const resetForm = () => {
+    setType("EXPENSE");
+    setDescription("");
+    setDate("");
+    setAmount(0);
+    setCategory("");
+    setError(null);
+  };
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setError(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
 
-		if (!description || !date || amount <= 0 || !category) {
-			return;
-		}
+    if (!description || !date || amount <= 0 || !category) {
+      return;
+    }
 
-		setSaving(true);
+    setSaving(true);
 
-		try {
-			await onSubmit({
-				description,
-				amount,
-				type,
-				category,
-				date,
-			});
-			setOpen(false);
-			resetForm();
-		} catch (err) {
-			setError(
-				err instanceof Error
-					? err.message
-					: "Erro ao criar transação. Tente novamente.",
-			);
-		} finally {
-			setSaving(false);
-		}
-	};
+    try {
+      await onSubmit({
+        description,
+        amount,
+        type,
+        category,
+        date,
+      });
+      setOpen(false);
+      resetForm();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Erro ao criar transação. Tente novamente.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
 
-	return (
-		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger asChild>{children}</DialogTrigger>
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
 
-			<DialogContent className="min-w-0 overflow-x-hidden sm:max-w-[448px]">
-				<DialogHeader
-					title="Nova transação"
-					description="Registre sua despesa ou receita"
-				/>
+      <DialogContent className="min-w-0 overflow-x-hidden sm:max-w-[448px]">
+        <DialogHeader
+          title="Nova transação"
+          description="Registre sua despesa ou receita"
+        />
 
-				{error && (
-					<p className="px-4 pt-2 text-sm text-red-base" role="alert">
-						{error}
-					</p>
-				)}
+        {error && (
+          <p className="px-4 pt-2 text-sm text-red-base" role="alert">
+            {error}
+          </p>
+        )}
 
-				<form onSubmit={handleSubmit}>
-					<div className="flex w-full min-w-0 gap-2 rounded-xl border border-border p-2">
-						<button
-							type="button"
-							onClick={() => setType("EXPENSE")}
-							className={cn(
-								"flex min-w-0 flex-1 items-center justify-center gap-3 rounded-lg px-3 py-[14px] text-base font-medium transition-colors",
-								type === "EXPENSE"
-									? "border border-red-base bg-gray-100 text-gray-900"
-									: "border border-transparent text-gray-500",
-							)}
-						>
-							<CircleArrowDown
-								className={cn(
-									"size-4",
-									type === "EXPENSE" ? "text-red-base" : "text-gray-400",
-								)}
-							/>
-							Despesa
-						</button>
+        <form onSubmit={handleSubmit}>
+          <div className="flex w-full min-w-0 gap-2 rounded-xl border border-border p-2">
+            <button
+              type="button"
+              onClick={() => setType("EXPENSE")}
+              className={cn(
+                "flex min-w-0 flex-1 items-center justify-center gap-3 rounded-lg px-3 py-[14px] text-base font-medium transition-colors",
+                type === "EXPENSE"
+                  ? "border border-red-base bg-gray-100 text-gray-900"
+                  : "border border-transparent text-gray-500",
+              )}
+            >
+              <CircleArrowDown
+                className={cn(
+                  "size-4",
+                  type === "EXPENSE" ? "text-red-base" : "text-gray-400",
+                )}
+              />
+              Despesa
+            </button>
 
-						<button
-							type="button"
-							onClick={() => setType("INCOME")}
-							className={cn(
-								"flex min-w-0 flex-1 items-center justify-center gap-3 rounded-lg px-3 py-[14px] text-base font-medium transition-colors",
-								type === "INCOME"
-									? "border border-green-base bg-gray-100 text-gray-900"
-									: "border border-transparent text-gray-500",
-							)}
-						>
-							<CircleArrowUp
-								className={cn(
-									"size-4",
-									type === "INCOME" ? "text-green-base" : "text-gray-400",
-								)}
-							/>
-							Receita
-						</button>
-					</div>
+            <button
+              type="button"
+              onClick={() => setType("INCOME")}
+              className={cn(
+                "flex min-w-0 flex-1 items-center justify-center gap-3 rounded-lg px-3 py-[14px] text-base font-medium transition-colors",
+                type === "INCOME"
+                  ? "border border-green-base bg-gray-100 text-gray-900"
+                  : "border border-transparent text-gray-500",
+              )}
+            >
+              <CircleArrowUp
+                className={cn(
+                  "size-4",
+                  type === "INCOME" ? "text-green-base" : "text-gray-400",
+                )}
+              />
+              Receita
+            </button>
+          </div>
 
-					<div className="flex w-full min-w-0 flex-col gap-4 pt-4">
-						<Input
-							label="Descrição"
-							placeholder="Ex. Almoço"
-							value={description}
-							onChange={(e) => setDescription(e.target.value)}
-							required
-						/>
+          <div className="flex w-full min-w-0 flex-col gap-4 pt-4">
+            <Input
+              label="Descrição"
+              placeholder="Ex. Almoço"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+            />
 
-						<div className="grid min-w-0 grid-cols-2 gap-4">
-							<DateInput label="Data" placeholder="DD/MM/AAAA" value={date} onChange={setDate} required />
+            <div className="grid min-w-0 grid-cols-2 gap-4">
+              <DateInput
+                label="Data"
+                placeholder="DD/MM/AAAA"
+                value={date}
+                onChange={setDate}
+                required
+              />
 
-							<MoneyInput
-								label="Valor"
-								placeholder="R$ 0,00"
-								value={amount}
-								onChange={setAmount}
-								required
-							/>
-						</div>
+              <MoneyInput
+                label="Valor"
+                placeholder="R$ 0,00"
+                value={amount}
+                onChange={setAmount}
+                required
+              />
+            </div>
 
-						<Field label="Categoria">
-							<Select value={category} onValueChange={setCategory}>
-								<SelectTrigger className="border-r-0 border-l-0 p-0 pl-3 pr-3">
-									<SelectValue placeholder="Selecione..." />
-								</SelectTrigger>
+            <Field label="Categoria">
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger className="border-r-0 border-l-0 p-0 pl-3 pr-3">
+                  <SelectValue placeholder="Selecione..." />
+                </SelectTrigger>
 
-								<SelectContent>
-									<SelectGroup>
-										{categoryOptions.map((categorie) => (
-											<SelectItem key={categorie.value} value={categorie.value}>
-												{categorie.label}
-											</SelectItem>
-										))}
-									</SelectGroup>
-								</SelectContent>
-							</Select>
-						</Field>
-					</div>
+                <SelectContent>
+                  <SelectGroup>
+                    {categoryOptions.map((categorie) => (
+                      <SelectItem key={categorie.value} value={categorie.value}>
+                        {categorie.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
 
-					<DialogFooter className="mt-6 sm:flex-col">
-						<Button
-							type="submit"
-							size="lg"
-							className="w-full"
-							disabled={saving}
-						>
-							{saving ? "Salvando..." : "Salvar"}
-						</Button>
-					</DialogFooter>
-				</form>
-			</DialogContent>
-		</Dialog>
-	);
+          <DialogFooter className="mt-6 sm:flex-col">
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full"
+              disabled={saving}
+            >
+              {saving ? "Salvando..." : "Salvar"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 }

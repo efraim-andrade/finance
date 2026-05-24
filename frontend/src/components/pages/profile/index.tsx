@@ -14,14 +14,23 @@ const profileSchema = z.object({
 
 type ProfileForm = z.infer<typeof profileSchema>;
 
+function computeInitials(name: string | null): string {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 1).toUpperCase();
+  return (
+    parts[0].slice(0, 1) + parts[parts.length - 1].slice(0, 1)
+  ).toUpperCase();
+}
+
 export function EditProfile() {
-  const { logout } = useAuth();
+  const { logout, userName, userEmail } = useAuth();
   const navigate = useNavigate();
 
   const { register, handleSubmit } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: "Conta teste",
+      name: userName ?? "",
     },
   });
 
@@ -40,15 +49,17 @@ export function EditProfile() {
         {/* Avatar + Name + Email */}
         <div className="flex flex-col items-center gap-6">
           <div className="flex size-16 items-center justify-center rounded-full bg-muted text-2xl font-medium text-foreground">
-            CT
+            {computeInitials(userName)}
           </div>
 
           <div className="flex flex-col items-center gap-0.5">
             <h1 className="text-xl font-semibold text-foreground">
-              Conta teste
+              {userName ?? "Usuário"}
             </h1>
 
-            <p className="text-base text-muted-foreground">conta@teste.com</p>
+            <p className="text-base text-muted-foreground">
+              {userEmail ?? "-"}
+            </p>
           </div>
         </div>
 
@@ -64,7 +75,7 @@ export function EditProfile() {
 
           <Input
             label="E-mail"
-            value="conta@teste.com"
+            value={userEmail ?? "-"}
             disabled
             helper="O e-mail não pode ser alterado"
           />

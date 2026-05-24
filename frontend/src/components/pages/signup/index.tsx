@@ -1,7 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { LogIn } from "lucide-react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Logo } from "~/components/logo";
@@ -20,7 +22,12 @@ const signupSchema = z.object({
 type SignupForm = z.infer<typeof signupSchema>;
 
 export function Signup() {
-  const { register: signup, error } = useAuth();
+  const { register: signup, clearError } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const {
     register,
@@ -34,6 +41,9 @@ export function Signup() {
   async function onSubmit(data: SignupForm) {
     try {
       await signup(data.name, data.email, data.password);
+
+      toast.success("Conta criada com sucesso!");
+      navigate({ to: "/app" });
     } catch (err) {
       const message =
         err instanceof Error
@@ -63,12 +73,6 @@ export function Signup() {
           {errors.root?.message && (
             <p className="text-sm text-red-base" role="alert">
               {errors.root.message}
-            </p>
-          )}
-
-          {error && (
-            <p className="text-sm text-red-base" role="alert">
-              {error}
             </p>
           )}
 

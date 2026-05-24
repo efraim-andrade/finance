@@ -48,6 +48,7 @@ type CategoryCardProps = {
   icon: string;
   color: CategoryColor;
   itemCount: number;
+  isGlobal?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
 };
@@ -58,6 +59,7 @@ export function CategoryCard({
   icon,
   color,
   itemCount,
+  isGlobal,
   onEdit,
   onDelete,
 }: CategoryCardProps) {
@@ -77,19 +79,25 @@ export function CategoryCard({
         </div>
 
         <div className="flex items-center gap-2">
-          <IconButton
-            variant="danger"
-            aria-label="Excluir categoria"
-            onClick={() => {
-              if (window.confirm(`Excluir a categoria "${name}"?`)) {
-                onDelete?.();
-              }
-            }}
-          >
-            <Trash2 />
-          </IconButton>
+          {!isGlobal && (
+            <IconButton
+              variant="danger"
+              aria-label="Excluir categoria"
+              onClick={() => {
+                if (window.confirm(`Excluir a categoria "${name}"?`)) {
+                  onDelete?.();
+                }
+              }}
+            >
+              <Trash2 />
+            </IconButton>
+          )}
 
-          <IconButton aria-label="Editar categoria" onClick={onEdit}>
+          <IconButton
+            aria-label={isGlobal ? "Categoria global" : "Editar categoria"}
+            onClick={isGlobal ? undefined : onEdit}
+            disabled={isGlobal}
+          >
             <Pencil />
           </IconButton>
         </div>

@@ -108,6 +108,7 @@ export function CategoriesPage() {
             icon={category.icon}
             color={category.color}
             itemCount={category.itemCount}
+            isGlobal={!category.userId}
             onEdit={() => {
               setEditingCategory(category);
               setIsModalOpen(true);

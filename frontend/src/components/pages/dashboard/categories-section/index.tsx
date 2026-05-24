@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
-
+import { ChevronRight, FolderOpen } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tag } from "@/components/ui/tag";
 import type { CategorySummary } from "@/types/dashboard";
@@ -27,22 +28,38 @@ export function CategoriesSection({ categories }: CategoriesSectionProps) {
       </div>
 
       <div className="space-y-5 p-6">
-        {categories.map((category) => (
-          <div key={category.id} className="flex items-center gap-1">
-            <Tag variant={category.color}>{category.name}</Tag>
+        {categories.length > 0 ? (
+          categories.map((category) => (
+            <div key={category.id} className="flex items-center gap-1">
+              <Tag variant={category.color}>{category.name}</Tag>
 
-            <span className="flex-1 text-right text-sm text-muted-foreground">
-              {category.itemCount} {category.itemCount === 1 ? "item" : "itens"}
-            </span>
+              <span className="flex-1 text-right text-sm text-muted-foreground">
+                {category.itemCount}{" "}
+                {category.itemCount === 1 ? "item" : "itens"}
+              </span>
 
-            <span className="text-sm font-semibold text-foreground">
-              {category.total.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })}
-            </span>
-          </div>
-        ))}
+              <span className="text-sm font-semibold text-foreground">
+                {category.total.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
+              </span>
+            </div>
+          ))
+        ) : (
+          <EmptyState
+            icon={FolderOpen}
+            title="Nenhuma categoria"
+            description="Crie categorias para organizar suas transações"
+            action={
+              <Link to="/app/categorias">
+                <Button size="sm" className="gap-1.5">
+                  Gerenciar categorias
+                </Button>
+              </Link>
+            }
+          />
+        )}
       </div>
     </Card>
   );

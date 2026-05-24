@@ -3,6 +3,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
+import { Toaster } from "~/components/ui/sonner";
 import { AuthProvider } from "~/hooks/useAuth";
 import { ThemeProvider } from "~/hooks/useTheme";
 import { apolloClient } from "~/lib/apollo";
@@ -59,7 +60,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body suppressHydrationWarning>
         <ApolloProvider client={apolloClient}>
           <ThemeProvider>
-            <AuthProvider>{children}</AuthProvider>
+            <AuthProvider>
+              {children}
+              <Toaster />
+            </AuthProvider>
           </ThemeProvider>
         </ApolloProvider>
         <TanStackDevtools
