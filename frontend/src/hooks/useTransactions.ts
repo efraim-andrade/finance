@@ -65,6 +65,12 @@ export function useTransactions() {
 
 	const createTransaction = useCallback(
 		async (input: CreateTransactionInput) => {
+			if (!input.userId) {
+				throw new Error(
+					"Usuário não autenticado. Faça login novamente.",
+				);
+			}
+
 			await doCreate({
 				variables: { input: { ...input, date: dateToISO(input.date) } },
 			});

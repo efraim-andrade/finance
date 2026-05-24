@@ -29,14 +29,14 @@ const Field = ({ label, helper, className, children, type }: FieldProps) => {
     type && type in iconMap ? (iconMap[type as FieldType] ?? null) : null;
 
   return (
-    <div className={cn("group flex flex-col gap-1", className)}>
+    <div className={cn("group flex min-w-0 flex-col gap-1", className)}>
       {label && (
         <span className="text-xs font-semibold text-foreground group-focus-within:text-primary">
           {label}
         </span>
       )}
 
-      <div className="relative flex h-10 w-full items-center gap-2 rounded-md border border-input bg-background py-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+      <div className="relative flex h-10 w-full min-w-0 items-center gap-2 rounded-md border border-input bg-background text-foreground py-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
         {icon && (
           <span className="absolute left-2 text-muted-foreground group-focus-within:text-primary [&>svg]:size-4">
             {icon}

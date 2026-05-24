@@ -5,15 +5,17 @@ import {
 	CircleArrowUp,
 	Plus,
 } from "lucide-react";
-import { useState } from "react";
 import { getCategoryMeta } from "#/lib/category-utils";
 import type { CategoryMeta } from "#/lib/category-utils";
 import { cn } from "#/lib/utils";
 import type { Transaction } from "#/types/dashboard";
-import { NewTransactionModal } from "@/components/new-transaction-modal";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Tag } from "@/components/ui/tag";
+import { NewTransactionModal } from "#/components/new-transaction-modal";
+import { Button } from "#/components/ui/button";
+import { Card } from "#/components/ui/card";
+import { Tag } from "#/components/ui/tag";
+import { useAuth } from "#/hooks/useAuth";
+import { useTransactions } from "#/hooks/useTransactions";
+import type { CreateTransactionInput } from "#/services/transactions";
 
 type RecentTransactionsProps = {
 	transactions: Transaction[];
@@ -24,7 +26,20 @@ export function RecentTransactions({
 	transactions,
 	categoryMetaMap,
 }: RecentTransactionsProps) {
-	const [isModalOpen, setIsModalOpen] = useState(false);
+	const { userId } = useAuth();
+	const { createTransaction } = useTransactions();
+
+	const handleCreate = async (
+		input: Omit<CreateTransactionInput, "userId">,
+	) => {
+		if (!userId) {
+			throw new Error(
+				"Usuário não autenticado. Faça login novamente.",
+			);
+		}
+
+		await createTransaction({ ...input, userId });
+	};
 
 	return (
 		<Card className="overflow-hidden p-0">
@@ -104,18 +119,17 @@ export function RecentTransactions({
 			</div>
 
 			<div className="flex justify-center border-t border-border px-6 py-3">
-				<Button
-					variant="ghost"
-					size="sm"
-					onClick={() => setIsModalOpen(true)}
-					className="gap-2 text-brand-base hover:text-brand-base hover:underline"
-				>
-					<Plus className="size-4" />
-					Nova transação
-				</Button>
+				<NewTransactionModal onSubmit={handleCreate}>
+					<Button
+						variant="ghost"
+						size="sm"
+						className="gap-2 text-brand-base hover:text-brand-base hover:underline"
+					>
+						<Plus className="size-4" />
+						Nova transação
+					</Button>
+				</NewTransactionModal>
 			</div>
-
-			<NewTransactionModal open={isModalOpen} onOpenChange={setIsModalOpen} />
 		</Card>
 	);
 }

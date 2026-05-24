@@ -1,5 +1,7 @@
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { PageHeader } from "#/components/page-header";
+import { Button } from "#/components/ui/button";
 import { useAuth } from "#/hooks/useAuth";
 import { useTransactions } from "#/hooks/useTransactions";
 import type {
@@ -7,12 +9,11 @@ import type {
   UpdateTransactionInput,
 } from "#/services/transactions";
 import type { Transaction } from "#/types/dashboard";
-import { Button } from "~/components/ui/button";
 
+import { NewTransactionModal } from "#/components/new-transaction-modal";
 import { DeleteDialog } from "./delete-dialog";
 import { EditTransactionModal } from "./edit-transaction-modal";
 import { Filters } from "./filters";
-import { NewTransactionModal } from "./new-transaction-modal";
 import { Pagination } from "./pagination";
 import { TransactionRow } from "./transaction-row";
 
@@ -92,7 +93,13 @@ export function TransactionsPage() {
   const handleCreate = async (
     input: Omit<CreateTransactionInput, "userId">,
   ) => {
-    await createTransaction({ ...input, userId: userId ?? "" });
+    if (!userId) {
+      throw new Error(
+        "Usuário não autenticado. Faça login novamente.",
+      );
+    }
+
+    await createTransaction({ ...input, userId });
   };
 
   const handleEdit = (transaction: Transaction) => {
@@ -200,25 +207,19 @@ export function TransactionsPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4 p-4 md:gap-8 md:p-12">
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-0.5">
-          <h1 className="text-heading-md font-bold text-foreground">
-            Transações
-          </h1>
-
-          <p className="text-body-md text-muted-foreground">
-            Gerencie todas as suas transações financeiras
-          </p>
-        </div>
-
-        <NewTransactionModal onSubmit={handleCreate}>
-          <Button size="sm" className="gap-1.5">
-            <Plus className="size-4" />
-            <span className="hidden sm:inline">Nova transação</span>
-            <span className="sm:hidden">Nova</span>
-          </Button>
-        </NewTransactionModal>
-      </div>
+      <PageHeader
+        title="Transações"
+        description="Gerencie todas as suas transações financeiras"
+        action={
+          <NewTransactionModal onSubmit={handleCreate}>
+            <Button size="sm" className="gap-1.5">
+              <Plus className="size-4" />
+              <span className="hidden sm:inline">Nova transação</span>
+              <span className="sm:hidden">Nova</span>
+            </Button>
+          </NewTransactionModal>
+        }
+      />
 
       <div className="rounded-xl border border-border bg-card p-6">
         <Filters

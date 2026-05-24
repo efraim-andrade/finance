@@ -37,10 +37,8 @@ export const resolvers = {
       transactionService.deleteTransaction(id),
     createCategory: (_parent: unknown, { input }: { input: CreateCategoryInput }) =>
       categoryService.createCategory(input),
-    updateCategory: (
-      _parent: unknown,
-      { id, input }: { id: string; input: UpdateCategoryInput },
-    ) => categoryService.updateCategory(id, input),
+    updateCategory: (_parent: unknown, { id, input }: { id: string; input: UpdateCategoryInput }) =>
+      categoryService.updateCategory(id, input),
     deleteCategory: (_parent: unknown, { id }: { id: string }) =>
       categoryService.deleteCategory(id),
   },

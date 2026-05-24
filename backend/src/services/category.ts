@@ -1,8 +1,5 @@
 import { prisma } from "@/lib/prisma.js";
-import type {
-  CreateCategoryInput,
-  UpdateCategoryInput,
-} from "@/types/graphql.js";
+import type { CreateCategoryInput, UpdateCategoryInput } from "@/types/graphql.js";
 
 export async function listCategories() {
   return prisma.category.findMany({
@@ -27,10 +24,7 @@ export async function createCategory(input: CreateCategoryInput) {
   });
 }
 
-export async function updateCategory(
-  id: string,
-  input: UpdateCategoryInput,
-) {
+export async function updateCategory(id: string, input: UpdateCategoryInput) {
   return prisma.category.update({
     where: { id },
     data: {

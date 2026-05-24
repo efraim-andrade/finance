@@ -1,9 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, Plus } from "lucide-react";
-import { useState } from "react";
+import { ChevronRight } from "lucide-react";
 
-import { NewCategoryModal } from "@/components/new-category-modal";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tag } from "@/components/ui/tag";
 import type { CategorySummary } from "@/types/dashboard";
@@ -13,18 +10,16 @@ type CategoriesSectionProps = {
 };
 
 export function CategoriesSection({ categories }: CategoriesSectionProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   return (
     <Card className="overflow-hidden p-0">
-      <div className="flex items-center justify-between border-b border-border px-6 py-4">
+      <div className="flex items-center justify-between border-b border-border px-6 py-5">
         <span className="text-caption-sm font-medium text-muted-foreground">
           Categorias
         </span>
 
         <Link
           to="/app/categorias"
-          className="inline-flex items-center gap-0.5 text-sm font-medium text-brand-base transition-all outline-none hover:underline focus-visible:underline"
+          className="inline-flex items-center gap-1 text-sm font-medium text-brand-base transition-all outline-none hover:underline focus-visible:underline"
         >
           Gerenciar
           <ChevronRight className="size-4" />
@@ -49,20 +44,6 @@ export function CategoriesSection({ categories }: CategoriesSectionProps) {
           </div>
         ))}
       </div>
-
-      <div className="flex justify-center border-t border-border px-6 py-3">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsModalOpen(true)}
-          className="gap-2 text-brand-base hover:text-brand-base hover:underline"
-        >
-          <Plus className="size-4" />
-          Nova categoria
-        </Button>
-      </div>
-
-      <NewCategoryModal open={isModalOpen} onOpenChange={setIsModalOpen} />
     </Card>
   );
 }

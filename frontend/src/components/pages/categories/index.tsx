@@ -1,12 +1,14 @@
 import { useMutation } from "@apollo/client/react";
-import { ArrowUpDown, Tag, UserRoundPlus, Utensils } from "lucide-react";
+import { ArrowUpDown, Plus, Tag, Utensils } from "lucide-react";
 import { useMemo, useState } from "react";
+import { NewCategoryModal } from "#/components/new-category-modal";
+import { PageHeader } from "#/components/page-header";
+import { Button } from "#/components/ui/button";
+import { SummaryCard } from "#/components/ui/summary-card";
+import { useCategories } from "#/hooks/useCategories";
+import { categoryIconMap } from "#/lib/category-icons";
 import { DELETE_CATEGORY } from "#/services/categories";
 import type { CategoryColor, CategoryDetail } from "#/types/dashboard";
-import { NewCategoryModal } from "@/components/new-category-modal";
-import { SummaryCard } from "@/components/ui/summary-card";
-import { useCategories } from "@/hooks/useCategories";
-import { categoryIconMap } from "@/lib/category-icons";
 
 import { CategoryCard } from "./category-card";
 
@@ -69,24 +71,21 @@ export function CategoriesPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 p-4 md:gap-8 md:p-12">
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-0.5">
-          <h1 className="text-2xl font-bold text-foreground">Categorias</h1>
-
-          <p className="hidden text-base text-muted-foreground sm:block">
-            Organize suas transações por categorias
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex h-9 items-center gap-2 rounded-lg bg-brand-base px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-dark"
-        >
-          <UserRoundPlus className="size-4" />
-          <span className="hidden sm:inline">Nova categoria</span>
-        </button>
-      </div>
+      <PageHeader
+        title="Categorias"
+        description="Organize suas transações por categorias"
+        action={
+          <Button
+            size="sm"
+            className="gap-1.5"
+            onClick={() => setIsModalOpen(true)}
+          >
+            <Plus className="size-4" />
+            <span className="hidden sm:inline">Nova categoria</span>
+            <span className="sm:hidden">Nova</span>
+          </Button>
+        }
+      />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
         {summaryCards.map(({ icon, iconColor, label, value }) => (

@@ -19,6 +19,14 @@ export async function getTransactionById(id: string) {
 }
 
 export async function createTransaction(input: CreateTransactionInput) {
+  const user = await prisma.user.findUnique({
+    where: { id: input.userId },
+  });
+
+  if (!user) {
+    throw new Error(`Usuário com ID "${input.userId}" não encontrado. Faça login novamente.`);
+  }
+
   return prisma.transaction.create({
     data: {
       description: input.description,
