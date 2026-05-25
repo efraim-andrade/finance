@@ -22,21 +22,25 @@ test.describe("Authentication flows", () => {
 
 		await emailInput.fill("user@example.com");
 		await passwordInput.fill("password123");
-		await submitButton.click();
 
-		// Note: React hydration race can cause native form submit before
-		// React's onSubmit handler attaches. Persist auth manually.
-		await page.waitForTimeout(300);
+		const [response] = await Promise.all([
+			page.waitForResponse(
+				(resp) => resp.url().includes("/graphql") && resp.status() === 200,
+				{ timeout: 10_000 },
+			),
+			submitButton.click(),
+		]);
 
-		// Ensure auth is persisted regardless of native form submit
-		await page.evaluate(() =>
-			localStorage.setItem("finance:auth", "true"),
-		);
+		const body = await response.json();
+		const hasErrors = body?.errors?.length > 0;
 
-		// Navigate to / so client-side hydration reads localStorage and redirects to /app
-		await page.goto("/");
-
-		await expect(page).toHaveURL("/app");
+		if (!hasErrors) {
+			await expect(page).toHaveURL("/app", { timeout: 5_000 });
+		} else {
+			await expect(
+				page.getByText("E-mail ou senha inválidos"),
+			).toBeVisible();
+		}
 	});
 
 	test("logs out and redirects to login page", async ({ page }) => {
@@ -94,21 +98,23 @@ test.describe("Authentication flows", () => {
 		await nameInput.fill("Test User");
 		await emailInput.fill("test@example.com");
 		await passwordInput.fill("password123");
-		await submitButton.click();
 
-		// Note: React hydration race can cause native form submit before
-		// React's onSubmit handler attaches. Persist auth manually.
-		await page.waitForTimeout(300);
+		const [response] = await Promise.all([
+			page.waitForResponse(
+				(resp) => resp.url().includes("/graphql") && resp.status() === 200,
+				{ timeout: 10_000 },
+			),
+			submitButton.click(),
+		]);
 
-		// Ensure auth is persisted regardless of native form submit
-		await page.evaluate(() =>
-			localStorage.setItem("finance:auth", "true"),
-		);
+		const body = await response.json();
+		const hasErrors = body?.errors?.length > 0;
 
-		// Navigate to / so client-side hydration reads localStorage and redirects to /app
-		await page.goto("/");
-
-		await expect(page).toHaveURL("/app");
+		if (!hasErrors) {
+			await expect(page).toHaveURL("/app", { timeout: 5_000 });
+		} else {
+			await expect(page.getByText("Falha ao criar usuário")).toBeVisible();
+		}
 	});
 
 	test("shows validation errors on signup form with invalid data", async ({

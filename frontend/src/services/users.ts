@@ -123,3 +123,46 @@ export const USER_BY_EMAIL: TypedDocumentNode<
 		}
 	}
 `;
+
+type RequestPasswordResetData = {
+  requestPasswordReset: {
+    message: string;
+  };
+};
+
+export type RequestPasswordResetInput = {
+  email: string;
+};
+
+export const REQUEST_PASSWORD_RESET: TypedDocumentNode<
+  RequestPasswordResetData,
+  { input: RequestPasswordResetInput }
+> = gql`
+	mutation RequestPasswordReset($input: RequestPasswordResetInput!) {
+		requestPasswordReset(input: $input) {
+			message
+		}
+	}
+`;
+
+type ResetPasswordData = {
+  resetPassword: {
+    message: string;
+  };
+};
+
+export type ResetPasswordInput = {
+  token: string;
+  password: string;
+};
+
+export const RESET_PASSWORD: TypedDocumentNode<
+  ResetPasswordData,
+  { input: ResetPasswordInput }
+> = gql`
+	mutation ResetPassword($input: ResetPasswordInput!) {
+		resetPassword(input: $input) {
+			message
+		}
+	}
+`;

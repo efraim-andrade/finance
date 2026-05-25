@@ -179,8 +179,8 @@ export function NewTransactionModal({
               className={cn(
                 "flex min-w-0 flex-1 items-center justify-center gap-3 rounded-lg px-3 py-[14px] text-base font-medium transition-colors",
                 type === "EXPENSE"
-                  ? "border border-red-base bg-gray-100 text-gray-900"
-                  : "border border-transparent text-gray-500",
+                  ? "border border-red-base bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-red-light"
+                  : "border border-transparent text-gray-500 dark:text-gray-400",
               )}
             >
               <CircleArrowDown
@@ -198,8 +198,8 @@ export function NewTransactionModal({
               className={cn(
                 "flex min-w-0 flex-1 items-center justify-center gap-3 rounded-lg px-3 py-[14px] text-base font-medium transition-colors",
                 type === "INCOME"
-                  ? "border border-green-base bg-gray-100 text-gray-900"
-                  : "border border-transparent text-gray-500",
+                  ? "border border-green-base bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-green-light"
+                  : "border border-transparent text-gray-500 dark:text-gray-400",
               )}
             >
               <CircleArrowUp
@@ -259,9 +259,9 @@ export function NewTransactionModal({
 
                 <SelectContent>
                   <SelectGroup>
-                    {categoryOptions.map((categorie) => (
-                      <SelectItem key={categorie.value} value={categorie.value}>
-                        {categorie.label}
+                    {categoryOptions.map((category) => (
+                      <SelectItem key={category.value} value={category.value}>
+                        {category.label}
                       </SelectItem>
                     ))}
                   </SelectGroup>

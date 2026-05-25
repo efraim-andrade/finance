@@ -36,8 +36,6 @@ export function Login() {
 
     try {
       await login(email, password);
-    } catch {
-      // error is set in context
     } finally {
       setLoading(false);
     }

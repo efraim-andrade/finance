@@ -6,6 +6,8 @@ import type {
   CreateTransactionInput,
   CreateUserInput,
   LoginInput,
+  RequestPasswordResetInput,
+  ResetPasswordInput,
   UpdateCategoryInput,
   UpdateTransactionInput,
   UpdateUserInput,
@@ -49,7 +51,11 @@ export const resolvers = {
       { id, input }: { id: string; input: UpdateUserInput },
       ctx: GraphQLContext,
     ) => userService.updateUser(id, input, ctx.userId),
-    deleteUser: (_parent: unknown, { id }: { id: string }) => userService.deleteUser(id),
+    deleteUser: (
+      _parent: unknown,
+      { id }: { id: string },
+      ctx: GraphQLContext,
+    ) => userService.deleteUser(id, ctx.userId),
     createTransaction: (_parent: unknown, { input }: { input: CreateTransactionInput }) =>
       transactionService.createTransaction(input),
     updateTransaction: (
@@ -66,6 +72,10 @@ export const resolvers = {
       categoryService.deleteCategory(id),
     deleteExampleTransactions: (_parent: unknown, { userId }: { userId: string }) =>
       transactionService.deleteExampleTransactions(userId),
+    requestPasswordReset: (_parent: unknown, { input }: { input: RequestPasswordResetInput }) =>
+      userService.requestPasswordReset(input.email),
+    resetPassword: (_parent: unknown, { input }: { input: ResetPasswordInput }) =>
+      userService.resetPassword(input.token, input.password),
   },
 
   User: {

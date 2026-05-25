@@ -14,6 +14,8 @@ if (!JWT_SECRET) {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  csrfPrevention: true,
+  cache: "bounded",
 });
 
 const { url } = await startStandaloneServer(server, {

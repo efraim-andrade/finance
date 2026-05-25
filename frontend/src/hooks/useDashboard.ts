@@ -61,38 +61,51 @@ type UseDashboardResult = {
 export function useDashboard(): UseDashboardResult {
   const { userId } = useAuth();
 
+  const now = new Date();
+  const currentMonth = String(now.getMonth() + 1).padStart(2, "0");
+  const currentYear = String(now.getFullYear());
+
   const {
-    data: txData,
-    loading: txLoading,
+    data: allTxData,
+    loading: allTxLoading,
     error: txError,
   } = useQuery(GET_TRANSACTIONS, {
     variables: { userId: userId ?? undefined },
+    skip: !userId,
   });
+
+  const { data: monthlyTxData, loading: monthlyTxLoading } = useQuery(
+    GET_TRANSACTIONS,
+    {
+      variables: {
+        userId: userId ?? undefined,
+        month: currentMonth,
+        year: currentYear,
+      },
+      skip: !userId,
+    },
+  );
+
   const { data: catData, loading: catLoading } = useQuery(LIST_CATEGORIES, {
     variables: { userId: userId ?? undefined },
+    skip: !userId,
   });
 
   const categoryMetaMap = buildCategoryMetaMap(catData?.categories ?? []);
 
-  const allTransactions: Transaction[] = (txData?.transactions ?? []).map(
+  const allRawTransactions: Transaction[] = allTxData?.transactions ?? [];
+  const monthlyRawTransactions: Transaction[] =
+    monthlyTxData?.transactions ?? [];
+
+  const allTransactions: Transaction[] = allRawTransactions.map(
     (transaction: Transaction) => ({
       ...transaction,
       date: displayDate(transaction.date),
     }),
   );
 
-  const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
-
-  const monthlyTransactions = allTransactions.filter((transaction) => {
-    const [_day, month, year] = transaction.date.split("/");
-
-    return Number(month) - 1 === currentMonth && Number(year) === currentYear;
-  });
-
   const summary: DashboardSummary = {
-    totalBalance: allTransactions.reduce(
+    totalBalance: allRawTransactions.reduce(
       (acc, transaction) =>
         acc +
         (transaction.type === "INCOME"
@@ -100,10 +113,10 @@ export function useDashboard(): UseDashboardResult {
           : -transaction.amount),
       0,
     ),
-    monthlyIncome: monthlyTransactions
+    monthlyIncome: monthlyRawTransactions
       .filter((transaction) => transaction.type === "INCOME")
       .reduce((acc, transaction) => acc + transaction.amount, 0),
-    monthlyExpense: monthlyTransactions
+    monthlyExpense: monthlyRawTransactions
       .filter((transaction) => transaction.type === "EXPENSE")
       .reduce((acc, transaction) => acc + transaction.amount, 0),
   };
@@ -137,7 +150,7 @@ export function useDashboard(): UseDashboardResult {
     transactions,
     categories,
     categoryMetaMap,
-    isLoading: txLoading || catLoading,
+    isLoading: allTxLoading || monthlyTxLoading || catLoading,
     error: txError ?? undefined,
   };
 }

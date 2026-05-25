@@ -2,7 +2,14 @@ import { useMutation } from "@apollo/client/react";
 import { createContext, useCallback, useContext, useState } from "react";
 import { toast } from "sonner";
 
-import { CREATE_USER, DELETE_USER, LOGIN, UPDATE_USER } from "#/services/users";
+import {
+  CREATE_USER,
+  DELETE_USER,
+  LOGIN,
+  REQUEST_PASSWORD_RESET,
+  RESET_PASSWORD,
+  UPDATE_USER,
+} from "#/services/users";
 
 type AuthContextType = {
   isAuthenticated: boolean;
@@ -16,6 +23,8 @@ type AuthContextType = {
   register: (name: string, email: string, password: string) => Promise<void>;
   updateProfile: (name: string) => Promise<void>;
   deleteAccount: () => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
+  resetPassword: (token: string, password: string) => Promise<void>;
   clearError: () => void;
 };
 
@@ -131,6 +140,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [doLogin] = useMutation(LOGIN);
   const [doUpdateUser] = useMutation(UPDATE_USER);
   const [doDeleteUser, { loading: deletingAccount }] = useMutation(DELETE_USER);
+  const [doRequestPasswordReset] = useMutation(REQUEST_PASSWORD_RESET);
+  const [doResetPassword] = useMutation(RESET_PASSWORD);
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -167,7 +178,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           err instanceof Error ? err.message : "Erro ao fazer login";
 
         setError(message);
-        throw err;
       }
     },
     [doLogin],
@@ -279,6 +289,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [doDeleteUser, state.userId]);
 
+  const requestPasswordReset = useCallback(
+    async (email: string) => {
+      const { data } = await doRequestPasswordReset({
+        variables: { input: { email } },
+      });
+
+      if (!data?.requestPasswordReset) {
+        throw new Error("Falha ao solicitar recuperação de senha");
+      }
+
+      toast.success(data.requestPasswordReset.message);
+    },
+    [doRequestPasswordReset],
+  );
+
+  const resetPassword = useCallback(
+    async (token: string, password: string) => {
+      const { data } = await doResetPassword({
+        variables: { input: { token, password } },
+      });
+
+      if (!data?.resetPassword) {
+        throw new Error("Falha ao redefinir senha");
+      }
+
+      toast.success(data.resetPassword.message);
+    },
+    [doResetPassword],
+  );
+
   const clearError = useCallback(() => setError(null), []);
 
   return (
@@ -292,6 +332,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         updateProfile,
         deleteAccount,
+        requestPasswordReset,
+        resetPassword,
         clearError,
       }}
     >

@@ -1,5 +1,5 @@
 import { useMutation } from "@apollo/client/react";
-import { ArrowUpDown, Plus, Tag, Utensils } from "lucide-react";
+import { Plus, Tag, Utensils } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { NewCategoryModal } from "#/components/new-category-modal";
@@ -47,12 +47,6 @@ export function CategoriesPage() {
         iconColor: "text-gray-700 dark:text-gray-200",
         label: "total de categorias",
         value: String(stats.totalCategories),
-      },
-      {
-        icon: ArrowUpDown,
-        iconColor: "text-purple-base dark:text-purple-light",
-        label: "total de transações",
-        value: String(stats.totalItems),
       },
       {
         icon: MostUsedIcon,

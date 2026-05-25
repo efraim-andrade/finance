@@ -10,6 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
 /// User-defined category for grouping transactions.
 /// `userId` is null for global seed categories, non-null for user-specific categories.
 model Category {
@@ -38,6 +43,9 @@ model User {
   email     String   @unique
   passwordHash String @map("password_hash")
 
+  resetToken         String?   @map("reset_token")
+  resetTokenExpiresAt DateTime? @map("reset_token_expires_at")
+
   transactions Transaction[]
   categories   Category[]
 
@@ -52,7 +60,7 @@ model Transaction {
   id          String   @id @default(uuid())
   description String
   amount      Float
-  type        String   // "INCOME" | "EXPENSE"
+  type        TransactionType
   category    String
   date        DateTime
   isExample   Boolean  @default(false) @map("is_example")

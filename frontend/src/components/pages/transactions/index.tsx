@@ -23,6 +23,8 @@ import { TransactionRow } from "./transaction-row";
 
 const RESULTS_PER_PAGE = 10;
 
+const SKELETON_IDS = Array.from({ length: 5 }, (_, i) => `skeleton-${i}`);
+
 export function TransactionsPage() {
   const { userId } = useAuth();
 
@@ -176,9 +178,9 @@ export function TransactionsPage() {
         </div>
 
         <div className="rounded-xl border border-border bg-card">
-          {Array.from({ length: 5 }).map(() => (
+          {SKELETON_IDS.map((id) => (
             <div
-              key={crypto.randomUUID()}
+              key={id}
               className="flex h-[72px] items-center border-b border-border px-6"
             >
               <div className="flex flex-1 items-center gap-4">

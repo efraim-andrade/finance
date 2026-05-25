@@ -1,7 +1,9 @@
 // Temporary types mirroring GraphQL schema.
 // TODO: replace with graphql-codegen output.
 
-export type TransactionType = "INCOME" | "EXPENSE";
+import type { TransactionType } from "@prisma/client";
+
+export type { TransactionType };
 
 export type CreateUserInput = {
   name: string;
@@ -61,4 +63,17 @@ export type UpdateCategoryInput = {
   description?: string | null;
   color?: string;
   icon?: string;
+};
+
+export type RequestPasswordResetInput = {
+  email: string;
+};
+
+export type ResetPasswordInput = {
+  token: string;
+  password: string;
+};
+
+export type MessagePayload = {
+  message: string;
 };

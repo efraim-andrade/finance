@@ -30,7 +30,6 @@ export async function listTransactions(filters: TransactionFilters = {}) {
 
   return prisma.transaction.findMany({
     where,
-    include: { user: true },
     orderBy: { date: "desc" },
   });
 }
@@ -38,7 +37,6 @@ export async function listTransactions(filters: TransactionFilters = {}) {
 export async function getTransactionById(id: string) {
   return prisma.transaction.findUnique({
     where: { id },
-    include: { user: true },
   });
 }
 
@@ -61,21 +59,21 @@ export async function createTransaction(input: CreateTransactionInput) {
       userId: input.userId,
       isExample: input.isExample ?? false,
     },
-    include: { user: true },
   });
 }
 
 export async function updateTransaction(id: string, input: UpdateTransactionInput) {
-  const data: Record<string, unknown> = { ...input };
+  const data: Prisma.TransactionUpdateInput = {};
 
-  if (input.date) {
-    data.date = new Date(input.date);
-  }
+  if (input.description !== undefined) data.description = input.description;
+  if (input.amount !== undefined) data.amount = input.amount;
+  if (input.type !== undefined) data.type = input.type;
+  if (input.category !== undefined) data.category = input.category;
+  if (input.date !== undefined) data.date = new Date(input.date);
 
   return prisma.transaction.update({
     where: { id },
     data,
-    include: { user: true },
   });
 }
 

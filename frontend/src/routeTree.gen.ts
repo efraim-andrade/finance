@@ -21,6 +21,7 @@ import { Route as PublicRecuperarSenhaRouteImport } from './routes/_public/recup
 import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as PublicLandingRouteImport } from './routes/_public/landing'
 import { Route as PublicCriarContaRouteImport } from './routes/_public/criar-conta'
+import { Route as PublicRecuperarSenhaTokenRouteImport } from './routes/_public/recuperar-senha/$token'
 
 const UiRoute = UiRouteImport.update({
   id: '/ui',
@@ -81,6 +82,12 @@ const PublicCriarContaRoute = PublicCriarContaRouteImport.update({
   path: '/criar-conta',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicRecuperarSenhaTokenRoute =
+  PublicRecuperarSenhaTokenRouteImport.update({
+    id: '/$token',
+    path: '/$token',
+    getParentRoute: () => PublicRecuperarSenhaRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,11 +96,12 @@ export interface FileRoutesByFullPath {
   '/criar-conta': typeof PublicCriarContaRoute
   '/landing': typeof PublicLandingRoute
   '/login': typeof PublicLoginRoute
-  '/recuperar-senha': typeof PublicRecuperarSenhaRoute
+  '/recuperar-senha': typeof PublicRecuperarSenhaRouteWithChildren
   '/app/categorias': typeof AppCategoriasRoute
   '/app/profile': typeof AppProfileRoute
   '/app/transacoes': typeof AppTransacoesRoute
   '/app/': typeof AppIndexRoute
+  '/recuperar-senha/$token': typeof PublicRecuperarSenhaTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -101,11 +109,12 @@ export interface FileRoutesByTo {
   '/criar-conta': typeof PublicCriarContaRoute
   '/landing': typeof PublicLandingRoute
   '/login': typeof PublicLoginRoute
-  '/recuperar-senha': typeof PublicRecuperarSenhaRoute
+  '/recuperar-senha': typeof PublicRecuperarSenhaRouteWithChildren
   '/app/categorias': typeof AppCategoriasRoute
   '/app/profile': typeof AppProfileRoute
   '/app/transacoes': typeof AppTransacoesRoute
   '/app': typeof AppIndexRoute
+  '/recuperar-senha/$token': typeof PublicRecuperarSenhaTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,11 +125,12 @@ export interface FileRoutesById {
   '/_public/criar-conta': typeof PublicCriarContaRoute
   '/_public/landing': typeof PublicLandingRoute
   '/_public/login': typeof PublicLoginRoute
-  '/_public/recuperar-senha': typeof PublicRecuperarSenhaRoute
+  '/_public/recuperar-senha': typeof PublicRecuperarSenhaRouteWithChildren
   '/app/categorias': typeof AppCategoriasRoute
   '/app/profile': typeof AppProfileRoute
   '/app/transacoes': typeof AppTransacoesRoute
   '/app/': typeof AppIndexRoute
+  '/_public/recuperar-senha/$token': typeof PublicRecuperarSenhaTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/app/profile'
     | '/app/transacoes'
     | '/app/'
+    | '/recuperar-senha/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/app/profile'
     | '/app/transacoes'
     | '/app'
+    | '/recuperar-senha/$token'
   id:
     | '__root__'
     | '/'
@@ -162,6 +174,7 @@ export interface FileRouteTypes {
     | '/app/profile'
     | '/app/transacoes'
     | '/app/'
+    | '/_public/recuperar-senha/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -257,21 +270,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicCriarContaRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/recuperar-senha/$token': {
+      id: '/_public/recuperar-senha/$token'
+      path: '/$token'
+      fullPath: '/recuperar-senha/$token'
+      preLoaderRoute: typeof PublicRecuperarSenhaTokenRouteImport
+      parentRoute: typeof PublicRecuperarSenhaRoute
+    }
   }
 }
+
+interface PublicRecuperarSenhaRouteChildren {
+  PublicRecuperarSenhaTokenRoute: typeof PublicRecuperarSenhaTokenRoute
+}
+
+const PublicRecuperarSenhaRouteChildren: PublicRecuperarSenhaRouteChildren = {
+  PublicRecuperarSenhaTokenRoute: PublicRecuperarSenhaTokenRoute,
+}
+
+const PublicRecuperarSenhaRouteWithChildren =
+  PublicRecuperarSenhaRoute._addFileChildren(PublicRecuperarSenhaRouteChildren)
 
 interface PublicRouteChildren {
   PublicCriarContaRoute: typeof PublicCriarContaRoute
   PublicLandingRoute: typeof PublicLandingRoute
   PublicLoginRoute: typeof PublicLoginRoute
-  PublicRecuperarSenhaRoute: typeof PublicRecuperarSenhaRoute
+  PublicRecuperarSenhaRoute: typeof PublicRecuperarSenhaRouteWithChildren
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
   PublicCriarContaRoute: PublicCriarContaRoute,
   PublicLandingRoute: PublicLandingRoute,
   PublicLoginRoute: PublicLoginRoute,
-  PublicRecuperarSenhaRoute: PublicRecuperarSenhaRoute,
+  PublicRecuperarSenhaRoute: PublicRecuperarSenhaRouteWithChildren,
 }
 
 const PublicRouteWithChildren =

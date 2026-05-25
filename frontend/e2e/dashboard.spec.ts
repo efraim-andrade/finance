@@ -9,6 +9,10 @@ async function loginAndGoToApp(page: import("@playwright/test").Page) {
 	await page.goto("/");
 	await page.evaluate(() => {
 		localStorage.setItem("finance:auth", "true");
+		localStorage.setItem("finance:user-id", "test-user-id");
+		localStorage.setItem("finance:user-name", "Test User");
+		localStorage.setItem("finance:user-email", "user@email.com");
+		localStorage.setItem("finance:token", "test-token");
 	});
 	await page.goto("/");
 	await expect(page).toHaveURL("/app");
@@ -63,12 +67,12 @@ test.describe("Dashboard (authenticated)", () => {
 	});
 
 	test("renders the app header with user avatar and menu", async ({ page }) => {
-		const userButton = page.getByRole("button", { name: "CT" });
+		const userButton = page.getByRole("button", { name: "TU" });
 		await expect(userButton).toBeVisible();
 
 		await userButton.click();
 
-		await expect(page.getByText("User", { exact: true })).toBeVisible();
+		await expect(page.getByText("Test User", { exact: true })).toBeVisible();
 		await expect(page.getByText("user@email.com")).toBeVisible();
 		await expect(
 			page.getByRole("menuitem", { name: "Sign out" }),

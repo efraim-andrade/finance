@@ -110,6 +110,19 @@ export const typeDefs = gql`
     icon: String
   }
 
+  input RequestPasswordResetInput {
+    email: String!
+  }
+
+  input ResetPasswordInput {
+    token: String!
+    password: String!
+  }
+
+  type MessagePayload {
+    message: String!
+  }
+
   type Mutation {
     createUser(input: CreateUserInput!): AuthPayload!
     login(input: LoginInput!): AuthPayload!
@@ -122,5 +135,7 @@ export const typeDefs = gql`
     updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
     deleteCategory(id: ID!): ID!
     deleteExampleTransactions(userId: ID!): Int!
+    requestPasswordReset(input: RequestPasswordResetInput!): MessagePayload!
+    resetPassword(input: ResetPasswordInput!): MessagePayload!
   }
 `;
