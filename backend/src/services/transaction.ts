@@ -1,8 +1,32 @@
+import { Prisma } from "@prisma/client";
+
 import { prisma } from "@/lib/prisma.js";
 import type { CreateTransactionInput, UpdateTransactionInput } from "@/types/graphql.js";
 
-export async function listTransactions(userId?: string) {
-  const where = userId ? { userId } : {};
+type TransactionFilters = {
+  userId?: string;
+  month?: string | null;
+  year?: string | null;
+};
+
+export async function listTransactions(filters: TransactionFilters = {}) {
+  const where: Prisma.TransactionWhereInput = {};
+
+  if (filters.userId) {
+    where.userId = filters.userId;
+  }
+
+  if (filters.month && filters.year) {
+    const year = Number.parseInt(filters.year, 10);
+    const month = Number.parseInt(filters.month, 10) - 1;
+
+    if (!Number.isNaN(year) && !Number.isNaN(month)) {
+      where.date = {
+        gte: new Date(Date.UTC(year, month, 1)),
+        lt: new Date(Date.UTC(year, month + 1, 1)),
+      };
+    }
+  }
 
   return prisma.transaction.findMany({
     where,
@@ -59,6 +83,33 @@ export async function deleteTransaction(id: string): Promise<string> {
   await prisma.transaction.delete({ where: { id } });
 
   return id;
+}
+
+export async function listTransactionPeriods(userId?: string) {
+  const where = userId ? { userId } : {};
+
+  const transactions = await prisma.transaction.findMany({
+    where,
+    select: { date: true },
+    orderBy: { date: "desc" },
+    take: 1200,
+  });
+
+  const seen = new Set<string>();
+  const periods: { month: string; year: string }[] = [];
+
+  for (const { date } of transactions) {
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = String(date.getFullYear());
+    const key = `${year}-${month}`;
+
+    if (!seen.has(key)) {
+      seen.add(key);
+      periods.push({ month, year });
+    }
+  }
+
+  return periods;
 }
 
 export async function deleteExampleTransactions(userId: string): Promise<number> {

@@ -4,6 +4,17 @@ import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma.js";
 import type { CreateUserInput, UpdateUserInput } from "@/types/graphql.js";
 
+const DEFAULT_CATEGORIES = [
+  { name: "Carro", description: "", color: "purple", icon: "car" },
+  { name: "Entretenimento", description: "", color: "pink", icon: "ticket" },
+  { name: "Investimentos", description: "", color: "green", icon: "receipt" },
+  { name: "Mercado", description: "", color: "orange", icon: "cart" },
+  { name: "Renda Fixa", description: "", color: "green", icon: "piggy" },
+  { name: "Salário", description: "", color: "green", icon: "piggy" },
+  { name: "Saúde", description: "", color: "red", icon: "dumbbell" },
+  { name: "Utilidades", description: "", color: "yellow", icon: "wrench" },
+];
+
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
@@ -26,28 +37,15 @@ function generateToken(userId: string): string {
   return jwt.sign({ userId }, JWT_SECRET!, { expiresIn: "7d" });
 }
 
-const DEFAULT_CATEGORIES = [
-  {
-    name: "Alimentação",
-    description: "Refeições, delivery, mercado",
-    color: "green",
-    icon: "utensils",
-  },
-  { name: "Transporte", description: "Gasolina, Uber, ônibus", color: "blue", icon: "car" },
-  { name: "Moradia", description: "Aluguel, condomínio, contas", color: "orange", icon: "house" },
-  { name: "Lazer", description: "Cinema, jogos, hobbies", color: "purple", icon: "ticket" },
-  { name: "Saúde", description: "Farmácia, plano de saúde", color: "red", icon: "heart" },
-  { name: "Educação", description: "Cursos, livros", color: "pink", icon: "book" },
-  { name: "Salário", description: "Rendimentos do trabalho", color: "green", icon: "briefcase" },
-  { name: "Freelance", description: "Trabalhos autônomos", color: "blue", icon: "piggy" },
-];
-
 const EXAMPLE_TRANSACTIONS = [
   { description: "Salário mensal", amount: 5000, type: "INCOME", category: "Salário" },
-  { description: "Almoço no restaurante", amount: 45.9, type: "EXPENSE", category: "Alimentação" },
-  { description: "Uber para o trabalho", amount: 18.5, type: "EXPENSE", category: "Transporte" },
-  { description: "Projeto freela", amount: 1200, type: "INCOME", category: "Freelance" },
-  { description: "Netflix mensal", amount: 55.9, type: "EXPENSE", category: "Lazer" },
+  { description: "Mercado mensal", amount: 650, type: "EXPENSE", category: "Mercado" },
+  { description: "Gasolina", amount: 200, type: "EXPENSE", category: "Carro" },
+  { description: "Farmácia", amount: 89.9, type: "EXPENSE", category: "Saúde" },
+  { description: "Streaming", amount: 55.9, type: "EXPENSE", category: "Entretenimento" },
+  { description: "Conta de luz", amount: 180, type: "EXPENSE", category: "Utilidades" },
+  { description: "CDB", amount: 300, type: "INCOME", category: "Renda Fixa" },
+  { description: "Ações", amount: 500, type: "INCOME", category: "Investimentos" },
 ];
 
 function daysAgo(days: number): Date {
@@ -58,18 +56,14 @@ function daysAgo(days: number): Date {
   return d;
 }
 
-async function seedCategories() {
-  const count = await prisma.category.count();
+async function ensureDefaultCategories() {
+  const existing = await prisma.category.findFirst();
 
-  if (count > 0) return;
+  if (existing) return;
 
-  try {
-    await prisma.category.createMany({
-      data: DEFAULT_CATEGORIES,
-    });
-  } catch {
-    // categories already seeded by another concurrent request
-  }
+  await prisma.category.createMany({
+    data: DEFAULT_CATEGORIES,
+  });
 }
 
 async function seedExampleTransactions(userId: string) {
@@ -105,7 +99,7 @@ export async function createUser(input: CreateUserInput) {
     },
   });
 
-  await seedCategories();
+  await ensureDefaultCategories();
   await seedExampleTransactions(user.id);
 
   const token = generateToken(user.id);

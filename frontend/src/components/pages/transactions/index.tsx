@@ -5,7 +5,11 @@ import { NewTransactionModal } from "#/components/new-transaction-modal";
 import { PageHeader } from "#/components/page-header";
 import { Button } from "#/components/ui/button";
 import { useAuth } from "#/hooks/useAuth";
-import { useTransactions } from "#/hooks/useTransactions";
+import { useTransactionPeriods } from "#/hooks/useTransactionPeriods";
+import {
+  type TransactionFilters,
+  useTransactions,
+} from "#/hooks/useTransactions";
 import type {
   CreateTransactionInput,
   UpdateTransactionInput,
@@ -22,6 +26,21 @@ const RESULTS_PER_PAGE = 10;
 export function TransactionsPage() {
   const { userId } = useAuth();
 
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [periodFilter, setPeriodFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const transactionFilters: TransactionFilters = {};
+
+  if (periodFilter !== "all") {
+    const [month, year] = periodFilter.split("/");
+
+    transactionFilters.month = month;
+    transactionFilters.year = year;
+  }
+
   const {
     transactions,
     loading,
@@ -32,13 +51,7 @@ export function TransactionsPage() {
     categoryMetaMap,
     deleteExampleTransactions,
     deleteExamplesLoading,
-  } = useTransactions();
-
-  const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [periodFilter, setPeriodFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
+  } = useTransactions(transactionFilters);
 
   const [editingTransaction, setEditingTransaction] =
     useState<Transaction | null>(null);
@@ -67,18 +80,8 @@ export function TransactionsPage() {
       result = result.filter((t) => t.category === categoryFilter);
     }
 
-    if (periodFilter && periodFilter !== "all") {
-      const [month, year] = periodFilter.split("/");
-
-      result = result.filter((t) => {
-        const parts = t.date.split("/");
-
-        return parts[1] === month && parts[2] === year;
-      });
-    }
-
     return result;
-  }, [transactions, search, typeFilter, categoryFilter, periodFilter]);
+  }, [transactions, search, typeFilter, categoryFilter]);
 
   const totalPages = Math.ceil(filtered.length / RESULTS_PER_PAGE);
   const safePage = Math.max(1, Math.min(currentPage, totalPages));
@@ -150,6 +153,8 @@ export function TransactionsPage() {
   };
 
   const hasExamples = transactions.some((t) => "isExample" in t && t.isExample);
+
+  const periodOptions = useTransactionPeriods(userId ?? undefined);
 
   if (loading) {
     return (
@@ -285,6 +290,7 @@ export function TransactionsPage() {
             setPeriodFilter(value);
             resetPage();
           }}
+          periodOptions={periodOptions}
         />
       </div>
 

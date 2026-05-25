@@ -46,14 +46,20 @@ export const typeDefs = gql`
     token: String!
   }
 
+  type TransactionPeriod {
+    month: String!
+    year: String!
+  }
+
   type Query {
     users: [User!]!
     user(id: ID!): User
     userByEmail(email: String!): User
-    transactions(userId: ID): [Transaction!]!
+    transactions(userId: ID, month: String, year: String): [Transaction!]!
     transaction(id: ID!): Transaction
     categories(userId: ID): [Category!]!
     category(id: ID!): Category
+    transactionPeriods(userId: ID): [TransactionPeriod!]!
   }
 
   input CreateUserInput {

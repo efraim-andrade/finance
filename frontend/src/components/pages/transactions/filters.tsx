@@ -19,20 +19,13 @@ type FiltersProps = {
   onCategoryFilterChange: (value: string) => void;
   periodFilter: string;
   onPeriodFilterChange: (value: string) => void;
+  periodOptions: { label: string; value: string }[];
 };
 
 const typeOptions = [
   { label: "Todos", value: "all" },
   { label: "Entrada", value: "INCOME" },
   { label: "Saída", value: "EXPENSE" },
-];
-
-const periodOptions = [
-  { label: "Todos os períodos", value: "all" },
-  { label: "Novembro / 2025", value: "11/2025" },
-  { label: "Dezembro / 2025", value: "12/2025" },
-  { label: "Outubro / 2025", value: "10/2025" },
-  { label: "Setembro / 2025", value: "09/2025" },
 ];
 
 export function Filters({
@@ -44,6 +37,7 @@ export function Filters({
   onCategoryFilterChange,
   periodFilter,
   onPeriodFilterChange,
+  periodOptions,
 }: FiltersProps) {
   const categoryOptions = useCategoryOptions();
   return (

@@ -16,6 +16,11 @@ import {
 import type { Transaction } from "#/types/dashboard";
 import { useAuth } from "./useAuth";
 
+export type TransactionFilters = {
+  month?: string;
+  year?: string;
+};
+
 function displayDate(iso: string): string {
   const date = new Date(iso);
   const day = String(date.getDate()).padStart(2, "0");
@@ -40,11 +45,15 @@ function normalizeTransaction(raw: Transaction): Transaction {
   };
 }
 
-export function useTransactions() {
+export function useTransactions(filters?: TransactionFilters) {
   const { userId } = useAuth();
 
   const { data, loading, error } = useQuery(GET_TRANSACTIONS, {
-    variables: { userId: userId ?? undefined },
+    variables: {
+      userId: userId ?? undefined,
+      month: filters?.month ?? undefined,
+      year: filters?.year ?? undefined,
+    },
   });
   const { data: catData } = useQuery(LIST_CATEGORIES, {
     variables: { userId: userId ?? undefined },

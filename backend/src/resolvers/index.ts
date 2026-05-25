@@ -18,13 +18,25 @@ export const resolvers = {
     user: (_parent: unknown, { id }: { id: string }) => userService.getUserById(id),
     userByEmail: (_parent: unknown, { email }: { email: string }) =>
       userService.getUserByEmail(email),
-    transactions: (_parent: unknown, { userId }: { userId?: string }) =>
-      transactionService.listTransactions(userId ?? undefined),
+    transactions: (
+      _parent: unknown,
+      {
+        userId,
+        month,
+        year,
+      }: {
+        userId?: string;
+        month?: string | null;
+        year?: string | null;
+      },
+    ) => transactionService.listTransactions({ userId: userId ?? undefined, month, year }),
     transaction: (_parent: unknown, { id }: { id: string }) =>
       transactionService.getTransactionById(id),
     categories: (_parent: unknown, { userId }: { userId?: string }) =>
       categoryService.listCategories(userId ?? undefined),
     category: (_parent: unknown, { id }: { id: string }) => categoryService.getCategoryById(id),
+    transactionPeriods: (_parent: unknown, { userId }: { userId?: string }) =>
+      transactionService.listTransactionPeriods(userId ?? undefined),
   },
 
   Mutation: {
@@ -57,7 +69,8 @@ export const resolvers = {
   },
 
   User: {
-    transactions: (parent: { id: string }) => transactionService.listTransactions(parent.id),
+    transactions: (parent: { id: string }) =>
+      transactionService.listTransactions({ userId: parent.id }),
   },
 
   Transaction: {
