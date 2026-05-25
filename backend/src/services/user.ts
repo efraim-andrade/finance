@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { prisma } from "@/lib/prisma.js";
-import type { CreateUserInput } from "@/types/graphql.js";
+import type { CreateUserInput, UpdateUserInput } from "@/types/graphql.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -111,6 +111,14 @@ export async function createUser(input: CreateUserInput) {
   const token = generateToken(user.id);
 
   return { user, token };
+}
+
+export async function updateUser(id: string, input: UpdateUserInput, userId?: string) {
+  if (id !== userId) {
+    throw new Error("Não autorizado");
+  }
+
+  return prisma.user.update({ where: { id }, data: input });
 }
 
 export async function deleteUser(id: string) {

@@ -1,6 +1,7 @@
 import { useMutation } from "@apollo/client/react";
 import { ArrowUpDown, Plus, Tag, Utensils } from "lucide-react";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { NewCategoryModal } from "#/components/new-category-modal";
 import { PageHeader } from "#/components/page-header";
 import { Button } from "#/components/ui/button";
@@ -32,6 +33,8 @@ export function CategoriesPage() {
 
   const [doDelete] = useMutation(DELETE_CATEGORY, {
     refetchQueries: ["ListCategories"],
+    onCompleted: () => toast.success("Categoria excluída"),
+    onError: (err) => toast.error(err.message),
   });
 
   const mostUsed = stats.mostUsedCategory;

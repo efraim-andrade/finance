@@ -8,6 +8,7 @@ import type {
   LoginInput,
   UpdateCategoryInput,
   UpdateTransactionInput,
+  UpdateUserInput,
 } from "@/types/graphql.js";
 import type { GraphQLContext } from "@/types/index.js";
 
@@ -31,6 +32,11 @@ export const resolvers = {
       userService.createUser(input),
     login: (_parent: unknown, { input }: { input: LoginInput }) =>
       userService.loginUser(input.email, input.password),
+    updateUser: (
+      _parent: unknown,
+      { id, input }: { id: string; input: UpdateUserInput },
+      ctx: GraphQLContext,
+    ) => userService.updateUser(id, input, ctx.userId),
     deleteUser: (_parent: unknown, { id }: { id: string }) => userService.deleteUser(id),
     createTransaction: (_parent: unknown, { input }: { input: CreateTransactionInput }) =>
       transactionService.createTransaction(input),

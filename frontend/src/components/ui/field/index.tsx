@@ -5,6 +5,7 @@ import { cn } from "~/lib/utils";
 type FieldProps = {
   label?: string;
   helper?: string;
+  error?: string;
   className?: string;
   children: React.ReactNode;
   type?: FieldType | string;
@@ -24,7 +25,14 @@ const iconMap: Record<FieldType, React.ReactNode> = {
   [FieldType.user]: <User />,
 };
 
-const Field = ({ label, helper, className, children, type }: FieldProps) => {
+const Field = ({
+  label,
+  helper,
+  error,
+  className,
+  children,
+  type,
+}: FieldProps) => {
   const icon =
     type && type in iconMap ? (iconMap[type as FieldType] ?? null) : null;
 
@@ -46,8 +54,14 @@ const Field = ({ label, helper, className, children, type }: FieldProps) => {
         {children}
       </div>
 
-      {helper && (
+      {helper && !error && (
         <p className="text-caption-sm text-muted-foreground">{helper}</p>
+      )}
+
+      {error && (
+        <p className="text-caption-sm text-red-base" role="alert">
+          {error}
+        </p>
       )}
     </div>
   );

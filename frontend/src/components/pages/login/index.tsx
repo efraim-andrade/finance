@@ -8,7 +8,6 @@ import { Card } from "~/components/ui/card";
 import { Checkbox } from "~/components/ui/checkbox";
 import { FieldType } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
-import { LabelButton } from "~/components/ui/label-button";
 import { useAuth } from "~/hooks/useAuth";
 
 export function Login() {
@@ -130,9 +129,12 @@ export function Login() {
               Ainda não tem uma conta?
             </p>
 
-            <LabelButton variant="secondary" className="w-full" icon={UserPlus}>
-              <Link to="/criar-conta">Criar conta</Link>
-            </LabelButton>
+            <Button variant="outline" className="w-full gap-1.5" asChild>
+              <Link to="/criar-conta">
+                <UserPlus />
+                Criar conta
+              </Link>
+            </Button>
           </div>
         </form>
       </Card>

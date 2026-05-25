@@ -6,11 +6,12 @@ import { Field, FieldType } from "../field";
 type InputProps = Omit<React.ComponentProps<"input">, "type"> & {
   label?: string;
   helper?: string;
+  error?: string;
   type?: FieldType | string;
 };
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, label, helper, ...props }, ref) => {
+  ({ className, type, label, helper, error, ...props }, ref) => {
     const [showPassword, setShowPassword] = React.useState(false);
 
     const hasIcon =
@@ -21,7 +22,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       type === FieldType.password && showPassword ? "text" : type;
 
     return (
-      <Field label={label} helper={helper} type={type}>
+      <Field label={label} helper={helper} error={error} type={type}>
         <input
           type={nativeType}
           className={cn(

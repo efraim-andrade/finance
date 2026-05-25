@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "#/components/ui/select";
 import { useCategoryOptions } from "#/hooks/useCategoryOptions";
+import { DATE_INPUT_LENGTH, isValidDateInput } from "#/lib/date-utils";
 import { cn } from "#/lib/utils";
 import type { CreateTransactionInput } from "#/services/transactions";
 import type { TransactionType } from "#/types/dashboard";
@@ -40,10 +41,61 @@ export function NewTransactionModal({
   const [date, setDate] = useState("");
   const [amount, setAmount] = useState(0);
   const [category, setCategory] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const categoryOptions = useCategoryOptions();
+
+  const validateField = (field: string, value: string | number) => {
+    switch (field) {
+      case "description": {
+        if (typeof value !== "string" || !value.trim()) {
+          return "Descrição é obrigatória";
+        }
+        return "";
+      }
+      case "amount": {
+        if (typeof value !== "number" || value <= 0) {
+          return "Valor deve ser maior que zero";
+        }
+        return "";
+      }
+      case "date": {
+        if (typeof value !== "string" || !value) {
+          return "Data é obrigatória";
+        }
+        if (value.length === DATE_INPUT_LENGTH && !isValidDateInput(value)) {
+          return "Data inválida";
+        }
+        return "";
+      }
+      case "category": {
+        if (!value) {
+          return "Selecione uma categoria";
+        }
+        return "";
+      }
+      default:
+        return "";
+    }
+  };
+
+  const setFieldValue = (field: string, value: string | number) => {
+    const err = validateField(field, value);
+
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+
+      if (err) {
+        next[field] = err;
+      } else {
+        delete next[field];
+      }
+
+      return next;
+    });
+  };
 
   const resetForm = () => {
     setType("EXPENSE");
@@ -51,6 +103,7 @@ export function NewTransactionModal({
     setDate("");
     setAmount(0);
     setCategory("");
+    setFieldErrors({});
     setError(null);
   };
 
@@ -58,7 +111,24 @@ export function NewTransactionModal({
     e.preventDefault();
     setError(null);
 
-    if (!description || !date || amount <= 0 || !category) {
+    const errors: Record<string, string> = {};
+
+    for (const [field, value] of Object.entries({
+      description,
+      amount,
+      date,
+      category,
+    })) {
+      const err = validateField(field, value);
+      if (err) errors[field] = err;
+    }
+
+    if (date && date.length === DATE_INPUT_LENGTH && !isValidDateInput(date)) {
+      errors.date = "Data inválida";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
 
@@ -147,7 +217,11 @@ export function NewTransactionModal({
               label="Descrição"
               placeholder="Ex. Almoço"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                setFieldValue("description", e.target.value);
+              }}
+              error={fieldErrors.description}
               required
             />
 
@@ -156,7 +230,11 @@ export function NewTransactionModal({
                 label="Data"
                 placeholder="DD/MM/AAAA"
                 value={date}
-                onChange={setDate}
+                onChange={(v) => {
+                  setDate(v);
+                  setFieldValue("date", v);
+                }}
+                error={fieldErrors.date}
                 required
               />
 
@@ -164,12 +242,16 @@ export function NewTransactionModal({
                 label="Valor"
                 placeholder="R$ 0,00"
                 value={amount}
-                onChange={setAmount}
+                onChange={(v) => {
+                  setAmount(v);
+                  setFieldValue("amount", v);
+                }}
+                error={fieldErrors.amount}
                 required
               />
             </div>
 
-            <Field label="Categoria">
+            <Field label="Categoria" error={fieldErrors.category}>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger className="border-r-0 border-l-0 p-0 pl-3 pr-3">
                   <SelectValue placeholder="Selecione..." />

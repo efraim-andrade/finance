@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
+import { toast } from "sonner";
 
 import { buildCategoryMetaMap } from "#/lib/category-utils";
 import { LIST_CATEGORIES } from "#/services/categories";
@@ -56,14 +57,20 @@ export function useTransactions() {
 
   const [doCreate, createState] = useMutation(CREATE_TRANSACTION, {
     refetchQueries: ["GetTransactions"],
+    onCompleted: () => toast.success("Transação criada"),
+    onError: (err) => toast.error(err.message),
   });
 
   const [doUpdate, updateState] = useMutation(UPDATE_TRANSACTION, {
     refetchQueries: ["GetTransactions"],
+    onCompleted: () => toast.success("Transação atualizada"),
+    onError: (err) => toast.error(err.message),
   });
 
   const [doDelete, deleteState] = useMutation(DELETE_TRANSACTION, {
     refetchQueries: ["GetTransactions"],
+    onCompleted: () => toast.success("Transação excluída"),
+    onError: (err) => toast.error(err.message),
   });
 
   const transactions = useMemo(
@@ -104,7 +111,13 @@ export function useTransactions() {
 
   const [doDeleteExamples, deleteExamplesState] = useMutation(
     DELETE_EXAMPLE_TRANSACTIONS,
-    { refetchQueries: ["GetTransactions"] },
+    {
+      refetchQueries: ["GetTransactions"],
+      onCompleted: (data: { deleteExampleTransactions: number }) => {
+        toast.success(`${data.deleteExampleTransactions} transações removidas`);
+      },
+      onError: (err) => toast.error(err.message),
+    },
   );
 
   const deleteExampleTransactions = useCallback(

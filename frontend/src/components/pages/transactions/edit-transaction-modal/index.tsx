@@ -1,6 +1,6 @@
 import { useState } from "react";
-
 import { useCategoryOptions } from "#/hooks/useCategoryOptions";
+import { DATE_INPUT_LENGTH, isValidDateInput } from "#/lib/date-utils";
 import type { UpdateTransactionInput } from "#/services/transactions";
 import type { Transaction } from "#/types/dashboard";
 import { Button } from "~/components/ui/button";
@@ -11,6 +11,7 @@ import {
   DialogFooter,
   DialogHeader,
 } from "~/components/ui/dialog";
+import { Field } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { MoneyInput } from "~/components/ui/money-input";
 import {
@@ -41,14 +42,84 @@ export function EditTransactionModal({
   const [category, setCategory] = useState(transaction.category);
   const categoryOptions = useCategoryOptions();
   const [date, setDate] = useState(transaction.date);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const validateField = (field: string, value: string | number) => {
+    switch (field) {
+      case "description": {
+        if (typeof value !== "string" || !value.trim()) {
+          return "Descrição é obrigatória";
+        }
+        return "";
+      }
+      case "value": {
+        if (typeof value !== "number" || value <= 0) {
+          return "Valor deve ser maior que zero";
+        }
+        return "";
+      }
+      case "date": {
+        if (typeof value !== "string" || !value) {
+          return "Data é obrigatória";
+        }
+        if (value.length === DATE_INPUT_LENGTH && !isValidDateInput(value)) {
+          return "Data inválida";
+        }
+        return "";
+      }
+      case "category": {
+        if (!value) {
+          return "Selecione uma categoria";
+        }
+        return "";
+      }
+      default:
+        return "";
+    }
+  };
+
+  const setFieldValue = (field: string, value: string | number) => {
+    const err = validateField(field, value);
+
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+
+      if (err) {
+        next[field] = err;
+      } else {
+        delete next[field];
+      }
+
+      return next;
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (!description || value <= 0 || !category || !date) return;
+    const errors: Record<string, string> = {};
+
+    for (const [field, val] of Object.entries({
+      description,
+      value,
+      date,
+      category,
+    })) {
+      const err = validateField(field, val);
+      if (err) errors[field] = err;
+    }
+
+    if (date && date.length === DATE_INPUT_LENGTH && !isValidDateInput(date)) {
+      errors.date = "Data inválida";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
 
     setSaving(true);
 
@@ -85,7 +156,11 @@ export function EditTransactionModal({
               label="Descrição"
               placeholder="Ex: Jantar no restaurante"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                setFieldValue("description", e.target.value);
+              }}
+              error={fieldErrors.description}
               required
             />
 
@@ -94,7 +169,11 @@ export function EditTransactionModal({
                 label="Valor"
                 placeholder="0,00"
                 value={value}
-                onChange={setValue}
+                onChange={(v) => {
+                  setValue(v);
+                  setFieldValue("value", v);
+                }}
+                error={fieldErrors.value}
                 required
               />
 
@@ -102,7 +181,11 @@ export function EditTransactionModal({
                 label="Data"
                 placeholder="DD/MM/AAAA"
                 value={date}
-                onChange={setDate}
+                onChange={(v) => {
+                  setDate(v);
+                  setFieldValue("date", v);
+                }}
+                error={fieldErrors.date}
                 required
               />
             </div>
@@ -134,15 +217,14 @@ export function EditTransactionModal({
               </Select>
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor="edit-categoria"
-                className="text-xs font-semibold text-foreground"
+            <Field label="Categoria" error={fieldErrors.category}>
+              <Select
+                value={category}
+                onValueChange={(v) => {
+                  setCategory(v);
+                  setFieldValue("category", v);
+                }}
               >
-                Categoria
-              </label>
-
-              <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger id="edit-categoria">
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
@@ -155,7 +237,7 @@ export function EditTransactionModal({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
           </div>
 
           <DialogFooter>

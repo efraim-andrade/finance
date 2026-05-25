@@ -69,6 +69,42 @@ export const LOGIN: TypedDocumentNode<LoginData, { input: LoginInput }> = gql`
 	}
 `;
 
+type UpdateUserData = {
+  updateUser: {
+    id: string;
+    name: string;
+    email: string;
+  };
+};
+
+export type UpdateUserInput = {
+  name?: string;
+};
+
+export const UPDATE_USER: TypedDocumentNode<
+  UpdateUserData,
+  { id: string; input: UpdateUserInput }
+> = gql`
+  mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
+    updateUser(id: $id, input: $input) {
+      id
+      name
+      email
+    }
+  }
+`;
+
+type DeleteUserData = {
+  deleteUser: string;
+};
+
+export const DELETE_USER: TypedDocumentNode<DeleteUserData, { id: string }> =
+  gql`
+  mutation DeleteUser($id: ID!) {
+    deleteUser(id: $id)
+  }
+`;
+
 type UserByEmailData = {
   userByEmail: User | null;
 };

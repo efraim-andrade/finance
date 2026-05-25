@@ -1,9 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
-import { LogOut, UserRoundPlus } from "lucide-react";
+import { LogOut, Trash2, UserRoundPlus } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
+import { DeleteAccountDialog } from "#/components/delete-account-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,8 +25,16 @@ function computeInitials(name: string | null): string {
 }
 
 export function EditProfile() {
-  const { logout, userName, userEmail } = useAuth();
+  const {
+    deleteAccount,
+    deletingAccount,
+    logout,
+    userName,
+    userEmail,
+    updateProfile,
+  } = useAuth();
   const navigate = useNavigate();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const { register, handleSubmit } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
@@ -34,12 +43,17 @@ export function EditProfile() {
     },
   });
 
-  const onSubmit = (_data: ProfileForm) => {
-    // TODO: persist profile changes via API
+  const onSubmit = async (data: ProfileForm) => {
+    await updateProfile(data.name);
   };
 
   const handleLogout = () => {
     logout();
+    navigate({ to: "/" });
+  };
+
+  const handleDeleteAccount = async () => {
+    await deleteAccount();
     navigate({ to: "/" });
   };
 
@@ -99,6 +113,38 @@ export function EditProfile() {
             </Button>
           </div>
         </form>
+
+        {/* Danger Zone */}
+        <hr className="border-border" />
+
+        <div className="flex flex-col gap-2">
+          <h2 className="text-base font-semibold text-destructive">
+            Excluir conta
+          </h2>
+
+          <p className="text-sm text-muted-foreground">
+            Ao excluir sua conta, todos os seus dados serão perdidos
+            permanentemente.
+          </p>
+
+          <Button
+            type="button"
+            size="lg"
+            variant="destructive"
+            className="mt-2 w-full"
+            onClick={() => setDeleteDialogOpen(true)}
+          >
+            <Trash2 className="size-4" />
+            Excluir conta
+          </Button>
+        </div>
+
+        <DeleteAccountDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          onConfirm={handleDeleteAccount}
+          loading={deletingAccount}
+        />
       </div>
     </div>
   );

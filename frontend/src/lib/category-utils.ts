@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Utensils } from "lucide-react";
+import { Tag } from "lucide-react";
 
 import { categoryIconMap } from "#/lib/category-icons";
 import type { CategoryColor, CategoryDetail } from "#/types/dashboard";
@@ -51,7 +51,7 @@ export function buildCategoryMetaMap(
 ): Record<string, CategoryMeta> {
   return categories.reduce<Record<string, CategoryMeta>>((map, cat) => {
     const style = COLOR_STYLES[cat.color] ?? COLOR_STYLES.gray;
-    const Icon = categoryIconMap[cat.icon] ?? Utensils;
+    const Icon = categoryIconMap[cat.icon] ?? Tag;
 
     map[cat.name] = {
       variant: cat.color,
@@ -68,7 +68,7 @@ const DEFAULT_META: CategoryMeta = {
   variant: "blue",
   iconBg: "bg-blue-light dark:bg-blue-dark",
   iconColor: "text-blue-base dark:text-blue-light",
-  Icon: Utensils,
+  Icon: Tag,
 };
 
 export function getCategoryMeta(

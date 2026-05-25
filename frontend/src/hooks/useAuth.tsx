@@ -1,17 +1,21 @@
 import { useMutation } from "@apollo/client/react";
 import { createContext, useCallback, useContext, useState } from "react";
+import { toast } from "sonner";
 
-import { CREATE_USER, LOGIN } from "#/services/users";
+import { CREATE_USER, DELETE_USER, LOGIN, UPDATE_USER } from "#/services/users";
 
 type AuthContextType = {
   isAuthenticated: boolean;
   userId: string | null;
   userName: string | null;
   userEmail: string | null;
+  deletingAccount: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (name: string, email: string, password: string) => Promise<void>;
+  updateProfile: (name: string) => Promise<void>;
+  deleteAccount: () => Promise<void>;
   clearError: () => void;
 };
 
@@ -125,6 +129,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const [doCreateUser] = useMutation(CREATE_USER);
   const [doLogin] = useMutation(LOGIN);
+  const [doUpdateUser] = useMutation(UPDATE_USER);
+  const [doDeleteUser, { loading: deletingAccount }] = useMutation(DELETE_USER);
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -154,6 +160,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           payload.user.name,
           payload.user.email,
         );
+
+        toast.success("Login efetuado com sucesso!");
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Erro ao fazer login";
@@ -201,6 +209,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           payload.user.name,
           payload.user.email,
         );
+
+        toast.success("Conta criada com sucesso!");
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Erro ao criar conta";
@@ -212,16 +222,76 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [doCreateUser],
   );
 
+  const updateProfile = useCallback(
+    async (name: string) => {
+      if (!state.userId) return;
+
+      try {
+        const { data } = await doUpdateUser({
+          variables: { id: state.userId, input: { name } },
+        });
+
+        const updated = data?.updateUser;
+
+        if (!updated) {
+          throw new Error("Falha ao atualizar perfil");
+        }
+
+        setState((prev) => ({ ...prev, userName: updated.name }));
+        persistAuth(
+          true,
+          state.userId,
+          undefined,
+          updated.name,
+          state.userEmail ?? undefined,
+        );
+        toast.success("Perfil atualizado");
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Erro ao atualizar perfil";
+
+        toast.error(message);
+      }
+    },
+    [doUpdateUser, state.userId, state.userEmail],
+  );
+
+  const deleteAccount = useCallback(async () => {
+    if (!state.userId) return;
+
+    try {
+      await doDeleteUser({ variables: { id: state.userId } });
+
+      setState({
+        isAuthenticated: false,
+        userId: null,
+        userName: null,
+        userEmail: null,
+      });
+      clearStorage();
+      toast.success("Conta excluída com sucesso");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Erro ao excluir conta";
+
+      toast.error(message);
+      throw err;
+    }
+  }, [doDeleteUser, state.userId]);
+
   const clearError = useCallback(() => setError(null), []);
 
   return (
     <AuthContext.Provider
       value={{
         ...state,
+        deletingAccount,
         error,
         login,
         logout,
         register,
+        updateProfile,
+        deleteAccount,
         clearError,
       }}
     >

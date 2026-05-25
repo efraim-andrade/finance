@@ -44,6 +44,10 @@ export type UpdateTransactionInput = {
   isExample?: boolean;
 };
 
+export type UpdateUserInput = {
+  name?: string;
+};
+
 export type CreateCategoryInput = {
   name: string;
   description?: string | null;

@@ -1,6 +1,5 @@
 import { Plus, Receipt, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
 import { EmptyState } from "#/components/empty-state";
 import { NewTransactionModal } from "#/components/new-transaction-modal";
 import { PageHeader } from "#/components/page-header";
@@ -127,8 +126,6 @@ export function TransactionsPage() {
       await deleteTransaction(deletingId);
       setShowDeleteDialog(false);
       setDeletingId(null);
-    } catch {
-      // Error state handled by Apollo
     } finally {
       setIsDeleting(false);
     }
@@ -144,12 +141,9 @@ export function TransactionsPage() {
     setIsDeletingExamples(true);
 
     try {
-      const count = await deleteExampleTransactions(userId);
+      await deleteExampleTransactions(userId);
 
       setShowDeleteExamplesDialog(false);
-      toast.success(`${count} transações de exemplo removidas`);
-    } catch {
-      toast.error("Erro ao remover transações de exemplo");
     } finally {
       setIsDeletingExamples(false);
     }

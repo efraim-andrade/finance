@@ -16,7 +16,7 @@ type UpdateTransactionData = {
 };
 
 type DeleteTransactionData = {
-  deleteTransaction: Transaction;
+  deleteTransaction: string;
 };
 
 export type CreateTransactionInput = {
@@ -98,9 +98,7 @@ export const DELETE_TRANSACTION: TypedDocumentNode<
   { id: string }
 > = gql`
 	mutation DeleteTransaction($id: ID!) {
-		deleteTransaction(id: $id) {
-			id
-		}
+		deleteTransaction(id: $id)
 	}
 `;
 

@@ -24,12 +24,16 @@ type DateInputProps = Omit<
 > & {
   label?: string;
   helper?: string;
+  error?: string;
   value?: string;
   onChange?: (value: string) => void;
 };
 
 const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
-  ({ className, label, helper, value, onChange, onBlur, ...props }, ref) => {
+  (
+    { className, label, helper, error, value, onChange, onBlur, ...props },
+    ref,
+  ) => {
     const [internalValue, setInternalValue] = useState(() =>
       value ? maskDate(value) : "",
     );
@@ -48,7 +52,7 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
     };
 
     return (
-      <Field label={label} helper={helper}>
+      <Field label={label} helper={helper} error={error}>
         <input
           type="text"
           inputMode="numeric"

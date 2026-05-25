@@ -28,7 +28,14 @@ export function useCategories(): UseCategoriesResult {
   const categories: CategoryDetail[] = useMemo(
     () =>
       (data?.categories ?? []).map(
-        (cat: { id: string; name: string; description: string; color: string; icon: string; userId?: string | null }): CategoryDetail => ({
+        (cat: {
+          id: string;
+          name: string;
+          description: string;
+          color: string;
+          icon: string;
+          userId?: string | null;
+        }): CategoryDetail => ({
           id: cat.id,
           name: cat.name,
           description: cat.description ?? "",

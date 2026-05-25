@@ -11,7 +11,7 @@ import { loadAuth, useAuth } from "~/hooks/useAuth";
 
 export const Route = createFileRoute("/app")({
   beforeLoad: () => {
-    if (!loadAuth()) {
+    if (!loadAuth().isAuthenticated) {
       throw redirect({ to: "/" });
     }
   },

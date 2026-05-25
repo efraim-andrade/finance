@@ -15,13 +15,24 @@ type MoneyInputProps = Omit<
 > & {
   label?: string;
   helper?: string;
+  error?: string;
   value?: number;
   onChange?: (value: number) => void;
 };
 
 const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(
   (
-    { className, label, helper, value, onChange, onBlur, onFocus, ...props },
+    {
+      className,
+      label,
+      helper,
+      error,
+      value,
+      onChange,
+      onBlur,
+      onFocus,
+      ...props
+    },
     ref,
   ) => {
     const [internalDisplay, setInternalDisplay] = useState(() =>
@@ -47,7 +58,7 @@ const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(
     };
 
     return (
-      <Field label={label} helper={helper}>
+      <Field label={label} helper={helper} error={error}>
         <input
           type="text"
           inputMode="numeric"

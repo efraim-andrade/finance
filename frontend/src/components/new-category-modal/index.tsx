@@ -1,5 +1,6 @@
 import { useMutation } from "@apollo/client/react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { COLOR_OPTIONS, ICON_OPTIONS } from "#/lib/category-form-data";
 import { cn } from "#/lib/utils";
 import { CREATE_CATEGORY, UPDATE_CATEGORY } from "#/services/categories";
@@ -37,15 +38,50 @@ export function NewCategoryModal({
   const [selectedColor, setSelectedColor] = useState<string>(
     editCategory?.color ?? "green",
   );
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const isEditing = !!editCategory;
 
+  const validateField = (field: string, value: string): string => {
+    if (field === "title") {
+      if (!value.trim()) {
+        return "Nome é obrigatório";
+      }
+
+      if (value.trim().length < 2) {
+        return "Nome deve ter pelo menos 2 caracteres";
+      }
+    }
+
+    return "";
+  };
+
+  const setFieldValue = (field: string, value: string) => {
+    const err = validateField(field, value);
+
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+
+      if (err) {
+        next[field] = err;
+      } else {
+        delete next[field];
+      }
+
+      return next;
+    });
+  };
+
   const [doCreate, { loading: createLoading }] = useMutation(CREATE_CATEGORY, {
     refetchQueries: ["ListCategories"],
+    onCompleted: () => toast.success("Categoria criada"),
+    onError: (err) => toast.error(err.message),
   });
 
   const [doUpdate, { loading: updateLoading }] = useMutation(UPDATE_CATEGORY, {
     refetchQueries: ["ListCategories"],
+    onCompleted: () => toast.success("Categoria atualizada"),
+    onError: (err) => toast.error(err.message),
   });
 
   const loading = createLoading || updateLoading;
@@ -57,12 +93,28 @@ export function NewCategoryModal({
       setSelectedIcon("briefcase");
       setSelectedColor("green");
     }
+
+    setFieldErrors({});
   };
 
   const handleSave = async () => {
-    if (!title.trim() || loading) {
+    if (loading) {
       return;
     }
+
+    // Validate all fields
+    const err = validateField("title", title);
+    const errors: Record<string, string> = {};
+
+    if (err) errors.title = err;
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+
+      return;
+    }
+
+    setFieldErrors({});
 
     if (isEditing) {
       await doUpdate({
@@ -111,7 +163,11 @@ export function NewCategoryModal({
             label="Título"
             placeholder="Ex. Alimentação"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              setFieldValue("title", e.target.value);
+            }}
+            error={fieldErrors.title}
           />
 
           <Input

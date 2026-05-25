@@ -85,6 +85,10 @@ export const typeDefs = gql`
     date: DateTime
   }
 
+  input UpdateUserInput {
+    name: String
+  }
+
   input CreateCategoryInput {
     name: String!
     description: String
@@ -103,6 +107,7 @@ export const typeDefs = gql`
   type Mutation {
     createUser(input: CreateUserInput!): AuthPayload!
     login(input: LoginInput!): AuthPayload!
+    updateUser(id: ID!, input: UpdateUserInput!): User!
     deleteUser(id: ID!): ID!
     createTransaction(input: CreateTransactionInput!): Transaction!
     updateTransaction(id: ID!, input: UpdateTransactionInput!): Transaction!
