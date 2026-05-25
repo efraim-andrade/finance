@@ -9,7 +9,19 @@ import { ThemeProvider } from "~/hooks/useTheme";
 import { apolloClient } from "~/lib/apollo";
 import appCss from "../styles.css?url";
 
-const isDev = import.meta.env.DEV;
+function Devtools() {
+  return (
+    <TanStackDevtools
+      config={{ position: "bottom-right" }}
+      plugins={[
+        {
+          name: "Tanstack Router",
+          render: <TanStackRouterDevtoolsPanel />,
+        },
+      ]}
+    />
+  );
+}
 
 export const Route = createRootRoute({
   head: () => ({
@@ -68,19 +80,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             </AuthProvider>
           </ThemeProvider>
         </ApolloProvider>
-        {isDev && (
-          <TanStackDevtools
-            config={{
-              position: "bottom-right",
-            }}
-            plugins={[
-              {
-                name: "Tanstack Router",
-                render: <TanStackRouterDevtoolsPanel />,
-              },
-            ]}
-          />
-        )}
+        {import.meta.env.DEV && <Devtools />}
         <Scripts />
       </body>
     </html>
