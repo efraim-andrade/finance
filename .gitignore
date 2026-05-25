@@ -35,3 +35,7 @@ test-results/
 # Design files
 financy-design
 designs/*.pen
+.impeccable
+.hermes
+.logs
+.opencode
