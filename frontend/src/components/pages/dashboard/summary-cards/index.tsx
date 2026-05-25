@@ -50,6 +50,7 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
           iconColor={iconColor}
           label={label}
           value={formatValue(summary)}
+          inverted
         />
       ))}
     </div>
