@@ -103,7 +103,9 @@ export function TransactionsPage() {
   const handleCreate = async (
     input: Omit<CreateTransactionInput, "userId">,
   ) => {
-    await createTransaction({ ...input, userId: userId! });
+    if (!userId) return;
+
+    await createTransaction({ ...input, userId });
   };
 
   const handleEdit = (transaction: Transaction) => {

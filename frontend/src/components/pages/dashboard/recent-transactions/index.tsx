@@ -34,7 +34,9 @@ export function RecentTransactions({
   const handleCreate = async (
     input: Omit<CreateTransactionInput, "userId">,
   ) => {
-    await createTransaction({ ...input, userId: userId! });
+    if (!userId) return;
+
+    await createTransaction({ ...input, userId });
   };
 
   return (
