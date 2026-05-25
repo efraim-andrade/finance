@@ -9,6 +9,8 @@ import { ThemeProvider } from "~/hooks/useTheme";
 import { apolloClient } from "~/lib/apollo";
 import appCss from "../styles.css?url";
 
+const isDev = import.meta.env.DEV;
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -66,7 +68,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             </AuthProvider>
           </ThemeProvider>
         </ApolloProvider>
-        {import.meta.env.DEV && (
+        {isDev && (
           <TanStackDevtools
             config={{
               position: "bottom-right",
