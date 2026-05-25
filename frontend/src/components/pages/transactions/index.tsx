@@ -1,4 +1,5 @@
 import { Plus, Receipt, Trash2 } from "lucide-react";
+import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { EmptyState } from "#/components/empty-state";
 import { NewTransactionModal } from "#/components/new-transaction-modal";
@@ -232,144 +233,180 @@ export function TransactionsPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4 p-4 md:gap-8 md:p-12">
-      <PageHeader
-        title="Transações"
-        description="Gerencie todas as suas transações financeiras"
-        action={
-          <div className="flex items-center gap-2">
-            {hasExamples && (
-              <>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-1.5"
-                  onClick={handleDeleteExamples}
-                  disabled={deleteExamplesLoading}
-                >
-                  <Trash2 className="size-4" />
-                  <span className="hidden sm:inline">Remover exemplos</span>
-                  <span className="sm:hidden">Exemplos</span>
-                </Button>
-                <DeleteDialog
-                  open={showDeleteExamplesDialog}
-                  onOpenChange={setShowDeleteExamplesDialog}
-                  onConfirm={confirmDeleteExamples}
-                  loading={isDeletingExamples}
-                  title="Remover transações de exemplo"
-                  description="Tem certeza que deseja remover todas as transações de exemplo? Suas transações reais não serão afetadas."
-                />
-              </>
-            )}
-            <NewTransactionModal onSubmit={handleCreate}>
-              <Button size="sm" className="gap-1.5">
-                <Plus className="size-4" />
-                <span className="hidden sm:inline">Nova transação</span>
-                <span className="sm:hidden">Nova</span>
-              </Button>
-            </NewTransactionModal>
-          </div>
-        }
-      />
-
-      <div className="rounded-xl border border-border bg-card p-6">
-        <Filters
-          search={search}
-          onSearchChange={(value) => {
-            setSearch(value);
-            resetPage();
-          }}
-          typeFilter={typeFilter}
-          onTypeFilterChange={(value) => {
-            setTypeFilter(value);
-            resetPage();
-          }}
-          categoryFilter={categoryFilter}
-          onCategoryFilterChange={(value) => {
-            setCategoryFilter(value);
-            resetPage();
-          }}
-          periodFilter={periodFilter}
-          onPeriodFilterChange={(value) => {
-            setPeriodFilter(value);
-            resetPage();
-          }}
-          periodOptions={periodOptions}
-        />
-      </div>
-
-      <div className="rounded-xl border border-border bg-card">
-        <div className="hidden h-14 items-center border-b border-border px-6 md:flex">
-          <div className="flex flex-1 items-center">
-            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Descrição
-            </span>
-          </div>
-
-          <div className="flex w-28 items-center justify-center">
-            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Data
-            </span>
-          </div>
-
-          <div className="flex w-52 items-center justify-center">
-            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Categoria
-            </span>
-          </div>
-
-          <div className="flex w-36 items-center justify-center">
-            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Tipo
-            </span>
-          </div>
-
-          <div className="flex w-52 items-center justify-end">
-            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Valor
-            </span>
-          </div>
-
-          <div className="flex w-28 items-center justify-end">
-            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Ações
-            </span>
-          </div>
-        </div>
-
-        {paginated.length > 0 ? (
-          paginated.map((transaction) => (
-            <TransactionRow
-              key={transaction.id}
-              transaction={transaction}
-              categoryMetaMap={categoryMetaMap}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))
-        ) : (
-          <EmptyState
-            icon={Receipt}
-            title="Nenhuma transação encontrada"
-            description="Tente ajustar os filtros ou criar uma nova transação"
-            action={
+    <div
+      className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4 p-4 md:gap-8 md:p-12"
+      style={
+        {
+          "--anim-dur": "400ms",
+          "--anim-ease": "cubic-bezier(0.16, 1, 0.3, 1)",
+          "--anim-delay-1": "0ms",
+          "--anim-delay-2": "120ms",
+          "--anim-delay-3": "240ms",
+          "--anim-delay-4": "360ms",
+        } as CSSProperties
+      }
+    >
+      <div
+        className="anim-page"
+        style={{
+          animation:
+            "impeccable-fade-slide var(--anim-dur) var(--anim-delay-1) var(--anim-ease) both",
+        }}
+      >
+        <PageHeader
+          title="Transações"
+          description="Gerencie todas as suas transações financeiras"
+          action={
+            <div className="flex items-center gap-2">
+              {hasExamples && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5"
+                    onClick={handleDeleteExamples}
+                    disabled={deleteExamplesLoading}
+                  >
+                    <Trash2 className="size-4" />
+                    <span className="hidden sm:inline">Remover exemplos</span>
+                    <span className="sm:hidden">Exemplos</span>
+                  </Button>
+                  <DeleteDialog
+                    open={showDeleteExamplesDialog}
+                    onOpenChange={setShowDeleteExamplesDialog}
+                    onConfirm={confirmDeleteExamples}
+                    loading={isDeletingExamples}
+                    title="Remover transações de exemplo"
+                    description="Tem certeza que deseja remover todas as transações de exemplo? Suas transações reais não serão afetadas."
+                  />
+                </>
+              )}
               <NewTransactionModal onSubmit={handleCreate}>
                 <Button size="sm" className="gap-1.5">
                   <Plus className="size-4" />
-                  Nova transação
+                  <span className="hidden sm:inline">Nova transação</span>
+                  <span className="sm:hidden">Nova</span>
                 </Button>
               </NewTransactionModal>
-            }
-          />
-        )}
-
-        <Pagination
-          currentPage={safePage}
-          totalPages={totalPages}
-          totalResults={filtered.length}
-          resultsPerPage={RESULTS_PER_PAGE}
-          onPageChange={setCurrentPage}
+            </div>
+          }
         />
+      </div>
+
+      <div
+        className="anim-page"
+        style={{
+          animation:
+            "impeccable-fade-slide var(--anim-dur) var(--anim-delay-2) var(--anim-ease) both",
+        }}
+      >
+        <div className="rounded-xl border border-border bg-card p-6">
+          <Filters
+            search={search}
+            onSearchChange={(value) => {
+              setSearch(value);
+              resetPage();
+            }}
+            typeFilter={typeFilter}
+            onTypeFilterChange={(value) => {
+              setTypeFilter(value);
+              resetPage();
+            }}
+            categoryFilter={categoryFilter}
+            onCategoryFilterChange={(value) => {
+              setCategoryFilter(value);
+              resetPage();
+            }}
+            periodFilter={periodFilter}
+            onPeriodFilterChange={(value) => {
+              setPeriodFilter(value);
+              resetPage();
+            }}
+            periodOptions={periodOptions}
+          />
+        </div>
+      </div>
+
+      <div
+        className="anim-page"
+        style={{
+          animation:
+            "impeccable-fade-slide var(--anim-dur) var(--anim-delay-3) var(--anim-ease) both",
+        }}
+      >
+        <div className="rounded-xl border border-border bg-card">
+          <div className="hidden h-14 items-center border-b border-border px-6 md:flex">
+            <div className="flex flex-1 items-center">
+              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Descrição
+              </span>
+            </div>
+
+            <div className="flex w-28 items-center justify-center">
+              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Data
+              </span>
+            </div>
+
+            <div className="flex w-52 items-center justify-center">
+              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Categoria
+              </span>
+            </div>
+
+            <div className="flex w-36 items-center justify-center">
+              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Tipo
+              </span>
+            </div>
+
+            <div className="flex w-52 items-center justify-end">
+              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Valor
+              </span>
+            </div>
+
+            <div className="flex w-28 items-center justify-end">
+              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Ações
+              </span>
+            </div>
+          </div>
+
+          {paginated.length > 0 ? (
+            paginated.map((transaction) => (
+              <TransactionRow
+                key={transaction.id}
+                transaction={transaction}
+                categoryMetaMap={categoryMetaMap}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))
+          ) : (
+            <EmptyState
+              icon={Receipt}
+              title="Nenhuma transação encontrada"
+              description="Tente ajustar os filtros ou criar uma nova transação"
+              action={
+                <NewTransactionModal onSubmit={handleCreate}>
+                  <Button size="sm" className="gap-1.5">
+                    <Plus className="size-4" />
+                    Nova transação
+                  </Button>
+                </NewTransactionModal>
+              }
+            />
+          )}
+
+          <Pagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            totalResults={filtered.length}
+            resultsPerPage={RESULTS_PER_PAGE}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       </div>
 
       {editingTransaction && (

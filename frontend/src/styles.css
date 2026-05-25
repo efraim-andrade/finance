@@ -296,3 +296,35 @@ button:not(:disabled) {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-gray-400);
 }
+
+/* ------------------------------------------------------------------ */
+/*  Page entrance animations                                           */
+/* ------------------------------------------------------------------ */
+@keyframes impeccable-fade-slide {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes impeccable-route-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-page {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

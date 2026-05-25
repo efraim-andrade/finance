@@ -7,6 +7,7 @@ import type { CategoryDetail } from "#/types/dashboard";
 
 type CategoryStats = {
   totalCategories: number;
+  totalTransactions: number;
   mostUsedCategory: CategoryDetail;
 };
 
@@ -51,6 +52,7 @@ export function useCategories(): UseCategoriesResult {
 
   const stats: CategoryStats = {
     totalCategories: categories.length,
+    totalTransactions: categories.reduce((sum, cat) => sum + cat.itemCount, 0),
     mostUsedCategory: firstCategory ?? {
       id: "",
       name: "Nenhuma",

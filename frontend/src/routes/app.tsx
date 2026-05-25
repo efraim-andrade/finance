@@ -7,6 +7,7 @@ import {
 import { useEffect } from "react";
 
 import { AuthLayout } from "~/components/layouts/auth-layout";
+import { RouteTransition } from "~/components/route-transition";
 import { loadAuth, useAuth } from "~/hooks/useAuth";
 
 export const Route = createFileRoute("/app")({
@@ -30,7 +31,9 @@ function RouteComponent() {
 
   return (
     <AuthLayout>
-      <Outlet />
+      <RouteTransition>
+        <Outlet />
+      </RouteTransition>
     </AuthLayout>
   );
 }

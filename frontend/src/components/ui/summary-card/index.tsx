@@ -26,7 +26,7 @@ export function SummaryCard({
         <div className="flex flex-col gap-1">
           <p className="text-heading-lg font-bold text-foreground">{value}</p>
 
-          <span className="text-caption-sm font-medium text-muted-foreground">
+          <span className="text-caption-sm font-medium uppercase text-muted-foreground">
             {label}
           </span>
         </div>

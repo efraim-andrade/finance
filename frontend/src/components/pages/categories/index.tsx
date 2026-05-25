@@ -1,5 +1,6 @@
 import { useMutation } from "@apollo/client/react";
-import { Plus, Tag, Utensils } from "lucide-react";
+import { ArrowDownUp, Plus, Tag, Utensils } from "lucide-react";
+import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { NewCategoryModal } from "#/components/new-category-modal";
@@ -49,6 +50,12 @@ export function CategoriesPage() {
         value: String(stats.totalCategories),
       },
       {
+        icon: ArrowDownUp,
+        iconColor: "text-purple-base dark:text-purple-light",
+        label: "total de transacoes",
+        value: String(stats.totalTransactions),
+      },
+      {
         icon: MostUsedIcon,
         iconColor: summaryIconColorMap[mostUsed.color],
         label: "categoria mais utilizada",
@@ -67,52 +74,87 @@ export function CategoriesPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 p-4 md:gap-8 md:p-12">
-      <PageHeader
-        title="Categorias"
-        description="Organize suas transações por categorias"
-        action={
-          <Button
-            size="sm"
-            className="gap-1.5"
-            onClick={() => setIsModalOpen(true)}
-          >
-            <Plus className="size-4" />
-            <span className="hidden sm:inline">Nova categoria</span>
-            <span className="sm:hidden">Nova</span>
-          </Button>
-        }
-      />
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-        {summaryCards.map(({ icon, iconColor, label, value }) => (
-          <SummaryCard
-            key={label}
-            icon={icon}
-            iconColor={iconColor}
-            label={label}
-            value={value}
-          />
-        ))}
+    <div
+      className="mx-auto flex w-full max-w-7xl flex-col gap-4 p-4 md:gap-8 md:p-12"
+      style={
+        {
+          "--anim-dur": "400ms",
+          "--anim-ease": "cubic-bezier(0.16, 1, 0.3, 1)",
+          "--anim-delay-1": "0ms",
+          "--anim-delay-2": "120ms",
+          "--anim-delay-3": "240ms",
+        } as CSSProperties
+      }
+    >
+      <div
+        className="anim-page"
+        style={{
+          animation:
+            "impeccable-fade-slide var(--anim-dur) var(--anim-delay-1) var(--anim-ease) both",
+        }}
+      >
+        <PageHeader
+          title="Categorias"
+          description="Organize suas transações por categorias"
+          action={
+            <Button
+              size="sm"
+              className="gap-1.5"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <Plus className="size-4" />
+              <span className="hidden sm:inline">Nova categoria</span>
+              <span className="sm:hidden">Nova</span>
+            </Button>
+          }
+        />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
-        {categories.map((category) => (
-          <CategoryCard
-            key={category.id}
-            name={category.name}
-            description={category.description}
-            icon={category.icon}
-            color={category.color}
-            itemCount={category.itemCount}
-            isGlobal={!category.userId}
-            onEdit={() => {
-              setEditingCategory(category);
-              setIsModalOpen(true);
-            }}
-            onDelete={() => doDelete({ variables: { id: category.id } })}
-          />
-        ))}
+      <div
+        className="anim-page"
+        style={{
+          animation:
+            "impeccable-fade-slide var(--anim-dur) var(--anim-delay-2) var(--anim-ease) both",
+        }}
+      >
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+          {summaryCards.map(({ icon, iconColor, label, value }) => (
+            <SummaryCard
+              key={label}
+              icon={icon}
+              iconColor={iconColor}
+              label={label}
+              value={value}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div
+        className="anim-page"
+        style={{
+          animation:
+            "impeccable-fade-slide var(--anim-dur) var(--anim-delay-3) var(--anim-ease) both",
+        }}
+      >
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
+          {categories.map((category) => (
+            <CategoryCard
+              key={category.id}
+              name={category.name}
+              description={category.description}
+              icon={category.icon}
+              color={category.color}
+              itemCount={category.itemCount}
+              isGlobal={!category.userId}
+              onEdit={() => {
+                setEditingCategory(category);
+                setIsModalOpen(true);
+              }}
+              onDelete={() => doDelete({ variables: { id: category.id } })}
+            />
+          ))}
+        </div>
       </div>
 
       <NewCategoryModal
