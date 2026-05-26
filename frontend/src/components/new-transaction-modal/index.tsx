@@ -27,7 +27,7 @@ import type { CreateTransactionInput } from "#/services/transactions";
 import type { TransactionType } from "#/types/dashboard";
 
 type NewTransactionModalProps = {
-  onSubmit: (input: Omit<CreateTransactionInput, "userId">) => Promise<void>;
+  onSubmit: (input: CreateTransactionInput) => Promise<void>;
   children: React.ReactNode;
 };
 

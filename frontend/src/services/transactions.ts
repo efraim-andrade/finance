@@ -25,7 +25,6 @@ export type CreateTransactionInput = {
   type: "INCOME" | "EXPENSE";
   category: string;
   date: string;
-  userId?: string;
 };
 
 export type UpdateTransactionInput = {
@@ -37,7 +36,6 @@ export type UpdateTransactionInput = {
 };
 
 type TransactionsVariables = {
-  userId?: string | null;
   month?: string | null;
   year?: string | null;
 };
@@ -46,8 +44,8 @@ export const GET_TRANSACTIONS: TypedDocumentNode<
   TransactionsData,
   TransactionsVariables
 > = gql`
-  query GetTransactions($userId: ID, $month: String, $year: String) {
-    transactions(userId: $userId, month: $month, year: $year) {
+  query GetTransactions($month: String, $year: String) {
+    transactions(month: $month, year: $year) {
       id
       description
       amount
@@ -119,10 +117,10 @@ type TransactionPeriodsData = {
 
 export const GET_TRANSACTION_PERIODS: TypedDocumentNode<
   TransactionPeriodsData,
-  { userId?: string | null }
+  Record<string, never>
 > = gql`
-  query GetTransactionPeriods($userId: ID) {
-    transactionPeriods(userId: $userId) {
+  query GetTransactionPeriods {
+    transactionPeriods {
       month
       year
     }
@@ -131,9 +129,9 @@ export const GET_TRANSACTION_PERIODS: TypedDocumentNode<
 
 export const DELETE_EXAMPLE_TRANSACTIONS: TypedDocumentNode<
   { deleteExampleTransactions: number },
-  { userId: string }
+  Record<string, never>
 > = gql`
-	mutation DeleteExampleTransactions($userId: ID!) {
-		deleteExampleTransactions(userId: $userId)
+ 	mutation DeleteExampleTransactions {
+		deleteExampleTransactions
 	}
 `;

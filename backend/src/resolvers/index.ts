@@ -16,29 +16,32 @@ import type { GraphQLContext } from "@/types/index.js";
 
 export const resolvers = {
   Query: {
-    users: () => userService.listUsers(),
-    user: (_parent: unknown, { id }: { id: string }) => userService.getUserById(id),
-    userByEmail: (_parent: unknown, { email }: { email: string }) =>
-      userService.getUserByEmail(email),
+    user: (_parent: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+      if (!ctx.userId || id !== ctx.userId) {
+        throw new Error("Não autorizado");
+      }
+
+      return userService.getUserById(id);
+    },
     transactions: (
       _parent: unknown,
       {
-        userId,
         month,
         year,
       }: {
-        userId?: string;
         month?: string | null;
         year?: string | null;
       },
-    ) => transactionService.listTransactions({ userId: userId ?? undefined, month, year }),
-    transaction: (_parent: unknown, { id }: { id: string }) =>
-      transactionService.getTransactionById(id),
-    categories: (_parent: unknown, { userId }: { userId?: string }) =>
-      categoryService.listCategories(userId ?? undefined),
-    category: (_parent: unknown, { id }: { id: string }) => categoryService.getCategoryById(id),
-    transactionPeriods: (_parent: unknown, { userId }: { userId?: string }) =>
-      transactionService.listTransactionPeriods(userId ?? undefined),
+      ctx: GraphQLContext,
+    ) => transactionService.listTransactions({ userId: ctx.userId, month, year }),
+    transaction: (_parent: unknown, { id }: { id: string }, ctx: GraphQLContext) =>
+      transactionService.getTransactionById(id, ctx.userId),
+    categories: (_parent: unknown, _args: unknown, ctx: GraphQLContext) =>
+      categoryService.listCategories(ctx.userId),
+    category: (_parent: unknown, { id }: { id: string }, ctx: GraphQLContext) =>
+      categoryService.getCategoryById(id, ctx.userId),
+    transactionPeriods: (_parent: unknown, _args: unknown, ctx: GraphQLContext) =>
+      transactionService.listTransactionPeriods(ctx.userId),
   },
 
   Mutation: {
@@ -51,27 +54,43 @@ export const resolvers = {
       { id, input }: { id: string; input: UpdateUserInput },
       ctx: GraphQLContext,
     ) => userService.updateUser(id, input, ctx.userId),
-    deleteUser: (
+    deleteUser: (_parent: unknown, { id }: { id: string }, ctx: GraphQLContext) =>
+      userService.deleteUser(id, ctx.userId),
+    createTransaction: (
       _parent: unknown,
-      { id }: { id: string },
+      { input }: { input: CreateTransactionInput },
       ctx: GraphQLContext,
-    ) => userService.deleteUser(id, ctx.userId),
-    createTransaction: (_parent: unknown, { input }: { input: CreateTransactionInput }) =>
-      transactionService.createTransaction(input),
+    ) => transactionService.createTransaction(input, ctx.userId),
     updateTransaction: (
       _parent: unknown,
       { id, input }: { id: string; input: UpdateTransactionInput },
-    ) => transactionService.updateTransaction(id, input),
-    deleteTransaction: (_parent: unknown, { id }: { id: string }) =>
-      transactionService.deleteTransaction(id),
-    createCategory: (_parent: unknown, { input }: { input: CreateCategoryInput }) =>
-      categoryService.createCategory(input),
-    updateCategory: (_parent: unknown, { id, input }: { id: string; input: UpdateCategoryInput }) =>
-      categoryService.updateCategory(id, input),
-    deleteCategory: (_parent: unknown, { id }: { id: string }) =>
-      categoryService.deleteCategory(id),
-    deleteExampleTransactions: (_parent: unknown, { userId }: { userId: string }) =>
-      transactionService.deleteExampleTransactions(userId),
+      ctx: GraphQLContext,
+    ) => transactionService.updateTransaction(id, input, ctx.userId),
+    deleteTransaction: (_parent: unknown, { id }: { id: string }, ctx: GraphQLContext) =>
+      transactionService.deleteTransaction(id, ctx.userId),
+    createCategory: (
+      _parent: unknown,
+      { input }: { input: CreateCategoryInput },
+      ctx: GraphQLContext,
+    ) => {
+      if (!ctx.userId) {
+        throw new Error("Usuário não autenticado. Faça login novamente.");
+      }
+
+      return categoryService.createCategory(input, ctx.userId);
+    },
+    updateCategory: (
+      _parent: unknown,
+      { id, input }: { id: string; input: UpdateCategoryInput },
+      ctx: GraphQLContext,
+    ) => categoryService.updateCategory(id, input, ctx.userId),
+    deleteCategory: (_parent: unknown, { id }: { id: string }, ctx: GraphQLContext) =>
+      categoryService.deleteCategory(id, ctx.userId),
+    deleteExampleTransactions: (
+      _parent: unknown,
+      _args: unknown,
+      ctx: GraphQLContext,
+    ) => transactionService.deleteExampleTransactions(ctx.userId),
     requestPasswordReset: (_parent: unknown, { input }: { input: RequestPasswordResetInput }) =>
       userService.requestPasswordReset(input.email),
     resetPassword: (_parent: unknown, { input }: { input: ResetPasswordInput }) =>

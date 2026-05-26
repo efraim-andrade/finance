@@ -1,9 +1,11 @@
+import type { TransactionType } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import type { TransactionType } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma.js";
 import type { CreateUserInput, MessagePayload, UpdateUserInput } from "@/types/graphql.js";
+
+type SeedClient = Pick<typeof prisma, "category" | "transaction">;
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -34,13 +36,19 @@ const EXAMPLE_TRANSACTIONS: {
   { description: "Ações", amount: 500, type: "INCOME", category: "Investimentos" },
 ];
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable is required");
-}
+const JWT_SECRET = getJwtSecret();
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    throw new Error("JWT_SECRET environment variable is required");
+  }
+
+  return secret;
+}
 
 function daysAgo(days: number): Date {
   const d = new Date();
@@ -51,11 +59,11 @@ function daysAgo(days: number): Date {
 }
 
 function generateToken(userId: string): string {
-  return jwt.sign({ userId }, JWT_SECRET!, { expiresIn: "7d" });
+  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "7d" });
 }
 
 function generateResetToken(userId: string): string {
-  return jwt.sign({ userId }, JWT_SECRET!, { expiresIn: "1h" });
+  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "1h" });
 }
 
 // ─── User CRUD ───────────────────────────────────────────────────────────────
@@ -83,16 +91,20 @@ export async function createUser(input: CreateUserInput) {
 
   const passwordHash = await bcrypt.hash(input.password, 10);
 
-  const user = await prisma.user.create({
-    data: {
-      name: input.name,
-      email: input.email,
-      passwordHash,
-    },
-  });
+  const user = await prisma.$transaction(async (transaction) => {
+    const createdUser = await transaction.user.create({
+      data: {
+        name: input.name,
+        email: input.email,
+        passwordHash,
+      },
+    });
 
-  await ensureDefaultCategories();
-  await seedExampleTransactions(user.id);
+    await seedDefaultCategories(transaction, createdUser.id);
+    await seedExampleTransactions(transaction, createdUser.id);
+
+    return createdUser;
+  });
 
   const token = generateToken(user.id);
 
@@ -119,6 +131,7 @@ export async function deleteUser(id: string, userId?: string) {
   }
 
   await prisma.transaction.deleteMany({ where: { userId: id } });
+  await prisma.category.deleteMany({ where: { userId: id } });
   await prisma.user.delete({ where: { id } });
 
   return id;
@@ -150,18 +163,23 @@ export async function loginUser(email: string, password: string) {
 const resetRateLimit = new Map<string, number>();
 const RESET_RATE_LIMIT_MS = 120_000; // 2 minutes
 
-async function ensureDefaultCategories() {
-  const existing = await prisma.category.findFirst();
-
-  if (existing) return;
-
-  await prisma.category.createMany({
-    data: DEFAULT_CATEGORIES,
+async function seedDefaultCategories(
+  transaction: SeedClient,
+  userId: string,
+) {
+  await transaction.category.createMany({
+    data: DEFAULT_CATEGORIES.map((category) => ({
+      ...category,
+      userId,
+    })),
   });
 }
 
-async function seedExampleTransactions(userId: string) {
-  await prisma.transaction.createMany({
+async function seedExampleTransactions(
+  transaction: SeedClient,
+  userId: string,
+) {
+  await transaction.transaction.createMany({
     data: EXAMPLE_TRANSACTIONS.map((t, i) => ({
       description: t.description,
       amount: t.amount,
@@ -208,7 +226,7 @@ export async function resetPassword(token: string, password: string): Promise<Me
   let payload: { userId: string };
 
   try {
-    payload = jwt.verify(token, JWT_SECRET!) as { userId: string };
+    payload = jwt.verify(token, JWT_SECRET) as unknown as { userId: string };
   } catch {
     throw new Error("Token inválido ou expirado");
   }

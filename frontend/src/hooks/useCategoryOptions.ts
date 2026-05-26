@@ -8,7 +8,7 @@ export function useCategoryOptions(): { label: string; value: string }[] {
   const { userId } = useAuth();
 
   const { data } = useQuery(LIST_CATEGORIES, {
-    variables: { userId: userId ?? undefined },
+    skip: !userId,
   });
 
   const options = useMemo(

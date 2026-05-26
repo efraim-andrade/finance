@@ -105,25 +105,6 @@ export const DELETE_USER: TypedDocumentNode<DeleteUserData, { id: string }> =
   }
 `;
 
-type UserByEmailData = {
-  userByEmail: User | null;
-};
-
-export const USER_BY_EMAIL: TypedDocumentNode<
-  UserByEmailData,
-  { email: string }
-> = gql`
-	query UserByEmail($email: String!) {
-		userByEmail(email: $email) {
-			id
-			name
-			email
-			createdAt
-			updatedAt
-		}
-	}
-`;
-
 type RequestPasswordResetData = {
   requestPasswordReset: {
     message: string;

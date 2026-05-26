@@ -14,19 +14,45 @@ const DEFAULT_CATEGORIES = [
 ];
 
 async function seed() {
-  const existing = await prisma.category.findFirst();
+  const users = await prisma.user.findMany({ select: { id: true } });
 
-  if (existing) {
-    console.log("Categories already seeded. Skipping.");
+  if (users.length === 0) {
+    console.log("No users found. Skipping category seed.");
 
     return;
   }
 
-  await prisma.category.createMany({
-    data: DEFAULT_CATEGORIES,
-  });
+  let created = 0;
 
-  console.log(`Seeded ${DEFAULT_CATEGORIES.length} global categories.`);
+  for (const user of users) {
+    const insertedCount = await prisma.$transaction(async (transaction) => {
+      const existing = await transaction.category.findMany({
+        where: { userId: user.id },
+        select: { name: true },
+      });
+      const existingNames = new Set(existing.map((category) => category.name));
+      const categories = DEFAULT_CATEGORIES.filter(
+        (category) => !existingNames.has(category.name),
+      );
+
+      if (categories.length === 0) {
+        return 0;
+      }
+
+      const result = await transaction.category.createMany({
+        data: categories.map((category) => ({
+          ...category,
+          userId: user.id,
+        })),
+      });
+
+      return result.count;
+    });
+
+    created += insertedCount;
+  }
+
+  console.log(`Seeded ${created} user categories.`);
 }
 
 seed()

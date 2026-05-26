@@ -50,13 +50,13 @@ export function useTransactions(filters?: TransactionFilters) {
 
   const { data, loading, error } = useQuery(GET_TRANSACTIONS, {
     variables: {
-      userId: userId ?? undefined,
       month: filters?.month ?? undefined,
       year: filters?.year ?? undefined,
     },
+    skip: !userId,
   });
   const { data: catData } = useQuery(LIST_CATEGORIES, {
-    variables: { userId: userId ?? undefined },
+    skip: !userId,
   });
 
   const categoryMetaMap = useMemo(
@@ -89,7 +89,7 @@ export function useTransactions(filters?: TransactionFilters) {
 
   const createTransaction = useCallback(
     async (input: CreateTransactionInput) => {
-      if (!input.userId) {
+      if (!userId) {
         throw new Error("Usuário não autenticado. Faça login novamente.");
       }
 
@@ -97,7 +97,7 @@ export function useTransactions(filters?: TransactionFilters) {
         variables: { input: { ...input, date: dateToISO(input.date) } },
       });
     },
-    [doCreate],
+    [doCreate, userId],
   );
 
   const updateTransaction = useCallback(
@@ -130,10 +130,14 @@ export function useTransactions(filters?: TransactionFilters) {
   );
 
   const deleteExampleTransactions = useCallback(
-    async (userId: string) => {
-      await doDeleteExamples({ variables: { userId } });
+    async () => {
+      if (!userId) {
+        throw new Error("Usuário não autenticado. Faça login novamente.");
+      }
+
+      await doDeleteExamples();
     },
-    [doDeleteExamples],
+    [doDeleteExamples, userId],
   );
 
   return {

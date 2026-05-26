@@ -101,12 +101,10 @@ export function TransactionsPage() {
 
   const resetPage = () => setCurrentPage(1);
 
-  const handleCreate = async (
-    input: Omit<CreateTransactionInput, "userId">,
-  ) => {
+  const handleCreate = async (input: CreateTransactionInput) => {
     if (!userId) return;
 
-    await createTransaction({ ...input, userId });
+    await createTransaction(input);
   };
 
   const handleEdit = (transaction: Transaction) => {
@@ -149,7 +147,7 @@ export function TransactionsPage() {
     setIsDeletingExamples(true);
 
     try {
-      await deleteExampleTransactions(userId);
+      await deleteExampleTransactions();
 
       setShowDeleteExamplesDialog(false);
     } finally {

@@ -21,10 +21,9 @@ type DeleteCategoryData = {
 
 export type CreateCategoryInput = {
   name: string;
-  description?: string | null;
   color: string;
   icon: string;
-  userId?: string;
+  description?: string | null;
 };
 
 export type UpdateCategoryInput = {
@@ -36,10 +35,10 @@ export type UpdateCategoryInput = {
 
 export const LIST_CATEGORIES: TypedDocumentNode<
   ListCategoriesData,
-  { userId?: string | null }
+  Record<string, never>
 > = gql`
-	query ListCategories($userId: ID) {
-		categories(userId: $userId) {
+	query ListCategories {
+		categories {
 			id
 			name
 			description

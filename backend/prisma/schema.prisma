@@ -16,16 +16,15 @@ enum TransactionType {
 }
 
 /// User-defined category for grouping transactions.
-/// `userId` is null for global seed categories, non-null for user-specific categories.
 model Category {
   id          String   @id @default(uuid())
   name        String
   description String   @default("")
   color       String
   icon        String
-  userId      String?  @map("user_id")
+  userId      String   @map("user_id")
 
-  user User? @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

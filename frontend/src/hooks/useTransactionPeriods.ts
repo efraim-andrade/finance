@@ -22,7 +22,7 @@ export function useTransactionPeriods(
   userId?: string,
 ): { label: string; value: string }[] {
   const { data } = useQuery(GET_TRANSACTION_PERIODS, {
-    variables: { userId: userId ?? undefined },
+    skip: !userId,
   });
 
   const options = useMemo(() => {

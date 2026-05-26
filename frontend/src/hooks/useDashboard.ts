@@ -70,7 +70,6 @@ export function useDashboard(): UseDashboardResult {
     loading: allTxLoading,
     error: txError,
   } = useQuery(GET_TRANSACTIONS, {
-    variables: { userId: userId ?? undefined },
     skip: !userId,
   });
 
@@ -78,7 +77,6 @@ export function useDashboard(): UseDashboardResult {
     GET_TRANSACTIONS,
     {
       variables: {
-        userId: userId ?? undefined,
         month: currentMonth,
         year: currentYear,
       },
@@ -87,7 +85,6 @@ export function useDashboard(): UseDashboardResult {
   );
 
   const { data: catData, loading: catLoading } = useQuery(LIST_CATEGORIES, {
-    variables: { userId: userId ?? undefined },
     skip: !userId,
   });
 

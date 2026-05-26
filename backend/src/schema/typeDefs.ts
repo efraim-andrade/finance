@@ -36,7 +36,7 @@ export const typeDefs = gql`
     description: String!
     color: String!
     icon: String!
-    userId: ID
+    userId: ID!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -52,14 +52,12 @@ export const typeDefs = gql`
   }
 
   type Query {
-    users: [User!]!
     user(id: ID!): User
-    userByEmail(email: String!): User
-    transactions(userId: ID, month: String, year: String): [Transaction!]!
+    transactions(month: String, year: String): [Transaction!]!
     transaction(id: ID!): Transaction
-    categories(userId: ID): [Category!]!
+    categories: [Category!]!
     category(id: ID!): Category
-    transactionPeriods(userId: ID): [TransactionPeriod!]!
+    transactionPeriods: [TransactionPeriod!]!
   }
 
   input CreateUserInput {
@@ -79,7 +77,6 @@ export const typeDefs = gql`
     type: TransactionType!
     category: String!
     date: DateTime!
-    userId: ID!
     isExample: Boolean
   }
 
@@ -100,7 +97,6 @@ export const typeDefs = gql`
     description: String
     color: String!
     icon: String!
-    userId: ID
   }
 
   input UpdateCategoryInput {
@@ -134,7 +130,7 @@ export const typeDefs = gql`
     createCategory(input: CreateCategoryInput!): Category!
     updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
     deleteCategory(id: ID!): ID!
-    deleteExampleTransactions(userId: ID!): Int!
+    deleteExampleTransactions: Int!
     requestPasswordReset(input: RequestPasswordResetInput!): MessagePayload!
     resetPassword(input: ResetPasswordInput!): MessagePayload!
   }

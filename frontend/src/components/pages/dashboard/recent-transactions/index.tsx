@@ -31,12 +31,10 @@ export function RecentTransactions({
   const { userId } = useAuth();
   const { createTransaction } = useTransactions();
 
-  const handleCreate = async (
-    input: Omit<CreateTransactionInput, "userId">,
-  ) => {
+  const handleCreate = async (input: CreateTransactionInput) => {
     if (!userId) return;
 
-    await createTransaction({ ...input, userId });
+    await createTransaction(input);
   };
 
   return (

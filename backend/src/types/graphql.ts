@@ -33,7 +33,6 @@ export type CreateTransactionInput = {
   type: TransactionType;
   category: string;
   date: string;
-  userId: string;
   isExample?: boolean;
 };
 
@@ -55,7 +54,6 @@ export type CreateCategoryInput = {
   description?: string | null;
   color: string;
   icon: string;
-  userId?: string;
 };
 
 export type UpdateCategoryInput = {

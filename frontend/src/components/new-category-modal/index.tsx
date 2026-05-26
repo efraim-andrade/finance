@@ -13,7 +13,6 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/hooks/useAuth";
 
 type NewCategoryModalProps = {
   open: boolean;
@@ -26,8 +25,6 @@ export function NewCategoryModal({
   onOpenChange,
   editCategory,
 }: NewCategoryModalProps) {
-  const { userId } = useAuth();
-
   const [title, setTitle] = useState(editCategory?.name ?? "");
   const [description, setDescription] = useState(
     editCategory?.description ?? "",
@@ -136,7 +133,6 @@ export function NewCategoryModal({
             description: description || null,
             color: selectedColor,
             icon: selectedIcon,
-            userId: userId ?? undefined,
           },
         },
       });
@@ -186,6 +182,8 @@ export function NewCategoryModal({
                 <button
                   key={key}
                   type="button"
+                  aria-label={`Ícone ${key}`}
+                  aria-pressed={selectedIcon === key}
                   onClick={() => setSelectedIcon(key)}
                   className={cn(
                     "flex size-10.5 items-center justify-center rounded-lg border transition-colors",
@@ -194,6 +192,7 @@ export function NewCategoryModal({
                       : "border-gray-300 bg-transparent text-gray-400 hover:border-gray-400",
                   )}
                 >
+                  <span className="sr-only">{key}</span>
                   <Icon className="size-5" />
                 </button>
               ))}
@@ -208,6 +207,8 @@ export function NewCategoryModal({
                 <button
                   key={key}
                   type="button"
+                  aria-label={`Cor ${key}`}
+                  aria-pressed={selectedColor === key}
                   onClick={() => setSelectedColor(key)}
                   className={cn(
                     "flex w-12 items-center justify-center rounded-sm border p-1 transition-colors",
@@ -217,9 +218,11 @@ export function NewCategoryModal({
                   )}
                 >
                   <div
+                    aria-hidden="true"
                     className="h-5 w-full rounded-sm"
                     style={{ backgroundColor: color }}
                   />
+                  <span className="sr-only">{key}</span>
                 </button>
               ))}
             </div>

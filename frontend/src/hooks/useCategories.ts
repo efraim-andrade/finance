@@ -3,7 +3,12 @@ import { useMemo } from "react";
 
 import { useAuth } from "#/hooks/useAuth";
 import { LIST_CATEGORIES } from "#/services/categories";
+import { GET_TRANSACTIONS } from "#/services/transactions";
 import type { CategoryDetail } from "#/types/dashboard";
+
+type CategoryCountSource = {
+  category: string;
+};
 
 type CategoryStats = {
   totalCategories: number;
@@ -18,12 +23,54 @@ type UseCategoriesResult = {
   error: Error | undefined;
 };
 
+export function buildCategoryItemCountMap(
+  transactions: CategoryCountSource[],
+): Map<string, number> {
+  const counts = new Map<string, number>();
+
+  for (const transaction of transactions) {
+    const currentCount = counts.get(transaction.category) ?? 0;
+
+    counts.set(transaction.category, currentCount + 1);
+  }
+
+  return counts;
+}
+
+export function selectMostUsedCategory(
+  categories: CategoryDetail[],
+): CategoryDetail | null {
+  return categories.reduce<CategoryDetail | null>((currentMostUsed, category) => {
+    if (category.itemCount <= 0) {
+      return currentMostUsed;
+    }
+
+    if (!currentMostUsed || category.itemCount > currentMostUsed.itemCount) {
+      return category;
+    }
+
+    return currentMostUsed;
+  }, null);
+}
+
 export function useCategories(): UseCategoriesResult {
   const { userId } = useAuth();
 
   const { data, loading, error } = useQuery(LIST_CATEGORIES, {
-    variables: { userId: userId ?? undefined },
+    skip: !userId,
   });
+  const {
+    data: transactionData,
+    loading: transactionsLoading,
+    error: transactionsError,
+  } = useQuery(GET_TRANSACTIONS, {
+    skip: !userId,
+  });
+
+  const categoryItemCountMap = useMemo(
+    () => buildCategoryItemCountMap(transactionData?.transactions ?? []),
+    [transactionData],
+  );
 
   const categories: CategoryDetail[] = useMemo(
     () =>
@@ -42,18 +89,18 @@ export function useCategories(): UseCategoriesResult {
           color: cat.color as CategoryDetail["color"],
           icon: cat.icon,
           userId: cat.userId,
-          itemCount: 0,
+          itemCount: categoryItemCountMap.get(cat.name) ?? 0,
         }),
       ),
-    [data],
+    [data, categoryItemCountMap],
   );
 
-  const firstCategory = categories[0];
+  const mostUsedCategory = selectMostUsedCategory(categories);
 
   const stats: CategoryStats = {
     totalCategories: categories.length,
     totalTransactions: categories.reduce((sum, cat) => sum + cat.itemCount, 0),
-    mostUsedCategory: firstCategory ?? {
+    mostUsedCategory: mostUsedCategory ?? {
       id: "",
       name: "Nenhuma",
       description: "",
@@ -66,7 +113,7 @@ export function useCategories(): UseCategoriesResult {
   return {
     categories,
     stats,
-    isLoading: loading,
-    error: error ?? undefined,
+    isLoading: loading || transactionsLoading,
+    error: error ?? transactionsError ?? undefined,
   };
 }
