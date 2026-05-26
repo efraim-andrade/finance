@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/prisma.js";
-import type { CreateCategoryInput, UpdateCategoryInput } from "@/types/graphql.js";
+import { requireAuthenticatedUserId } from "@/modules/shared/authorization.js";
+import type {
+  CreateCategoryInput,
+  UpdateCategoryInput,
+} from "@/modules/categories/category.types.js";
 
 export async function listCategories(userId?: string) {
   const where = userId ? { OR: [{ userId: null }, { userId }] } : { userId: null };
@@ -10,25 +14,28 @@ export async function listCategories(userId?: string) {
   });
 }
 
-export async function getCategoryById(id: string) {
-  return prisma.category.findUnique({
-    where: { id },
-  });
+export async function getCategoryById(id: string, userId?: string) {
+  const where = userId ? { id, OR: [{ userId: null }, { userId }] } : { id, userId: null };
+
+  return prisma.category.findFirst({ where });
 }
 
-export async function createCategory(input: CreateCategoryInput) {
+export async function createCategory(input: CreateCategoryInput, userId?: string) {
+  const authenticatedUserId = requireAuthenticatedUserId(userId);
+
   return prisma.category.create({
     data: {
       name: input.name,
       description: input.description ?? "",
       color: input.color,
       icon: input.icon,
-      userId: input.userId ?? null,
+      userId: authenticatedUserId,
     },
   });
 }
 
-export async function updateCategory(id: string, input: UpdateCategoryInput) {
+export async function updateCategory(id: string, input: UpdateCategoryInput, userId?: string) {
+  const authenticatedUserId = requireAuthenticatedUserId(userId);
   const existing = await prisma.category.findUnique({ where: { id } });
 
   if (!existing) {
@@ -37,6 +44,10 @@ export async function updateCategory(id: string, input: UpdateCategoryInput) {
 
   if (!existing.userId) {
     throw new Error("Não é permitido editar categorias globais");
+  }
+
+  if (existing.userId !== authenticatedUserId) {
+    throw new Error("Não autorizado");
   }
 
   return prisma.category.update({
@@ -52,7 +63,8 @@ export async function updateCategory(id: string, input: UpdateCategoryInput) {
   });
 }
 
-export async function deleteCategory(id: string) {
+export async function deleteCategory(id: string, userId?: string) {
+  const authenticatedUserId = requireAuthenticatedUserId(userId);
   const existing = await prisma.category.findUnique({ where: { id } });
 
   if (!existing) {
@@ -63,9 +75,11 @@ export async function deleteCategory(id: string) {
     throw new Error("Não é permitido excluir categorias globais");
   }
 
-  await prisma.category.delete({
-    where: { id },
-  });
+  if (existing.userId !== authenticatedUserId) {
+    throw new Error("Não autorizado");
+  }
+
+  await prisma.category.delete({ where: { id } });
 
   return id;
 }
