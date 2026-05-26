@@ -11,7 +11,7 @@ Code/commits/PRs: normal. Off: "stop caveman" / "normal mode".
 
 ## Project Overview
 
-**Finance** — a personal finance web application built with TanStack Start (early stage scaffold). Currently has authentication (login/logout via React Context + localStorage) and a placeholder Dashboard. The backend will be a separate GraphQL service consumed via Apollo Client.
+**Finance** — a personal finance web application built with TanStack Start. Currently has authentication, dashboard, transactions, categories, and profile flows. The backend is a separate GraphQL service consumed via Apollo Client.
 
 ## Commands
 

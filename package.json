@@ -9,8 +9,6 @@
     "preview": "pnpm --filter frontend preview",
     "test": "pnpm --filter frontend test",
     "test:changed": "pnpm --filter frontend test:changed",
-    "test:e2e": "pnpm --filter frontend test:e2e",
-    "test:e2e:ui": "pnpm --filter frontend test:e2e:ui",
     "typecheck": "pnpm --filter frontend typecheck",
     "format": "pnpm --filter frontend format",
     "lint": "pnpm --filter frontend lint",

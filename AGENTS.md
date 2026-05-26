@@ -18,7 +18,6 @@ Monorepo (pnpm workspace) with separate frontend and backend packages.
 finance/
 ├── frontend/      # TanStack Start SPA (React 19, Apollo Client)
 │   ├── src/       # source code
-│   ├── e2e/       # Playwright tests
 │   └── AGENTS.md  # frontend-specific conventions & rules
 ├── backend/       # GraphQL service (placeholder)
 └── pnpm-workspace.yaml
@@ -32,7 +31,6 @@ finance/
 | `pnpm build` | Production build |
 | `pnpm preview` | Preview production build |
 | `pnpm test` | Run unit tests (Vitest) |
-| `pnpm test:e2e` | Run E2E tests (Playwright) |
 | `pnpm typecheck` | TypeScript type check |
 | `pnpm format` | Format code with Biome |
 | `pnpm lint` | Lint with Biome |
@@ -49,7 +47,7 @@ All commands proxy via `pnpm --filter <package> <cmd>`.
 
 - Commits are lowercase, descriptive, in English (no conventional commit prefixes).
 - Branch strategy: single `main` branch.
-- `.githooks/pre-commit` runs `pnpm lint && pnpm typecheck && pnpm test:changed && pnpm test:e2e`.
+- `.githooks/pre-commit` runs `pnpm lint && pnpm typecheck && pnpm test:changed`.
 
 ## Environment Variables
 

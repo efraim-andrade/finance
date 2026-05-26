@@ -19,7 +19,6 @@ import { Route as AppProfileRouteImport } from './routes/app/profile'
 import { Route as AppCategoriasRouteImport } from './routes/app/categorias'
 import { Route as PublicRecuperarSenhaRouteImport } from './routes/_public/recuperar-senha'
 import { Route as PublicLoginRouteImport } from './routes/_public/login'
-import { Route as PublicLandingRouteImport } from './routes/_public/landing'
 import { Route as PublicCriarContaRouteImport } from './routes/_public/criar-conta'
 import { Route as PublicRecuperarSenhaTokenRouteImport } from './routes/_public/recuperar-senha/$token'
 
@@ -72,11 +71,6 @@ const PublicLoginRoute = PublicLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => PublicRoute,
 } as any)
-const PublicLandingRoute = PublicLandingRouteImport.update({
-  id: '/landing',
-  path: '/landing',
-  getParentRoute: () => PublicRoute,
-} as any)
 const PublicCriarContaRoute = PublicCriarContaRouteImport.update({
   id: '/criar-conta',
   path: '/criar-conta',
@@ -94,7 +88,6 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRouteWithChildren
   '/ui': typeof UiRoute
   '/criar-conta': typeof PublicCriarContaRoute
-  '/landing': typeof PublicLandingRoute
   '/login': typeof PublicLoginRoute
   '/recuperar-senha': typeof PublicRecuperarSenhaRouteWithChildren
   '/app/categorias': typeof AppCategoriasRoute
@@ -107,7 +100,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ui': typeof UiRoute
   '/criar-conta': typeof PublicCriarContaRoute
-  '/landing': typeof PublicLandingRoute
   '/login': typeof PublicLoginRoute
   '/recuperar-senha': typeof PublicRecuperarSenhaRouteWithChildren
   '/app/categorias': typeof AppCategoriasRoute
@@ -123,7 +115,6 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/ui': typeof UiRoute
   '/_public/criar-conta': typeof PublicCriarContaRoute
-  '/_public/landing': typeof PublicLandingRoute
   '/_public/login': typeof PublicLoginRoute
   '/_public/recuperar-senha': typeof PublicRecuperarSenhaRouteWithChildren
   '/app/categorias': typeof AppCategoriasRoute
@@ -139,7 +130,6 @@ export interface FileRouteTypes {
     | '/app'
     | '/ui'
     | '/criar-conta'
-    | '/landing'
     | '/login'
     | '/recuperar-senha'
     | '/app/categorias'
@@ -152,7 +142,6 @@ export interface FileRouteTypes {
     | '/'
     | '/ui'
     | '/criar-conta'
-    | '/landing'
     | '/login'
     | '/recuperar-senha'
     | '/app/categorias'
@@ -167,7 +156,6 @@ export interface FileRouteTypes {
     | '/app'
     | '/ui'
     | '/_public/criar-conta'
-    | '/_public/landing'
     | '/_public/login'
     | '/_public/recuperar-senha'
     | '/app/categorias'
@@ -256,13 +244,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicLoginRouteImport
       parentRoute: typeof PublicRoute
     }
-    '/_public/landing': {
-      id: '/_public/landing'
-      path: '/landing'
-      fullPath: '/landing'
-      preLoaderRoute: typeof PublicLandingRouteImport
-      parentRoute: typeof PublicRoute
-    }
     '/_public/criar-conta': {
       id: '/_public/criar-conta'
       path: '/criar-conta'
@@ -293,14 +274,12 @@ const PublicRecuperarSenhaRouteWithChildren =
 
 interface PublicRouteChildren {
   PublicCriarContaRoute: typeof PublicCriarContaRoute
-  PublicLandingRoute: typeof PublicLandingRoute
   PublicLoginRoute: typeof PublicLoginRoute
   PublicRecuperarSenhaRoute: typeof PublicRecuperarSenhaRouteWithChildren
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
   PublicCriarContaRoute: PublicCriarContaRoute,
-  PublicLandingRoute: PublicLandingRoute,
   PublicLoginRoute: PublicLoginRoute,
   PublicRecuperarSenhaRoute: PublicRecuperarSenhaRouteWithChildren,
 }

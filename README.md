@@ -9,7 +9,6 @@ A full-stack personal finance management web application. Built as a postgraduat
 - **Categories** -- create custom categories with name, description, color, and icon
 - **Dashboard** -- summary cards (total income, total expense, balance), category breakdown, and recent transactions
 - **Period filtering** -- filter transactions by month and year
-- **Landing page** -- public marketing page with features, benefits, and call-to-action sections
 
 ## Tech Stack
 
@@ -28,7 +27,6 @@ A full-stack personal finance management web application. Built as a postgraduat
 | Motion | Animations |
 | Sonner | Toast notifications |
 | Vitest + Testing Library | Unit and component testing |
-| Playwright | End-to-end testing |
 | Biome | Linting and formatting |
 
 ### Backend
@@ -54,9 +52,8 @@ finance/
 │   │   ├── components/   # UI components (auth, dashboard, transactions, categories, shadcn/ui)
 │   │   ├── hooks/        # useAuth, useTransactions, useCategories, useDashboard, useTheme
 │   │   ├── lib/          # Apollo Client, formatters, utils
-│   │   ├── routes/       # __root, _public (login/signup/landing), app (dashboard/transactions/categories/profile)
+│   │   ├── routes/       # __root, _public (login/signup/password reset), app (dashboard/transactions/categories/profile)
 │   │   └── services/     # GraphQL mutations and queries (users, transactions, categories)
-│   └── e2e/              # Playwright end-to-end tests
 ├── backend/              # GraphQL API (port 4000)
 │   ├── src/
 │   │   ├── index.ts      # Apollo Server setup, JWT auth context
@@ -75,17 +72,17 @@ finance/
 
 - **User** -- id, name, email, passwordHash, resetToken, resetTokenExpiresAt; has many Transactions and Categories
 - **Transaction** -- id, description, amount (Float), type (INCOME | EXPENSE), category (string), date, isExample; belongs to User
-- **Category** -- id, name, description, color, icon, optional userId (null = global seed, non-null = user-specific)
+- **Category** -- id, name, description, color, icon, required userId
 
 ### Route Structure
 
 | Path | Description | Access |
 |---|---|---|
-| `/` | Landing page | Public |
+| `/` | Login | Public |
 | `/login` | Login | Public |
 | `/criar-conta` | Sign up | Public |
-| `/esqueci-senha` | Forgot password | Public |
-| `/redefinir-senha` | Reset password | Public |
+| `/recuperar-senha` | Forgot password | Public |
+| `/recuperar-senha/$token` | Reset password | Public |
 | `/app` | Dashboard | Authenticated |
 | `/app/transacoes` | Transactions | Authenticated |
 | `/app/categorias` | Categories | Authenticated |
@@ -129,7 +126,7 @@ VITE_BACKEND_URL="http://localhost:4000/graphql"
 ```bash
 cd backend
 pnpm db:migrate   # Run Prisma migrations
-pnpm db:seed      # (Optional) Seed global categories
+pnpm db:seed      # (Optional) Seed user categories for existing users
 ```
 
 ### Running the Application
@@ -154,7 +151,6 @@ pnpm dev:frontend   # Web app at http://localhost:3000
 | `pnpm dev:backend` | Start backend only |
 | `pnpm build` | Build frontend for production |
 | `pnpm test` | Run frontend unit tests |
-| `pnpm test:e2e` | Run Playwright E2E tests |
 | `pnpm typecheck` | Frontend TypeScript check |
 | `pnpm lint` | Lint frontend with Biome |
 | `pnpm format` | Format frontend with Biome |
@@ -186,5 +182,5 @@ This project is a **Trabalho de Conclusao de Curso (TCC)** -- a final project fo
 - Modern React patterns with TanStack Start and TanStack Router
 - Component architecture with shadcn/ui and Tailwind CSS
 - Form validation with react-hook-form and zod
-- Unit, component, and end-to-end testing
+- Unit and component testing
 - Monorepo management with pnpm workspaces
