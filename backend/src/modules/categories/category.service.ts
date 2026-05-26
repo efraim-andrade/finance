@@ -1,28 +1,28 @@
 import { prisma } from "@/lib/prisma.js";
-import { requireAuthenticatedUserId } from "@/modules/shared/authorization.js";
+import { assertAuthenticatedUserId } from "@/modules/shared/authorization.js";
 import { forbidden, notFound } from "@/modules/shared/errors.js";
 import type {
   CreateCategoryInput,
   UpdateCategoryInput,
 } from "@/modules/categories/category.types.js";
 
-export async function listCategories(userId?: string) {
-  const authenticatedUserId = requireAuthenticatedUserId(userId);
+export async function listCategories(authenticatedUserId: string) {
+  const userId = assertAuthenticatedUserId(authenticatedUserId);
 
   return prisma.category.findMany({
-    where: { userId: authenticatedUserId },
+    where: { userId },
     orderBy: { createdAt: "desc" },
   });
 }
 
-export async function getCategoryById(id: string, userId?: string) {
-  const authenticatedUserId = requireAuthenticatedUserId(userId);
+export async function getCategoryById(id: string, authenticatedUserId: string) {
+  const userId = assertAuthenticatedUserId(authenticatedUserId);
 
-  return prisma.category.findFirst({ where: { id, userId: authenticatedUserId } });
+  return prisma.category.findFirst({ where: { id, userId } });
 }
 
-export async function createCategory(input: CreateCategoryInput, userId?: string) {
-  const authenticatedUserId = requireAuthenticatedUserId(userId);
+export async function createCategory(input: CreateCategoryInput, authenticatedUserId: string) {
+  const userId = assertAuthenticatedUserId(authenticatedUserId);
 
   return prisma.category.create({
     data: {
@@ -30,20 +30,24 @@ export async function createCategory(input: CreateCategoryInput, userId?: string
       description: input.description ?? "",
       color: input.color,
       icon: input.icon,
-      userId: authenticatedUserId,
+      userId,
     },
   });
 }
 
-export async function updateCategory(id: string, input: UpdateCategoryInput, userId?: string) {
-  const authenticatedUserId = requireAuthenticatedUserId(userId);
+export async function updateCategory(
+  id: string,
+  input: UpdateCategoryInput,
+  authenticatedUserId: string,
+) {
+  const userId = assertAuthenticatedUserId(authenticatedUserId);
   const existing = await prisma.category.findUnique({ where: { id } });
 
   if (!existing) {
     throw notFound("Categoria não encontrada");
   }
 
-  if (existing.userId !== authenticatedUserId) {
+  if (existing.userId !== userId) {
     throw forbidden();
   }
 
@@ -60,15 +64,15 @@ export async function updateCategory(id: string, input: UpdateCategoryInput, use
   });
 }
 
-export async function deleteCategory(id: string, userId?: string) {
-  const authenticatedUserId = requireAuthenticatedUserId(userId);
+export async function deleteCategory(id: string, authenticatedUserId: string) {
+  const userId = assertAuthenticatedUserId(authenticatedUserId);
   const existing = await prisma.category.findUnique({ where: { id } });
 
   if (!existing) {
     throw notFound("Categoria não encontrada");
   }
 
-  if (existing.userId !== authenticatedUserId) {
+  if (existing.userId !== userId) {
     throw forbidden();
   }
 

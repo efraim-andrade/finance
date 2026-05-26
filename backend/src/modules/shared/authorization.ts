@@ -3,8 +3,8 @@ import { forbidden, unauthenticated } from "@/modules/shared/errors.js";
 const UNAUTHENTICATED_MESSAGE = "Usuário não autenticado. Faça login novamente.";
 const UNAUTHORIZED_MESSAGE = "Não autorizado";
 
-export function requireAuthenticatedUserId(userId?: string): string {
-  if (!userId) {
+export function assertAuthenticatedUserId(userId: unknown): string {
+  if (typeof userId !== "string" || userId.length === 0) {
     throw unauthenticated(UNAUTHENTICATED_MESSAGE);
   }
 

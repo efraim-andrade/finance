@@ -7,6 +7,7 @@ import { GraphQLISODateTime, buildSchema } from "type-graphql";
 import { buildContext } from "@/app/context.js";
 import { AuthResolver } from "@/modules/auth/auth.resolver.js";
 import { CategoryResolver } from "@/modules/categories/category.resolver.js";
+import { errorHandlerMiddleware } from "@/modules/shared/middlewares/error-handler.js";
 import { TransactionResolver } from "@/modules/transactions/transaction.resolver.js";
 import { UserResolver } from "@/modules/users/user.resolver.js";
 
@@ -15,6 +16,7 @@ const DEFAULT_PORT = 4000;
 export function createGraphQLSchema() {
   return buildSchema({
     resolvers: [AuthResolver, UserResolver, CategoryResolver, TransactionResolver],
+    globalMiddlewares: [errorHandlerMiddleware],
     scalarsMap: [{ type: Date, scalar: GraphQLISODateTime }],
     validate: true,
   });

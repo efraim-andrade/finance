@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 
 import { prisma } from "@/lib/prisma.js";
-import { signAccessToken, signResetToken, verifyToken } from "@/modules/auth/auth.tokens.js";
+import { signAccessToken, signResetToken, verifyResetToken } from "@/modules/auth/auth.tokens.js";
 import { badUserInput, unauthenticated } from "@/modules/shared/errors.js";
 import type { CreateUserInput } from "@/modules/users/user.types.js";
 import { seedUserWorkspace } from "@/modules/users/user.seed.js";
@@ -100,7 +100,7 @@ export async function resetPassword(token: string, password: string) {
   let payload: { userId: string };
 
   try {
-    payload = verifyToken(token);
+    payload = verifyResetToken(token);
   } catch {
     throw badUserInput("Token inválido ou expirado");
   }

@@ -1,7 +1,7 @@
 import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma.js";
-import { requireAuthenticatedUserId } from "@/modules/shared/authorization.js";
+import { assertAuthenticatedUserId } from "@/modules/shared/authorization.js";
 import { badUserInput, forbidden, notFound, unauthenticated } from "@/modules/shared/errors.js";
 import type {
   CreateTransactionInput,
@@ -9,7 +9,7 @@ import type {
 } from "@/modules/transactions/transaction.types.js";
 
 type TransactionFilters = {
-  userId?: string;
+  userId: string;
   month?: string | null;
   year?: string | null;
 };
@@ -39,12 +39,7 @@ function parseTransactionPeriod(filters: TransactionFilters) {
   const year = Number.parseInt(filters.year, 10);
   const month = Number.parseInt(filters.month, 10);
 
-  if (
-    Number.isNaN(year) ||
-    Number.isNaN(month) ||
-    month < MIN_MONTH ||
-    month > MAX_MONTH
-  ) {
+  if (Number.isNaN(year) || Number.isNaN(month) || month < MIN_MONTH || month > MAX_MONTH) {
     throw badUserInput("Período de transação inválido");
   }
 
@@ -65,37 +60,33 @@ function buildTransactionFilters(filters: TransactionFilters): Prisma.Transactio
   return where;
 }
 
-export async function listTransactions(filters: TransactionFilters = {}) {
-  const authenticatedUserId = requireAuthenticatedUserId(filters.userId);
+export async function listTransactions(filters: TransactionFilters) {
+  const userId = assertAuthenticatedUserId(filters.userId);
 
   return prisma.transaction.findMany({
-    where: buildTransactionFilters({ ...filters, userId: authenticatedUserId }),
+    where: buildTransactionFilters({ ...filters, userId }),
     orderBy: { date: "desc" },
   });
 }
 
-export async function getTransactionById(id: string, userId?: string) {
-  const authenticatedUserId = requireAuthenticatedUserId(userId);
+export async function getTransactionById(id: string, authenticatedUserId: string) {
+  const userId = assertAuthenticatedUserId(authenticatedUserId);
 
-  return prisma.transaction.findFirst({ where: { id, userId: authenticatedUserId } });
+  return prisma.transaction.findFirst({ where: { id, userId } });
 }
 
-export async function createTransaction(input: CreateTransactionInput, userId?: string) {
-  const authenticatedUserId = requireAuthenticatedUserId(userId);
-  const ownerId = input.userId || authenticatedUserId;
-
-  if (ownerId !== authenticatedUserId) {
-    throw forbidden();
-  }
+export async function createTransaction(
+  input: CreateTransactionInput,
+  authenticatedUserId: string,
+) {
+  const userId = assertAuthenticatedUserId(authenticatedUserId);
 
   const user = await prisma.user.findUnique({
-    where: { id: authenticatedUserId },
+    where: { id: userId },
   });
 
   if (!user) {
-    throw unauthenticated(
-      `Usuário com ID "${authenticatedUserId}" não encontrado. Faça login novamente.`,
-    );
+    throw unauthenticated("Sessão inválida ou expirada. Faça login novamente.");
   }
 
   return prisma.transaction.create({
@@ -105,7 +96,7 @@ export async function createTransaction(input: CreateTransactionInput, userId?: 
       type: input.type,
       category: input.category,
       date: parseTransactionDate(input.date),
-      userId: authenticatedUserId,
+      userId,
       isExample: false,
     },
   });
@@ -114,16 +105,16 @@ export async function createTransaction(input: CreateTransactionInput, userId?: 
 export async function updateTransaction(
   id: string,
   input: UpdateTransactionInput,
-  userId?: string,
+  authenticatedUserId: string,
 ) {
-  const authenticatedUserId = requireAuthenticatedUserId(userId);
+  const userId = assertAuthenticatedUserId(authenticatedUserId);
   const existing = await prisma.transaction.findUnique({ where: { id } });
 
   if (!existing) {
     throw notFound("Transação não encontrada");
   }
 
-  if (existing.userId !== authenticatedUserId) {
+  if (existing.userId !== userId) {
     throw forbidden();
   }
 
@@ -141,15 +132,15 @@ export async function updateTransaction(
   });
 }
 
-export async function deleteTransaction(id: string, userId?: string): Promise<string> {
-  const authenticatedUserId = requireAuthenticatedUserId(userId);
+export async function deleteTransaction(id: string, authenticatedUserId: string): Promise<string> {
+  const userId = assertAuthenticatedUserId(authenticatedUserId);
   const existing = await prisma.transaction.findUnique({ where: { id } });
 
   if (!existing) {
     throw notFound("Transação não encontrada");
   }
 
-  if (existing.userId !== authenticatedUserId) {
+  if (existing.userId !== userId) {
     throw forbidden();
   }
 
@@ -158,10 +149,10 @@ export async function deleteTransaction(id: string, userId?: string): Promise<st
   return id;
 }
 
-export async function listTransactionPeriods(userId?: string) {
-  const authenticatedUserId = requireAuthenticatedUserId(userId);
+export async function listTransactionPeriods(authenticatedUserId: string) {
+  const userId = assertAuthenticatedUserId(authenticatedUserId);
   const transactions = await prisma.transaction.findMany({
-    where: { userId: authenticatedUserId },
+    where: { userId },
     select: { date: true },
     orderBy: { date: "desc" },
     take: 1200,
@@ -184,10 +175,10 @@ export async function listTransactionPeriods(userId?: string) {
   return periods;
 }
 
-export async function deleteExampleTransactions(userId?: string): Promise<number> {
-  const authenticatedUserId = requireAuthenticatedUserId(userId);
+export async function deleteExampleTransactions(authenticatedUserId: string): Promise<number> {
+  const userId = assertAuthenticatedUserId(authenticatedUserId);
   const result = await prisma.transaction.deleteMany({
-    where: { userId: authenticatedUserId, isExample: true },
+    where: { userId, isExample: true },
   });
 
   return result.count;

@@ -1,8 +1,11 @@
 import jwt from "jsonwebtoken";
 
 type JwtPayload = {
+  purpose: TokenPurpose;
   userId: string;
 };
+
+type TokenPurpose = "access" | "password_reset";
 
 const JWT_SECRET = getJwtSecret();
 
@@ -17,19 +20,32 @@ function getJwtSecret(): string {
 }
 
 export function signAccessToken(userId: string): string {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "7d" });
+  return jwt.sign({ purpose: "access", userId }, JWT_SECRET, { expiresIn: "7d" });
 }
 
 export function signResetToken(userId: string): string {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "1h" });
+  return jwt.sign({ purpose: "password_reset", userId }, JWT_SECRET, { expiresIn: "1h" });
 }
 
-export function verifyToken(token: string): JwtPayload {
+function verifyTokenPurpose(token: string, purpose: TokenPurpose): JwtPayload {
   const payload = jwt.verify(token, JWT_SECRET);
 
-  if (typeof payload !== "object" || payload === null || typeof payload.userId !== "string") {
+  if (
+    typeof payload !== "object" ||
+    payload === null ||
+    payload.purpose !== purpose ||
+    typeof payload.userId !== "string"
+  ) {
     throw new Error("Token inválido ou expirado");
   }
 
-  return { userId: payload.userId };
+  return { purpose, userId: payload.userId };
+}
+
+export function verifyAccessToken(token: string) {
+  return verifyTokenPurpose(token, "access");
+}
+
+export function verifyResetToken(token: string) {
+  return verifyTokenPurpose(token, "password_reset");
 }

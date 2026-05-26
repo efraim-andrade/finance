@@ -1,5 +1,5 @@
 import { createLoaders } from "@/loaders/index.js";
-import { verifyToken } from "@/modules/auth/auth.tokens.js";
+import { verifyAccessToken } from "@/modules/auth/auth.tokens.js";
 import { unauthenticated } from "@/modules/shared/errors.js";
 
 export async function buildContext(authorizationHeader?: string) {
@@ -9,7 +9,7 @@ export async function buildContext(authorizationHeader?: string) {
 
   if (token) {
     try {
-      const payload = verifyToken(token);
+      const payload = verifyAccessToken(token);
 
       userId = payload.userId;
     } catch {

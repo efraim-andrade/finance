@@ -24,8 +24,6 @@ export class CreateTransactionInput {
   @Field(() => String)
   @IsISO8601()
   date!: string;
-
-  userId?: string;
 }
 
 @InputType("UpdateTransactionInput")
