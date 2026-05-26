@@ -37,26 +37,48 @@ backend/
 ├── package.json            # ESM, scripts, dependencies
 ├── tsconfig.json           # NodeNext, @/ alias → ./src/*
 ├── prisma/
-│   ├── schema.prisma       # Data model (User, Transaction)
+│   ├── schema.prisma       # Data model (User, Category, Transaction)
 │   ├── dev.db              # SQLite database (gitignored)
 │   └── migrations/         # Migration history
 │       └── 20260522224341_init/
 │           └── migration.sql
 └── src/
-    ├── index.ts            # Entry point — Apollo server boot
+    ├── app/
+    │   ├── context.ts      # GraphQL context creation
+    │   └── server.ts       # Apollo Server initialization
+    ├── index.ts            # Entry point — imports and starts server
     ├── lib/
     │   └── prisma.ts       # Prisma Client singleton
     ├── loaders/
     │   └── index.ts        # DataLoader definitions
+    ├── modules/
+    │   ├── auth/           # Authentication module
+    │   │   ├── auth.resolver.ts
+    │   │   ├── auth.service.ts
+    │   │   ├── auth.tokens.ts
+    │   │   └── auth.types.ts
+    │   ├── categories/     # Category management
+    │   │   ├── category.resolver.ts
+    │   │   ├── category.service.ts
+    │   │   └── category.types.ts
+    │   ├── shared/         # Shared utilities
+    │   │   └── authorization.ts
+    │   ├── transactions/   # Transaction management
+    │   │   ├── transaction.resolver.ts
+    │   │   ├── transaction.service.ts
+    │   │   └── transaction.types.ts
+    │   ├── users/          # User management
+    │   │   ├── user.resolver.ts
+    │   │   ├── user.resolver.ts.backup
+    │   │   ├── user.seed.ts
+    │   │   ├── user.service.ts
+    │   │   └── user.types.ts
+    │   └── index.ts        # Barrel export for modules
     ├── resolvers/
-    │   └── index.ts        # Query/Mutation/Type resolvers
+    │   └── index.ts        # Legacy resolvers (to be refactored)
     ├── schema/
     │   └── typeDefs.ts     # GraphQL SDL
-    ├── services/
-    │   ├── user.ts         # User business logic
-    │   └── transaction.ts  # Transaction business logic
     └── types/
-        ├── graphql.ts      # Manual TS types (mirrors SDL)
         └── index.ts        # GraphQLContext type
 ```
 
@@ -66,44 +88,79 @@ backend/
 Request
   │
   ▼
-Apollo Server (port 4000) ── src/index.ts
+Apollo Server (port 4000) ── src/app/server.ts
   │
   ├── Schema ────────────── src/schema/typeDefs.ts  (SDL strings)
   │
-  ├── Resolvers ─────────── src/resolvers/index.ts
+  ├── Resolvers ─────────── src/modules/*/*.resolver.ts
   │     │
   │     ├── Query.*  ────── delegates to services/*
   │     ├── Mutation.* ──── delegates to services/*
   │     ├── User.* ──────── Transaction.user resolves via DataLoader
   │     └── Transaction.* ─ User.transactions resolves via service
   │
-  ├── Services ──────────── src/services/*
+  ├── Services ──────────── src/modules/*/*.service.ts
   │     │
-  │     ├── user.ts ─────── Prisma CRUD on users table
-  │     └── transaction.ts  Prisma CRUD on transactions table
+  │     ├── Auth Service ───── Auth credential validation & JWT handling
+  │     │
+  │     ├── User Service ───── Prisma CRUD on users table
+  │     │
+  │     ├── Category Service ─ Prisma CRUD on categories table
+  │     │
+  │     └── Transaction Service ─ Prisma CRUD on transactions table
   │
   ├── Loaders ───────────── src/loaders/index.ts
   │     │
   │     └── DataLoader ──── batchUsers(): batched user fetches
   │
+  ├── Context ───────────── src/app/context.ts
+  │     │
+  │     └── GraphQLContext ─── Provides loaders & services to resolvers
+  │
   └── Prisma Client ─────── src/lib/prisma.ts
-        │
-        └── SQLite ──────── prisma/dev.db
+          │
+          └── SQLite ──────── prisma/dev.db
 ```
 
 ### 4.1 Entry Point (`src/index.ts`)
 
-Trivial bootstrap, 20 lines.
+Application entry point that imports and starts the server.
 
 ```ts
-const server = new ApolloServer({ typeDefs, resolvers });
+import { startServer } from './app/server';
 
-const { url } = await startStandaloneServer(server, {
-  listen: { port: 4000 },
-  context: async () => ({
-    loaders: createLoaders(), // fresh DataLoader per request
-  }),
-});
+startServer().catch(console.error);
+```
+
+### 4.2 Server Initialization (`src/app/server.ts`)
+
+Configures and starts the Apollo Server with proper context.
+
+```ts
+import { ApolloServer } from '@apollo/server';
+import { startStandaloneServer } from '@apollo/server/standalone';
+import { typeDefs } from '../schema/typeDefs';
+import { resolvers } from '../resolvers';
+import { createLoaders } from '../loaders';
+import { PrismaService } from '../modules/shared/prisma.service';
+
+export const startServer = async () => {
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+  });
+
+  const { url } = await startStandaloneServer(server, {
+    listen: { port: 4000 },
+    context: async () => ({
+      loaders: createLoaders(), // fresh DataLoader per request
+      prisma: new PrismaService(),
+    }),
+  });
+
+  console.log(`🚀 Server ready at ${url}`);
+  return { url };
+};
 ```
 
 Key detail: **`createLoaders()` called per request**. This ensures DataLoader cache is scoped to a single GraphQL request — no stale data leaked across requests.
@@ -117,37 +174,38 @@ Notable choices:
 - `transactions(userId: ID)` is optional filter — all transactions if omitted.
 - No `updateTransaction` or `deleteMutation` mutations yet.
 
-### 4.3 Resolvers (`src/resolvers/index.ts`)
+### 4.3 Resolvers (`src/modules/*/*.resolver.ts`)
 
-Three resolver categories:
+Resolvers are now organized by feature module. Each module contains its own resolver file that handles queries, mutations, and type resolvers for that domain.
 
 **Query resolvers** — thin wrappers around service functions:
-```
-users()        → userService.listUsers()
-user(id)       → userService.getUserById(id)
-transactions   → transactionService.listTransactions(userId)
-transaction(id) → transactionService.getTransactionById(id)
-```
+- `users()` → `userService.listUsers()`
+- `user(id)` → `userService.getUserById(id)`
+- `transactions` → `transactionService.listTransactions(userId)`
+- `transaction(id)` → `transactionService.getTransactionById(id)`
 
 **Mutation resolvers** — same pattern:
-```
-createUser(input)        → userService.createUser(input)
-createTransaction(input) → transactionService.createTransaction(input)
-```
+- `createUser(input)` → `userService.createUser(input)`
+- `createTransaction(input)` → `transactionService.createTransaction(input)`
 
 **Type resolvers** — resolve relations between entities:
-```
-User.transactions → transactionService.listTransactions(parent.id)
-Transaction.user  → ctx.loaders.user.load(parent.userId)  ← DataLoader
-```
+- `User.transactions` → `transactionService.listTransactions(parent.id)`
+- `Transaction.user` → `ctx.loaders.user.load(parent.userId)` ← DataLoader
 
 The `Transaction.user` resolver is where DataLoader fires — batched across the entire result set instead of N individual queries.
 
-### 4.4 Services (`src/services/`)
+### 4.4 Services (`src/modules/*/*.service.ts`)
 
-Pure Prisma queries. No authentication, no validation, no error handling.
+Services contain the business logic and Prisma queries for each module. Each service handles CRUD operations for its respective entity.
 
-**`user.ts`:**
+**Auth Service (`src/modules/auth/auth.service.ts`):**
+| Function | Description |
+|---|---|
+| `validateCredentials(email, password)` | Validates user credentials |
+| `createUser(input)` | Creates a new user with hashed password |
+| `generateToken(user)` | Generates JWT token for authenticated user |
+
+**User Service (`src/modules/users/user.service.ts`):**
 | Function | Prisma Query | Includes |
 |---|---|---|
 | `listUsers()` | `findMany()` | `transactions` |
@@ -155,12 +213,23 @@ Pure Prisma queries. No authentication, no validation, no error handling.
 | `createUser(input)` | `create({ data })` | `transactions` |
 | | ⚠️ `passwordHash: input.password` — plaintext, see Gaps | |
 
-**`transaction.ts`:**
+**Category Service (`src/modules/categories/category.service.ts`):**
+| Function | Prisma Query | Includes |
+|---|---|---|
+| `listCategories(userId?)` | `findMany({ where, orderBy })` | - |
+| `getCategoryById(id)` | `findUnique({ where: { id } })` | - |
+| `createCategory(input)` | `create({ data })` | - |
+| `updateCategory(id, input)` | `update({ where: { id }, data })` | - |
+| `deleteCategory(id)` | `delete({ where: { id } })` | - |
+
+**Transaction Service (`src/modules/transactions/transaction.service.ts`):**
 | Function | Prisma Query | Includes |
 |---|---|---|
 | `listTransactions(userId?)` | `findMany({ where, orderBy })` | `user` |
 | `getTransactionById(id)` | `findUnique({ where: { id } })` | `user` |
 | `createTransaction(input)` | `create({ data })` | `user` |
+| `updateTransaction(id, input)` | `update({ where: { id }, data })` | `user` |
+| `deleteTransaction(id)` | `delete({ where: { id } })` | - |
 | | `date` cast to `new Date(input.date)` | |
 
 ### 4.5 DataLoader (`src/loaders/index.ts`)
@@ -183,25 +252,40 @@ Critical behavior:
 - **Returns `null` for missing IDs** — DataLoader expects a value per key, even if null.
 - **Per-request instance** — `createLoaders()` called in Apollo `context` factory.
 
-### 4.6 Prisma Client Singleton (`src/lib/prisma.ts`)
+### 4.6 Prisma Service (`src/modules/shared/prisma.service.ts`)
 
-Standard `globalThis` pattern:
+Encapsulates Prisma Client access for better testability and dependency injection.
 
 ```ts
-const globalForPrisma = globalThis as typeof globalThis & { prisma?: PrismaClient };
+import { PrismaClient } from '@prisma/client';
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: process.env.NODE_ENV === "development"
-    ? ["query", "warn", "error"]
-    : ["warn", "error"],
-});
+export class PrismaService {
+  private readonly prisma: PrismaClient;
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
+  constructor() {
+    this.prisma = new PrismaClient({
+      log: process.env.NODE_ENV === "development"
+        ? ["query", "warn", "error"]
+        : ["warn", "error"],
+    });
+  }
+
+  // Delegate all Prisma methods
+  $extends = this.prisma.$extends.bind(this.prisma);
+  $on = this.prisma.$on.bind(this.prisma);
+  $connect = this.prisma.$connect.bind(this.prisma);
+  $disconnect = this.prisma.$disconnect.bind(this.prisma);
+  $use = this.prisma.$use.bind(this.prisma);
+  $transaction = this.prisma.$transaction.bind(this.prisma);
+
+  // Expose all Prisma model properties
+  get user() { return this.prisma.user; }
+  get category() { return this.prisma.category; }
+  get transaction() { return this.prisma.transaction; }
 }
 ```
 
-Prevents multiple client instances during hot-reload (`tsx watch`). Query logging only in development.
+Prevents multiple client instances during hot-reload. Query logging only in development.
 
 ### 4.7 TypeScript Types (`src/types/`)
 

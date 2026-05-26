@@ -5,10 +5,7 @@ import type { GraphQLContext } from "@/types/index.js";
 
 export const userResolvers = {
   Query: {
-    users: () => userService.listUsers(),
     user: (_parent: unknown, { id }: { id: string }) => userService.getUserById(id),
-    userByEmail: (_parent: unknown, { email }: { email: string }) =>
-      userService.getUserByEmail(email),
   },
   Mutation: {
     updateUser: (
