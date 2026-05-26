@@ -201,35 +201,39 @@ Services contain the business logic and Prisma queries for each module. Each ser
 **Auth Service (`src/modules/auth/auth.service.ts`):**
 | Function | Description |
 |---|---|
-| `validateCredentials(email, password)` | Validates user credentials |
-| `createUser(input)` | Creates a new user with hashed password |
-| `generateToken(user)` | Generates JWT token for authenticated user |
+| `registerUser(input)` | Registers new user with bcrypt-hashed password, seeds workspace |
+| `loginUser(email, password)` | Authenticates user with password verification, returns JWT |
+| `requestPasswordReset(email)` | Initiates password reset flow with rate limiting |
+| `resetPassword(token, password)` | Completes password reset with new bcrypt-hashed password |
 
 **User Service (`src/modules/users/user.service.ts`):**
 | Function | Prisma Query | Includes |
 |---|---|---|
-| `listUsers()` | `findMany()` | `transactions` |
-| `getUserById(id)` | `findUnique({ where: { id } })` | `transactions` |
-| `createUser(input)` | `create({ data })` | `transactions` |
-| | ⚠️ `passwordHash: input.password` — plaintext, see Gaps | |
+| `listUsers()` | `findMany()` | - |
+| `getUserById(id)` | `findUnique({ where: { id } })` | - |
+| `getUserByEmail(email)` | `findUnique({ where: { email } })` | - |
+| `updateUser(id, input, userId)` | `update({ where: { id }, data: input })` with auth check | - |
+| `deleteUser(id, userId)` | Deletes user, transactions, and categories | - |
 
 **Category Service (`src/modules/categories/category.service.ts`):**
 | Function | Prisma Query | Includes |
 |---|---|---|
-| `listCategories(userId?)` | `findMany({ where, orderBy })` | - |
-| `getCategoryById(id)` | `findUnique({ where: { id } })` | - |
-| `createCategory(input)` | `create({ data })` | - |
-| `updateCategory(id, input)` | `update({ where: { id }, data })` | - |
-| `deleteCategory(id)` | `delete({ where: { id } })` | - |
+| `listCategories(userId?)` | `findMany({ where: { OR: [{ userId: null }, { userId }] }, orderBy })` | - |
+| `getCategoryById(id, userId?)` | `findFirst({ where: { id, OR: [{ userId: null }, { userId }] })` | - |
+| `createCategory(input, userId)` | `create({ data })` with authenticated userId | - |
+| `updateCategory(id, input, userId)` | `update({ where: { id }, data })` with auth and ownership checks | - |
+| `deleteCategory(id, userId)` | `delete({ where: { id } })` with auth and ownership checks | - |
 
 **Transaction Service (`src/modules/transactions/transaction.service.ts`):**
 | Function | Prisma Query | Includes |
 |---|---|---|
-| `listTransactions(userId?)` | `findMany({ where, orderBy })` | `user` |
-| `getTransactionById(id)` | `findUnique({ where: { id } })` | `user` |
-| `createTransaction(input)` | `create({ data })` | `user` |
-| `updateTransaction(id, input)` | `update({ where: { id }, data })` | `user` |
-| `deleteTransaction(id)` | `delete({ where: { id } })` | - |
+| `listTransactions(filters)` | `findMany({ where, orderBy: { date: 'desc' } })` with optional userId/month/year filters | - |
+| `getTransactionById(id, userId?)` | `findUnique({ where: { id } })` or `findFirst({ where: { id, userId } })` | - |
+| `createTransaction(input, userId)` | `create({ data })` with authenticated userId and date conversion | - |
+| `updateTransaction(id, input, userId)` | `update({ where: { id }, data })` with auth check and conditional field updates | - |
+| `deleteTransaction(id, userId)` | `delete({ where: { id } })` with auth check | - |
+| `listTransactionPeriods(userId?)` | Returns unique month/year combinations with limit | - |
+| `deleteExampleTransactions(userId?)` | Deletes transactions where isExample=true with auth check | - |
 | | `date` cast to `new Date(input.date)` | |
 
 ### 4.5 DataLoader (`src/loaders/index.ts`)
@@ -252,40 +256,29 @@ Critical behavior:
 - **Returns `null` for missing IDs** — DataLoader expects a value per key, even if null.
 - **Per-request instance** — `createLoaders()` called in Apollo `context` factory.
 
-### 4.6 Prisma Service (`src/modules/shared/prisma.service.ts`)
+### 4.6 Prisma Client Singleton (`src/lib/prisma.ts`)
 
-Encapsulates Prisma Client access for better testability and dependency injection.
+Standard `globalThis` pattern for Prisma Client singleton to prevent multiple instances during hot-reload.
 
 ```ts
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
-export class PrismaService {
-  private readonly prisma: PrismaClient;
+const globalForPrisma = globalThis as typeof globalThis & {
+  prisma?: PrismaClient;
+};
 
-  constructor() {
-    this.prisma = new PrismaClient({
-      log: process.env.NODE_ENV === "development"
-        ? ["query", "warn", "error"]
-        : ["warn", "error"],
-    });
-  }
+export const prisma: PrismaClient =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === "development" ? ["query", "warn", "error"] : ["warn", "error"],
+  });
 
-  // Delegate all Prisma methods
-  $extends = this.prisma.$extends.bind(this.prisma);
-  $on = this.prisma.$on.bind(this.prisma);
-  $connect = this.prisma.$connect.bind(this.prisma);
-  $disconnect = this.prisma.$disconnect.bind(this.prisma);
-  $use = this.prisma.$use.bind(this.prisma);
-  $transaction = this.prisma.$transaction.bind(this.prisma);
-
-  // Expose all Prisma model properties
-  get user() { return this.prisma.user; }
-  get category() { return this.prisma.category; }
-  get transaction() { return this.prisma.transaction; }
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
 }
 ```
 
-Prevents multiple client instances during hot-reload. Query logging only in development.
+Used throughout the application via `@/lib/prisma.js` alias.
 
 ### 4.7 TypeScript Types (`src/types/`)
 
@@ -306,6 +299,7 @@ Used in `Transaction.user` resolver signature for typed `ctx` access.
 
 ```
 User ──1:N──→ Transaction
+User ──1:N──→ Category
 ```
 
 ### User (`users` table)
@@ -315,7 +309,22 @@ User ──1:N──→ Transaction
 | `id` | TEXT (UUID) | PK, `@default(uuid())` |
 | `name` | TEXT | NOT NULL |
 | `email` | TEXT | NOT NULL, **UNIQUE** |
-| `password_hash` | TEXT | NOT NULL — plaintext (⚠️) |
+| `password_hash` | TEXT | NOT NULL — hashed with bcrypt |
+| `reset_token` | TEXT? | nullable |
+| `reset_token_expires_at` | DATETIME? | nullable |
+| `created_at` | DATETIME | `@default(now())` |
+| `updated_at` | DATETIME | `@updatedAt` |
+
+### Category (`categories` table)
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | TEXT (UUID) | PK, `@default(uuid())` |
+| `name` | TEXT | NOT NULL |
+| `description` | TEXT | NOT NULL, default "" |
+| `color` | TEXT | NOT NULL |
+| `icon` | TEXT | NOT NULL |
+| `user_id` | TEXT | FK → `users.id` (can be null for global categories) |
 | `created_at` | DATETIME | `@default(now())` |
 | `updated_at` | DATETIME | `@updatedAt` |
 
@@ -326,24 +335,31 @@ User ──1:N──→ Transaction
 | `id` | TEXT (UUID) | PK, `@default(uuid())` |
 | `description` | TEXT | NOT NULL |
 | `amount` | REAL | NOT NULL |
-| `type` | TEXT | NOT NULL — `"INCOME"` or `"EXPENSE"` |
-| `category` | TEXT | NOT NULL |
+| `type` | TEXT | NOT NULL — `"INCOME"` or `"EXPENSE"` (Prisma enum) |
+| `category` | TEXT | NOT NULL — category name (denormalized) |
 | `date` | DATETIME | NOT NULL |
 | `user_id` | TEXT | FK → `users.id`, NOT NULL |
+| `is_example` | BOOLEAN | NOT NULL, default false |
 | `created_at` | DATETIME | `@default(now())` |
 | `updated_at` | DATETIME | `@updatedAt` |
 
 ### Indexes
 
 - `users.email` — unique
+- `categories.user_id` — B-tree (filter by user)
 - `transactions.user_id` — B-tree (filter by user)
 - `transactions.date` — B-tree (sort/range queries)
 
-### Foreign Key
+### Foreign Keys
 
-`transactions.user_id → users.id` — **ON DELETE RESTRICT**, **ON UPDATE CASCADE**.
+- `transactions.user_id → users.id` — **ON DELETE RESTRICT**, **ON UPDATE CASCADE**
+- `categories.user_id → users.id` — **ON DELETE SET NULL**, **ON UPDATE CASCADE**
 
-Cannot delete a user who has transactions. Explicit constraint — no cascade deletes.
+Note: 
+- Transaction.category stores the category name as a string (denormalized) for performance, not as a foreign key
+- Global categories have user_id = null and are available to all users
+- User-specific categories have user_id pointing to the owning user
+- Cannot delete a user who has transactions. Categories are set to null when user is deleted (SET NULL).
 
 ## 6. API Design
 
@@ -353,15 +369,29 @@ Cannot delete a user who has transactions. Explicit constraint — no cascade de
 |---|---|---|---|
 | `users` | — | `[User!]!` | All users with transactions |
 | `user(id)` | `id: ID!` | `User` (nullable) | Single user, null if not found |
-| `transactions` | `userId: ID` (optional) | `[Transaction!]!` | All or filtered by user |
-| `transaction(id)` | `id: ID!` | `Transaction` (nullable) | Single, null if not found |
+| `categories` | — | `[Category!]!` | All categories (global + user-specific) |
+| `category(id)` | `id: ID!` | `Category` (nullable) | Single category, null if not found |
+| `transactions` | `userId: ID` (optional), `month: String`, `year: String` | `[Transaction!]!` | All transactions or filtered by user/month/year |
+| `transaction(id)` | `id: ID!` | `Transaction` (nullable) | Single transaction, null if not found |
+| `transactionPeriods` | — | `[TransactionPeriod!]!` | List of months with transactions |
 
 ### Mutations (write operations)
 
 | Operation | Input Type | Returns | Side Effects |
 |---|---|---|---|
-| `createUser` | `CreateUserInput!` | `User!` | Inserts row in `users` |
+| `createUser` | `CreateUserInput!` | `AuthPayload!` | Inserts row in `users`, returns auth token |
+| `login` | `LoginInput!` | `AuthPayload!` | Authenticates user, returns auth token |
 | `createTransaction` | `CreateTransactionInput!` | `Transaction!` | Inserts row in `transactions` |
+| `updateTransaction` | `UpdateTransactionInput!` | `Transaction!` | Updates row in `transactions` |
+| `deleteTransaction` | `ID!` | `ID!` | Deletes row from `transactions` |
+| `createCategory` | `CreateCategoryInput!` | `Category!` | Inserts row in `categories` |
+| `updateCategory` | `UpdateCategoryInput!` | `Category!` | Updates row in `categories` |
+| `deleteCategory` | `ID!` | `ID!` | Deletes row from `categories` |
+| `deleteExampleTransactions` | — | `Int!` | Deletes example transactions, returns count |
+| `requestPasswordReset` | `RequestPasswordResetInput!` | `MessagePayload!` | Initiates password reset flow |
+| `resetPassword` | `ResetPasswordInput!` | `MessagePayload!` | Completes password reset |
+| `updateUser` | `UpdateUserInput!` | `User!` | Updates user profile |
+| `deleteUser` | `ID!` | `ID!` | Deletes user and associated data |
 
 ### Input Types
 
@@ -369,22 +399,66 @@ Cannot delete a user who has transactions. Explicit constraint — no cascade de
 input CreateUserInput {
   name: String!
   email: String!
-  password: String!        # ⚠️ stored as plaintext
+  password: String!        # ⚠️ stored as plaintext (will be hashed)
+}
+
+input LoginInput {
+  email: String!
+  password: String!
 }
 
 input CreateTransactionInput {
   description: String!
   amount: Float!
   type: TransactionType!   # INCOME | EXPENSE
-  category: String!
+  category: String!        # category name (denormalized)
   date: DateTime!
-  userId: ID!
+  isExample: Boolean
+  userId: ID!              # owning user ID
+}
+
+input UpdateTransactionInput {
+  description?: String
+  amount?: Float
+  type?: TransactionType
+  category?: String        # category name (denormalized)
+  date?: DateTime
+  isExample?: Boolean
+}
+
+input UpdateUserInput {
+  name?: String
+}
+
+input CreateCategoryInput {
+  name: String!
+  description?: String
+  color: String!
+  icon: String!
+  userId?: ID              # null for global categories
+}
+
+input UpdateCategoryInput {
+  id: ID!
+  name?: String
+  description?: String
+  color?: String
+  icon?: String
+}
+
+input RequestPasswordResetInput {
+  email: String!
+}
+
+input ResetPasswordInput {
+  token: String!
+  password: String!
 }
 ```
 
 ### Missing Operations
 
-No `updateUser`, `updateTransaction`, `deleteUser`, `deleteTransaction`. No pagination (`skip`/`take`). No sorting arguments (hardcoded `date: "desc"`).
+All CRUD operations are implemented. No pagination (`skip`/`take`). No sorting arguments beyond hardcoded `date: "desc"` in list queries.
 
 ## 7. Performance
 
@@ -473,19 +547,17 @@ npm run dev             # starts on http://localhost:4000/graphql
 
 | Gap | Impact | Fix |
 |---|---|---|
-| **Password stored as plaintext** | Full account compromise if DB leaked | `bcrypt.hash()` in `createUser` service |
-| **No authentication** | Anyone can query/mutate all data | JWT or session auth + context validation |
-| **No authorization** | No user isolation — one user can see all transactions | GraphQL context checks `userId` from token |
 | **No rate limiting** | Abuse potential | Apollo plugin or reverse proxy |
+| **No refresh token mechanism** | Users must re-login frequently | Implement refresh token rotation |
 
 ### Data Integrity
 
 | Gap | Impact | Fix |
 |---|---|---|
 | No input validation beyond GraphQL types | Negative amounts, empty names pass | Zod/Yup schema on service layer |
-| `Transaction.type` is unvalidated string | Any string accepted (not just INCOME/EXPENSE) | Prisma enum or service-level check |
-| No `deleteUser` mutation | Orphans can't be cleaned up | Cascade-delete or soft-delete |
-| No pagination | Large datasets crash server | Add `skip`/`take`/`cursor` to list queries |
+| No transactions database seeding | Fresh DB lacks sample data for UI development | Seed example transactions on first user creation |
+| Category name denormalization | Potential inconsistency if category name changes | Consider adding categoryId FK to transactions |
+| No soft deletes | Accidental data loss | Add deletedAt timestamps for recovery |
 
 ### Code Quality
 
@@ -495,6 +567,7 @@ npm run dev             # starts on http://localhost:4000/graphql
 | No tests | Regressions invisible | Vitest + Apollo integration tests |
 | No error handling middleware | Uncaught Prisma errors = 500 | Apollo formatError or service try/catch |
 | No logging beyond Prisma queries | Debugging hard | Pino or structured logging |
+| Services duplicate auth checks | Repeated requireAuthenticatedUserId calls | Centralize auth in resolver context or middleware |
 
 ### Architecture
 
@@ -503,4 +576,4 @@ npm run dev             # starts on http://localhost:4000/graphql
 | Prisma includes always eager | Overfetching when client doesn't need relations | Info-based selection or field resolvers |
 | Services import Prisma directly | Can't test in isolation | Repository pattern or DI |
 | No migration seeding | Fresh DB is empty | `prisma seed` script |
-| Single file for all resolvers | Will grow unmanageable | Split per domain (`user.resolver.ts`) |
+| DataLoader only for user | Missing loaders for categories | Add category DataLoader for transaction.category resolution | |
