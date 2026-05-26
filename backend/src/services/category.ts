@@ -6,7 +6,7 @@ export async function listCategories(userId?: string) {
 
   return prisma.category.findMany({
     where,
-    orderBy: { name: "asc" },
+    orderBy: { createdAt: "desc" },
   });
 }
 
