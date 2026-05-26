@@ -1,28 +1,48 @@
-export type LoginInput = {
-  email: string;
-  password: string;
-};
+import { IsEmail, IsNotEmpty, MinLength } from "class-validator";
+import { Field, InputType, ObjectType } from "type-graphql";
 
-export type AuthPayload = {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    createdAt: Date;
-    updatedAt: Date;
-  };
-  token: string;
-};
+import { UserModel } from "@/schema/models.js";
 
-export type RequestPasswordResetInput = {
-  email: string;
-};
+@InputType("LoginInput")
+export class LoginInput {
+  @Field(() => String)
+  @IsEmail()
+  email!: string;
 
-export type ResetPasswordInput = {
-  token: string;
-  password: string;
-};
+  @Field(() => String)
+  @MinLength(8)
+  password!: string;
+}
 
-export type MessagePayload = {
-  message: string;
-};
+@ObjectType("AuthPayload")
+export class AuthPayload {
+  @Field(() => UserModel)
+  user!: UserModel;
+
+  @Field(() => String)
+  token!: string;
+}
+
+@InputType("RequestPasswordResetInput")
+export class RequestPasswordResetInput {
+  @Field(() => String)
+  @IsEmail()
+  email!: string;
+}
+
+@InputType("ResetPasswordInput")
+export class ResetPasswordInput {
+  @Field(() => String)
+  @IsNotEmpty()
+  token!: string;
+
+  @Field(() => String)
+  @MinLength(8)
+  password!: string;
+}
+
+@ObjectType("MessagePayload")
+export class MessagePayload {
+  @Field(() => String)
+  message!: string;
+}

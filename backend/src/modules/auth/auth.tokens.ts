@@ -25,5 +25,11 @@ export function signResetToken(userId: string): string {
 }
 
 export function verifyToken(token: string): JwtPayload {
-  return jwt.verify(token, JWT_SECRET) as JwtPayload;
+  const payload = jwt.verify(token, JWT_SECRET);
+
+  if (typeof payload !== "object" || payload === null || typeof payload.userId !== "string") {
+    throw new Error("Token inválido ou expirado");
+  }
+
+  return { userId: payload.userId };
 }

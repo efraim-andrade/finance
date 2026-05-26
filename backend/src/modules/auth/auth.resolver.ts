@@ -1,20 +1,35 @@
 import * as authService from "@/modules/auth/auth.service.js";
-import type {
+import {
+  AuthPayload,
   LoginInput,
+  MessagePayload,
   RequestPasswordResetInput,
   ResetPasswordInput,
 } from "@/modules/auth/auth.types.js";
-import type { CreateUserInput } from "@/modules/users/user.types.js";
+import { CreateUserInput } from "@/modules/users/user.types.js";
+import { Arg, Mutation, Resolver } from "type-graphql";
 
-export const authResolvers = {
-  Mutation: {
-    createUser: (_parent: unknown, { input }: { input: CreateUserInput }) =>
-      authService.registerUser(input),
-    login: (_parent: unknown, { input }: { input: LoginInput }) =>
-      authService.loginUser(input.email, input.password),
-    requestPasswordReset: (_parent: unknown, { input }: { input: RequestPasswordResetInput }) =>
-      authService.requestPasswordReset(input.email),
-    resetPassword: (_parent: unknown, { input }: { input: ResetPasswordInput }) =>
-      authService.resetPassword(input.token, input.password),
-  },
-} as const;
+@Resolver()
+export class AuthResolver {
+  @Mutation(() => AuthPayload)
+  createUser(@Arg("input", () => CreateUserInput) input: CreateUserInput) {
+    return authService.registerUser(input);
+  }
+
+  @Mutation(() => AuthPayload)
+  login(@Arg("input", () => LoginInput) input: LoginInput) {
+    return authService.loginUser(input.email, input.password);
+  }
+
+  @Mutation(() => MessagePayload)
+  requestPasswordReset(
+    @Arg("input", () => RequestPasswordResetInput) input: RequestPasswordResetInput,
+  ) {
+    return authService.requestPasswordReset(input.email);
+  }
+
+  @Mutation(() => MessagePayload)
+  resetPassword(@Arg("input", () => ResetPasswordInput) input: ResetPasswordInput) {
+    return authService.resetPassword(input.token, input.password);
+  }
+}

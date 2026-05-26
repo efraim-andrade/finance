@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 
 import { prisma } from "@/lib/prisma.js";
 import { signAccessToken, signResetToken, verifyToken } from "@/modules/auth/auth.tokens.js";
-import type { AuthPayload, MessagePayload } from "@/modules/auth/auth.types.js";
+import { badUserInput, unauthenticated } from "@/modules/shared/errors.js";
 import type { CreateUserInput } from "@/modules/users/user.types.js";
 import { seedUserWorkspace } from "@/modules/users/user.seed.js";
 
@@ -10,13 +10,18 @@ const resetRateLimit = new Map<string, number>();
 const RESET_RATE_LIMIT_MS = 120_000;
 const RESET_TOKEN_TTL_MS = 3_600_000;
 
-export async function registerUser(input: CreateUserInput): Promise<AuthPayload> {
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
+export async function registerUser(input: CreateUserInput) {
+  const email = normalizeEmail(input.email);
   const existingUser = await prisma.user.findUnique({
-    where: { email: input.email },
+    where: { email },
   });
 
   if (existingUser) {
-    throw new Error("Já existe uma conta com este e-mail");
+    throw badUserInput("Já existe uma conta com este e-mail");
   }
 
   const passwordHash = await bcrypt.hash(input.password, 10);
@@ -25,7 +30,7 @@ export async function registerUser(input: CreateUserInput): Promise<AuthPayload>
     const createdUser = await transaction.user.create({
       data: {
         name: input.name,
-        email: input.email,
+        email,
         passwordHash,
       },
     });
@@ -41,17 +46,18 @@ export async function registerUser(input: CreateUserInput): Promise<AuthPayload>
   };
 }
 
-export async function loginUser(email: string, password: string): Promise<AuthPayload> {
-  const user = await prisma.user.findUnique({ where: { email } });
+export async function loginUser(email: string, password: string) {
+  const normalizedEmail = normalizeEmail(email);
+  const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
 
   if (!user) {
-    throw new Error("E-mail ou senha inválidos");
+    throw unauthenticated("E-mail ou senha inválidos");
   }
 
   const validPassword = await bcrypt.compare(password, user.passwordHash);
 
   if (!validPassword) {
-    throw new Error("E-mail ou senha inválidos");
+    throw unauthenticated("E-mail ou senha inválidos");
   }
 
   return {
@@ -60,14 +66,15 @@ export async function loginUser(email: string, password: string): Promise<AuthPa
   };
 }
 
-export async function requestPasswordReset(email: string): Promise<MessagePayload> {
-  const user = await prisma.user.findUnique({ where: { email } });
+export async function requestPasswordReset(email: string) {
+  const normalizedEmail = normalizeEmail(email);
+  const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
 
   if (user) {
-    const lastRequest = resetRateLimit.get(email);
+    const lastRequest = resetRateLimit.get(normalizedEmail);
 
     if (!lastRequest || Date.now() - lastRequest > RESET_RATE_LIMIT_MS) {
-      resetRateLimit.set(email, Date.now());
+      resetRateLimit.set(normalizedEmail, Date.now());
 
       await prisma.user.update({
         where: { id: user.id },
@@ -89,13 +96,13 @@ export async function requestPasswordReset(email: string): Promise<MessagePayloa
   };
 }
 
-export async function resetPassword(token: string, password: string): Promise<MessagePayload> {
+export async function resetPassword(token: string, password: string) {
   let payload: { userId: string };
 
   try {
     payload = verifyToken(token);
   } catch {
-    throw new Error("Token inválido ou expirado");
+    throw badUserInput("Token inválido ou expirado");
   }
 
   const user = await prisma.user.findFirst({
@@ -107,7 +114,7 @@ export async function resetPassword(token: string, password: string): Promise<Me
   });
 
   if (!user) {
-    throw new Error("Token inválido ou expirado");
+    throw badUserInput("Token inválido ou expirado");
   }
 
   const passwordHash = await bcrypt.hash(password, 10);

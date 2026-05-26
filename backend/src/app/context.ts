@@ -1,5 +1,6 @@
 import { createLoaders } from "@/loaders/index.js";
 import { verifyToken } from "@/modules/auth/auth.tokens.js";
+import { unauthenticated } from "@/modules/shared/errors.js";
 
 export async function buildContext(authorizationHeader?: string) {
   const token = authorizationHeader?.startsWith("Bearer ") ? authorizationHeader.slice(7) : null;
@@ -12,7 +13,7 @@ export async function buildContext(authorizationHeader?: string) {
 
       userId = payload.userId;
     } catch {
-      userId = undefined;
+      throw unauthenticated("Sessão inválida ou expirada. Faça login novamente.");
     }
   }
 

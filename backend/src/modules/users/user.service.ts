@@ -1,12 +1,17 @@
 import { prisma } from "@/lib/prisma.js";
 import { assertSameUser, requireAuthenticatedUserId } from "@/modules/shared/authorization.js";
+import { notFound } from "@/modules/shared/errors.js";
 import type { UpdateUserInput } from "@/modules/users/user.types.js";
 
 export async function listUsers() {
   return prisma.user.findMany();
 }
 
-export async function getUserById(id: string) {
+export async function getUserById(id: string, userId?: string) {
+  const authenticatedUserId = requireAuthenticatedUserId(userId);
+
+  assertSameUser(id, authenticatedUserId);
+
   return prisma.user.findUnique({ where: { id } });
 }
 
@@ -30,12 +35,14 @@ export async function deleteUser(id: string, userId?: string) {
   const user = await prisma.user.findUnique({ where: { id } });
 
   if (!user) {
-    throw new Error("Usuário não encontrado");
+    throw notFound("Usuário não encontrado");
   }
 
-  await prisma.transaction.deleteMany({ where: { userId: id } });
-  await prisma.category.deleteMany({ where: { userId: id } });
-  await prisma.user.delete({ where: { id } });
+  await prisma.$transaction([
+    prisma.transaction.deleteMany({ where: { userId: id } }),
+    prisma.category.deleteMany({ where: { userId: id } }),
+    prisma.user.delete({ where: { id } }),
+  ]);
 
   return id;
 }

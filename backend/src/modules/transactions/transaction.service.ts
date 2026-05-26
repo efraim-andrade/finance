@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma.js";
 import { requireAuthenticatedUserId } from "@/modules/shared/authorization.js";
+import { badUserInput, forbidden, notFound, unauthenticated } from "@/modules/shared/errors.js";
 import type {
   CreateTransactionInput,
   UpdateTransactionInput,
@@ -13,41 +14,70 @@ type TransactionFilters = {
   year?: string | null;
 };
 
-function buildTransactionFilters(filters: TransactionFilters): Prisma.TransactionWhereInput {
-  const where: Prisma.TransactionWhereInput = {};
+const MIN_MONTH = 1;
+const MAX_MONTH = 12;
 
-  if (filters.userId) {
-    where.userId = filters.userId;
+function parseTransactionDate(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    throw badUserInput("Data da transação inválida");
   }
 
-  if (filters.month && filters.year) {
-    const year = Number.parseInt(filters.year, 10);
-    const month = Number.parseInt(filters.month, 10) - 1;
+  return date;
+}
 
-    if (!Number.isNaN(year) && !Number.isNaN(month)) {
-      where.date = {
-        gte: new Date(Date.UTC(year, month, 1)),
-        lt: new Date(Date.UTC(year, month + 1, 1)),
-      };
-    }
+function parseTransactionPeriod(filters: TransactionFilters) {
+  if (!filters.month && !filters.year) {
+    return null;
+  }
+
+  if (!filters.month || !filters.year) {
+    throw badUserInput("Mês e ano devem ser informados juntos");
+  }
+
+  const year = Number.parseInt(filters.year, 10);
+  const month = Number.parseInt(filters.month, 10);
+
+  if (
+    Number.isNaN(year) ||
+    Number.isNaN(month) ||
+    month < MIN_MONTH ||
+    month > MAX_MONTH
+  ) {
+    throw badUserInput("Período de transação inválido");
+  }
+
+  return { month: month - 1, year };
+}
+
+function buildTransactionFilters(filters: TransactionFilters): Prisma.TransactionWhereInput {
+  const where: Prisma.TransactionWhereInput = { userId: filters.userId };
+  const period = parseTransactionPeriod(filters);
+
+  if (period) {
+    where.date = {
+      gte: new Date(Date.UTC(period.year, period.month, 1)),
+      lt: new Date(Date.UTC(period.year, period.month + 1, 1)),
+    };
   }
 
   return where;
 }
 
 export async function listTransactions(filters: TransactionFilters = {}) {
+  const authenticatedUserId = requireAuthenticatedUserId(filters.userId);
+
   return prisma.transaction.findMany({
-    where: buildTransactionFilters(filters),
+    where: buildTransactionFilters({ ...filters, userId: authenticatedUserId }),
     orderBy: { date: "desc" },
   });
 }
 
 export async function getTransactionById(id: string, userId?: string) {
-  if (!userId) {
-    return prisma.transaction.findUnique({ where: { id } });
-  }
+  const authenticatedUserId = requireAuthenticatedUserId(userId);
 
-  return prisma.transaction.findFirst({ where: { id, userId } });
+  return prisma.transaction.findFirst({ where: { id, userId: authenticatedUserId } });
 }
 
 export async function createTransaction(input: CreateTransactionInput, userId?: string) {
@@ -55,7 +85,7 @@ export async function createTransaction(input: CreateTransactionInput, userId?: 
   const ownerId = input.userId || authenticatedUserId;
 
   if (ownerId !== authenticatedUserId) {
-    throw new Error("Não autorizado");
+    throw forbidden();
   }
 
   const user = await prisma.user.findUnique({
@@ -63,7 +93,7 @@ export async function createTransaction(input: CreateTransactionInput, userId?: 
   });
 
   if (!user) {
-    throw new Error(
+    throw unauthenticated(
       `Usuário com ID "${authenticatedUserId}" não encontrado. Faça login novamente.`,
     );
   }
@@ -74,9 +104,9 @@ export async function createTransaction(input: CreateTransactionInput, userId?: 
       amount: input.amount,
       type: input.type,
       category: input.category,
-      date: new Date(input.date),
+      date: parseTransactionDate(input.date),
       userId: authenticatedUserId,
-      isExample: input.isExample ?? false,
+      isExample: false,
     },
   });
 }
@@ -90,11 +120,11 @@ export async function updateTransaction(
   const existing = await prisma.transaction.findUnique({ where: { id } });
 
   if (!existing) {
-    throw new Error("Transação não encontrada");
+    throw notFound("Transação não encontrada");
   }
 
   if (existing.userId !== authenticatedUserId) {
-    throw new Error("Não autorizado");
+    throw forbidden();
   }
 
   const data: Prisma.TransactionUpdateInput = {};
@@ -103,7 +133,7 @@ export async function updateTransaction(
   if (input.amount !== undefined) data.amount = input.amount;
   if (input.type !== undefined) data.type = input.type;
   if (input.category !== undefined) data.category = input.category;
-  if (input.date !== undefined) data.date = new Date(input.date);
+  if (input.date !== undefined) data.date = parseTransactionDate(input.date);
 
   return prisma.transaction.update({
     where: { id },
@@ -116,11 +146,11 @@ export async function deleteTransaction(id: string, userId?: string): Promise<st
   const existing = await prisma.transaction.findUnique({ where: { id } });
 
   if (!existing) {
-    throw new Error("Transação não encontrada");
+    throw notFound("Transação não encontrada");
   }
 
   if (existing.userId !== authenticatedUserId) {
-    throw new Error("Não autorizado");
+    throw forbidden();
   }
 
   await prisma.transaction.delete({ where: { id } });
@@ -129,9 +159,9 @@ export async function deleteTransaction(id: string, userId?: string): Promise<st
 }
 
 export async function listTransactionPeriods(userId?: string) {
-  const where = userId ? { userId } : {};
+  const authenticatedUserId = requireAuthenticatedUserId(userId);
   const transactions = await prisma.transaction.findMany({
-    where,
+    where: { userId: authenticatedUserId },
     select: { date: true },
     orderBy: { date: "desc" },
     take: 1200,

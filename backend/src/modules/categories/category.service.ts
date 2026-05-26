@@ -1,23 +1,24 @@
 import { prisma } from "@/lib/prisma.js";
 import { requireAuthenticatedUserId } from "@/modules/shared/authorization.js";
+import { forbidden, notFound } from "@/modules/shared/errors.js";
 import type {
   CreateCategoryInput,
   UpdateCategoryInput,
 } from "@/modules/categories/category.types.js";
 
 export async function listCategories(userId?: string) {
-  const where = userId ? { OR: [{ userId: null }, { userId }] } : { userId: null };
+  const authenticatedUserId = requireAuthenticatedUserId(userId);
 
   return prisma.category.findMany({
-    where,
+    where: { userId: authenticatedUserId },
     orderBy: { createdAt: "desc" },
   });
 }
 
 export async function getCategoryById(id: string, userId?: string) {
-  const where = userId ? { id, OR: [{ userId: null }, { userId }] } : { id, userId: null };
+  const authenticatedUserId = requireAuthenticatedUserId(userId);
 
-  return prisma.category.findFirst({ where });
+  return prisma.category.findFirst({ where: { id, userId: authenticatedUserId } });
 }
 
 export async function createCategory(input: CreateCategoryInput, userId?: string) {
@@ -39,15 +40,11 @@ export async function updateCategory(id: string, input: UpdateCategoryInput, use
   const existing = await prisma.category.findUnique({ where: { id } });
 
   if (!existing) {
-    throw new Error("Categoria não encontrada");
-  }
-
-  if (!existing.userId) {
-    throw new Error("Não é permitido editar categorias globais");
+    throw notFound("Categoria não encontrada");
   }
 
   if (existing.userId !== authenticatedUserId) {
-    throw new Error("Não autorizado");
+    throw forbidden();
   }
 
   return prisma.category.update({
@@ -68,15 +65,11 @@ export async function deleteCategory(id: string, userId?: string) {
   const existing = await prisma.category.findUnique({ where: { id } });
 
   if (!existing) {
-    throw new Error("Categoria não encontrada");
-  }
-
-  if (!existing.userId) {
-    throw new Error("Não é permitido excluir categorias globais");
+    throw notFound("Categoria não encontrada");
   }
 
   if (existing.userId !== authenticatedUserId) {
-    throw new Error("Não autorizado");
+    throw forbidden();
   }
 
   await prisma.category.delete({ where: { id } });
