@@ -1,7 +1,11 @@
 import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma.js";
-import type { CreateTransactionInput, UpdateTransactionInput } from "@/types/graphql.js";
+import { requireAuthenticatedUserId } from "@/modules/shared/authorization.js";
+import type {
+  CreateTransactionInput,
+  UpdateTransactionInput,
+} from "@/modules/transactions/transaction.types.js";
 
 type TransactionFilters = {
   userId?: string;
@@ -9,19 +13,7 @@ type TransactionFilters = {
   year?: string | null;
 };
 
-function requireAuthenticatedUserId(userId?: string): string {
-  if (!userId) {
-    throw new Error("Usuário não autenticado. Faça login novamente.");
-  }
-
-  return userId;
-}
-
-export async function listTransactions(filters: TransactionFilters = {}) {
-  if (!filters.userId) {
-    return [];
-  }
-
+function buildTransactionFilters(filters: TransactionFilters): Prisma.TransactionWhereInput {
   const where: Prisma.TransactionWhereInput = {};
 
   if (filters.userId) {
@@ -40,24 +32,31 @@ export async function listTransactions(filters: TransactionFilters = {}) {
     }
   }
 
+  return where;
+}
+
+export async function listTransactions(filters: TransactionFilters = {}) {
   return prisma.transaction.findMany({
-    where,
+    where: buildTransactionFilters(filters),
     orderBy: { date: "desc" },
   });
 }
 
 export async function getTransactionById(id: string, userId?: string) {
   if (!userId) {
-    return null;
+    return prisma.transaction.findUnique({ where: { id } });
   }
 
-  return prisma.transaction.findFirst({
-    where: { id, userId },
-  });
+  return prisma.transaction.findFirst({ where: { id, userId } });
 }
 
 export async function createTransaction(input: CreateTransactionInput, userId?: string) {
   const authenticatedUserId = requireAuthenticatedUserId(userId);
+  const ownerId = input.userId || authenticatedUserId;
+
+  if (ownerId !== authenticatedUserId) {
+    throw new Error("Não autorizado");
+  }
 
   const user = await prisma.user.findUnique({
     where: { id: authenticatedUserId },
@@ -82,8 +81,22 @@ export async function createTransaction(input: CreateTransactionInput, userId?: 
   });
 }
 
-export async function updateTransaction(id: string, input: UpdateTransactionInput, userId?: string) {
+export async function updateTransaction(
+  id: string,
+  input: UpdateTransactionInput,
+  userId?: string,
+) {
   const authenticatedUserId = requireAuthenticatedUserId(userId);
+  const existing = await prisma.transaction.findUnique({ where: { id } });
+
+  if (!existing) {
+    throw new Error("Transação não encontrada");
+  }
+
+  if (existing.userId !== authenticatedUserId) {
+    throw new Error("Não autorizado");
+  }
+
   const data: Prisma.TransactionUpdateInput = {};
 
   if (input.description !== undefined) data.description = input.description;
@@ -91,15 +104,6 @@ export async function updateTransaction(id: string, input: UpdateTransactionInpu
   if (input.type !== undefined) data.type = input.type;
   if (input.category !== undefined) data.category = input.category;
   if (input.date !== undefined) data.date = new Date(input.date);
-
-  const existing = await prisma.transaction.findFirst({
-    where: { id, userId: authenticatedUserId },
-    select: { id: true },
-  });
-
-  if (!existing) {
-    throw new Error("Transação não encontrada");
-  }
 
   return prisma.transaction.update({
     where: { id },
@@ -109,14 +113,14 @@ export async function updateTransaction(id: string, input: UpdateTransactionInpu
 
 export async function deleteTransaction(id: string, userId?: string): Promise<string> {
   const authenticatedUserId = requireAuthenticatedUserId(userId);
-
-  const existing = await prisma.transaction.findFirst({
-    where: { id, userId: authenticatedUserId },
-    select: { id: true },
-  });
+  const existing = await prisma.transaction.findUnique({ where: { id } });
 
   if (!existing) {
     throw new Error("Transação não encontrada");
+  }
+
+  if (existing.userId !== authenticatedUserId) {
+    throw new Error("Não autorizado");
   }
 
   await prisma.transaction.delete({ where: { id } });
@@ -125,12 +129,7 @@ export async function deleteTransaction(id: string, userId?: string): Promise<st
 }
 
 export async function listTransactionPeriods(userId?: string) {
-  if (!userId) {
-    return [];
-  }
-
-  const where = { userId };
-
+  const where = userId ? { userId } : {};
   const transactions = await prisma.transaction.findMany({
     where,
     select: { date: true },
@@ -157,7 +156,6 @@ export async function listTransactionPeriods(userId?: string) {
 
 export async function deleteExampleTransactions(userId?: string): Promise<number> {
   const authenticatedUserId = requireAuthenticatedUserId(userId);
-
   const result = await prisma.transaction.deleteMany({
     where: { userId: authenticatedUserId, isExample: true },
   });

@@ -1,45 +1,27 @@
 import { prisma } from "@/lib/prisma.js";
-import type { CreateCategoryInput, UpdateCategoryInput } from "@/types/graphql.js";
-
-function requireAuthenticatedUserId(userId?: string): string {
-  if (!userId) {
-    throw new Error("Usuário não autenticado. Faça login novamente.");
-  }
-
-  return userId;
-}
+import { requireAuthenticatedUserId } from "@/modules/shared/authorization.js";
+import type {
+  CreateCategoryInput,
+  UpdateCategoryInput,
+} from "@/modules/categories/category.types.js";
 
 export async function listCategories(userId?: string) {
-  if (!userId) {
-    return [];
-  }
+  const where = userId ? { OR: [{ userId: null }, { userId }] } : { userId: null };
 
   return prisma.category.findMany({
-    where: { userId },
+    where,
     orderBy: { createdAt: "desc" },
   });
 }
 
 export async function getCategoryById(id: string, userId?: string) {
-  if (!userId) {
-    return null;
-  }
+  const where = userId ? { id, OR: [{ userId: null }, { userId }] } : { id, userId: null };
 
-  return prisma.category.findFirst({
-    where: { id, userId },
-  });
+  return prisma.category.findFirst({ where });
 }
 
 export async function createCategory(input: CreateCategoryInput, userId?: string) {
   const authenticatedUserId = requireAuthenticatedUserId(userId);
-
-  const user = await prisma.user.findUnique({ where: { id: authenticatedUserId } });
-
-  if (!user) {
-    throw new Error(
-      `Usuário com ID "${authenticatedUserId}" não encontrado. Faça login novamente.`,
-    );
-  }
 
   return prisma.category.create({
     data: {
@@ -54,11 +36,18 @@ export async function createCategory(input: CreateCategoryInput, userId?: string
 
 export async function updateCategory(id: string, input: UpdateCategoryInput, userId?: string) {
   const authenticatedUserId = requireAuthenticatedUserId(userId);
-
-  const existing = await prisma.category.findFirst({ where: { id, userId: authenticatedUserId } });
+  const existing = await prisma.category.findUnique({ where: { id } });
 
   if (!existing) {
     throw new Error("Categoria não encontrada");
+  }
+
+  if (!existing.userId) {
+    throw new Error("Não é permitido editar categorias globais");
+  }
+
+  if (existing.userId !== authenticatedUserId) {
+    throw new Error("Não autorizado");
   }
 
   return prisma.category.update({
@@ -76,16 +65,21 @@ export async function updateCategory(id: string, input: UpdateCategoryInput, use
 
 export async function deleteCategory(id: string, userId?: string) {
   const authenticatedUserId = requireAuthenticatedUserId(userId);
-
-  const existing = await prisma.category.findFirst({ where: { id, userId: authenticatedUserId } });
+  const existing = await prisma.category.findUnique({ where: { id } });
 
   if (!existing) {
     throw new Error("Categoria não encontrada");
   }
 
-  await prisma.category.delete({
-    where: { id },
-  });
+  if (!existing.userId) {
+    throw new Error("Não é permitido excluir categorias globais");
+  }
+
+  if (existing.userId !== authenticatedUserId) {
+    throw new Error("Não autorizado");
+  }
+
+  await prisma.category.delete({ where: { id } });
 
   return id;
 }
