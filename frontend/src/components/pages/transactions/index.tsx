@@ -149,176 +149,9 @@ export function TransactionsPage() {
   };
 
   const hasExamples = transactions.some((t) => "isExample" in t && t.isExample);
+  const showDeleteExamplesAction = !loading && hasExamples;
 
   const periodOptions = useTransactionPeriods(userId ?? undefined);
-
-  if (loading) {
-    return (
-      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4 p-4 md:gap-8 md:p-12">
-        <div
-          className="anim-page"
-          style={{
-            animation:
-              "impeccable-fade-slide var(--anim-dur) var(--anim-delay-1) var(--anim-ease) both",
-          }}
-        >
-          <PageHeader
-            title="Transações"
-            description="Gerencie todas as suas transações financeiras"
-            action={
-              <div className="flex items-center gap-2">
-                {hasExamples && (
-                  <>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-1.5"
-                      onClick={handleDeleteExamples}
-                      disabled={deleteExamplesLoading}
-                    >
-                      <Trash2 className="size-4" />
-                      <span className="hidden sm:inline">Remover exemplos</span>
-                      <span className="sm:hidden">Exemplos</span>
-                    </Button>
-                    <DeleteDialog
-                      open={showDeleteExamplesDialog}
-                      onOpenChange={setShowDeleteExamplesDialog}
-                      onConfirm={confirmDeleteExamples}
-                      loading={isDeletingExamples}
-                      title="Remover transações de exemplo"
-                      description="Tem certeza que deseja remover todas as transações de exemplo? Suas transações reais não serão afetadas."
-                    />
-                  </>
-                )}
-                <NewTransactionModal onSubmit={handleCreate}>
-                  <Button size="sm" className="gap-1.5">
-                    <Plus className="size-4" />
-                    <span className="hidden sm:inline">Nova transação</span>
-                    <span className="sm:hidden">Nova</span>
-                  </Button>
-                </NewTransactionModal>
-              </div>
-            }
-          />
-        </div>
-
-        <div
-          className="anim-page"
-          style={{
-            animation:
-              "impeccable-fade-slide var(--anim-dur) var(--anim-delay-2) var(--anim-ease) both",
-          }}
-        >
-          <div className="rounded-xl border border-border bg-card p-6">
-            <Filters
-              search={search}
-              onSearchChange={(value) => {
-                setSearch(value);
-                resetPage();
-              }}
-              typeFilter={typeFilter}
-              onTypeFilterChange={(value) => {
-                setTypeFilter(value);
-                resetPage();
-              }}
-              categoryFilter={categoryFilter}
-              onCategoryFilterChange={(value) => {
-                setCategoryFilter(value);
-                resetPage();
-              }}
-              periodFilter={periodFilter}
-              onPeriodFilterChange={(value) => {
-                setPeriodFilter(value);
-                resetPage();
-              }}
-              periodOptions={periodOptions}
-            />
-          </div>
-        </div>
-
-        <div
-          className="anim-page"
-          style={{
-            animation:
-              "impeccable-fade-slide var(--anim-dur) var(--anim-delay-3) var(--anim-ease) both",
-          }}
-        >
-          <div className="rounded-xl border border-border bg-card" ref={tableRef}>
-            <div className="hidden h-14 items-center border-b border-border px-6 md:flex">
-              <div className="flex flex-1 items-center">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Descrição
-                </span>
-              </div>
-
-              <div className="flex w-28 items-center justify-center">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Data
-                </span>
-              </div>
-
-              <div className="flex w-52 items-center justify-center">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Categoria
-                </span>
-              </div>
-
-              <div className="flex w-36 items-center justify-center">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Tipo
-                </span>
-              </div>
-
-              <div className="flex w-52 items-center justify-end">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Valor
-                </span>
-              </div>
-
-              <div className="flex w-28 items-center justify-end">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Ações
-                </span>
-              </div>
-            </div>
-
-            {SKELETON_IDS.map((id) => (
-              <div
-                key={id}
-                className="flex h-[72px] items-center border-b border-border px-6"
-              >
-                <div className="flex flex-1 items-center gap-4">
-                  <div className="size-10 animate-pulse rounded-lg bg-muted" />
-                  <div className="h-4 w-48 animate-pulse rounded bg-muted" />
-                </div>
-
-                <div className="flex w-28 items-center justify-center">
-                  <div className="h-4 w-20 animate-pulse rounded bg-muted" />
-                </div>
-
-                <div className="flex w-52 items-center justify-center">
-                  <div className="h-6 w-28 animate-pulse rounded-full bg-muted" />
-                </div>
-
-                <div className="flex w-36 items-center justify-center">
-                  <div className="h-5 w-16 animate-pulse rounded bg-muted" />
-                </div>
-
-                <div className="flex w-52 items-center justify-end">
-                  <div className="h-5 w-24 animate-pulse rounded bg-muted" />
-                </div>
-
-                <div className="flex w-28 items-center justify-center gap-2">
-                  <div className="size-8 animate-pulse rounded-md bg-muted" />
-                  <div className="size-8 animate-pulse rounded-md bg-muted" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (error) {
     return (
@@ -360,29 +193,31 @@ export function TransactionsPage() {
           description="Gerencie todas as suas transações financeiras"
           action={
             <div className="flex items-center gap-2">
-              {hasExamples && (
-                <>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-1.5"
-                    onClick={handleDeleteExamples}
-                    disabled={deleteExamplesLoading}
-                  >
-                    <Trash2 className="size-4" />
-                    <span className="hidden sm:inline">Remover exemplos</span>
-                    <span className="sm:hidden">Exemplos</span>
-                  </Button>
-                  <DeleteDialog
-                    open={showDeleteExamplesDialog}
-                    onOpenChange={setShowDeleteExamplesDialog}
-                    onConfirm={confirmDeleteExamples}
-                    loading={isDeletingExamples}
-                    title="Remover transações de exemplo"
-                    description="Tem certeza que deseja remover todas as transações de exemplo? Suas transações reais não serão afetadas."
-                  />
-                </>
-              )}
+              <div className="min-w-[9.5rem]">
+                {showDeleteExamplesAction && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5"
+                      onClick={handleDeleteExamples}
+                      disabled={deleteExamplesLoading}
+                    >
+                      <Trash2 className="size-4" />
+                      <span className="hidden sm:inline">Remover exemplos</span>
+                      <span className="sm:hidden">Exemplos</span>
+                    </Button>
+                    <DeleteDialog
+                      open={showDeleteExamplesDialog}
+                      onOpenChange={setShowDeleteExamplesDialog}
+                      onConfirm={confirmDeleteExamples}
+                      loading={isDeletingExamples}
+                      title="Remover transações de exemplo"
+                      description="Tem certeza que deseja remover todas as transações de exemplo? Suas transações reais não serão afetadas."
+                    />
+                  </>
+                )}
+              </div>
               <NewTransactionModal onSubmit={handleCreate}>
                 <Button size="sm" className="gap-1.5">
                   <Plus className="size-4" />
@@ -475,7 +310,40 @@ export function TransactionsPage() {
             </div>
           </div>
 
-          {transactions.length > 0 ? (
+          {loading ? (
+            SKELETON_IDS.map((id) => (
+              <div
+                key={id}
+                className="flex h-[72px] items-center border-b border-border px-6"
+              >
+                <div className="flex flex-1 items-center gap-4">
+                  <div className="size-10 animate-pulse rounded-lg bg-muted" />
+                  <div className="h-4 w-48 animate-pulse rounded bg-muted" />
+                </div>
+
+                <div className="flex w-28 items-center justify-center">
+                  <div className="h-4 w-20 animate-pulse rounded bg-muted" />
+                </div>
+
+                <div className="flex w-52 items-center justify-center">
+                  <div className="h-6 w-28 animate-pulse rounded-full bg-muted" />
+                </div>
+
+                <div className="flex w-36 items-center justify-center">
+                  <div className="h-5 w-16 animate-pulse rounded bg-muted" />
+                </div>
+
+                <div className="flex w-52 items-center justify-end">
+                  <div className="h-5 w-24 animate-pulse rounded bg-muted" />
+                </div>
+
+                <div className="flex w-28 items-center justify-center gap-2">
+                  <div className="size-8 animate-pulse rounded-md bg-muted" />
+                  <div className="size-8 animate-pulse rounded-md bg-muted" />
+                </div>
+              </div>
+            ))
+          ) : transactions.length > 0 ? (
             transactions.map((transaction) => (
               <TransactionRow
                 key={transaction.id}
@@ -502,13 +370,15 @@ export function TransactionsPage() {
 )
 
           }
-          <Pagination
-            currentPage={safePage}
-            totalPages={totalPages}
-            totalResults={totalCount}
-            resultsPerPage={RESULTS_PER_PAGE}
-            onPageChange={setCurrentPage}
-          />
+          {!loading && (
+            <Pagination
+              currentPage={safePage}
+              totalPages={totalPages}
+              totalResults={totalCount}
+              resultsPerPage={RESULTS_PER_PAGE}
+              onPageChange={setCurrentPage}
+            />
+          )}
         </div>
       </div>
 
