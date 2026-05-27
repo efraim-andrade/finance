@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 const envSchema = z.object({
+  BACKEND_PORT: z.coerce.number().int().positive().default(4000),
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   FRONTEND_ORIGIN: z.string().url().optional(),
   JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),

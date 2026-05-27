@@ -144,7 +144,17 @@ docker build \
   -t finance .
 ```
 
-Production runtime also requires `DATABASE_URL`, `JWT_SECRET`, and `FRONTEND_ORIGIN`. The production container runs Prisma migrations before starting the backend and frontend processes.
+Production runtime requires these environment variables:
+
+```bash
+DATABASE_URL="file:/app/backend/data/prod.db"
+JWT_SECRET="$(openssl rand -hex 32)"
+FRONTEND_ORIGIN="https://your-frontend-domain.example"
+PORT="4000"
+BACKEND_PORT="4001"
+```
+
+The production image defaults `DATABASE_URL` to `file:/app/backend/data/prod.db` for SQLite deploys and `BACKEND_PORT` to `4001`. `PORT` is reserved for the frontend server because most deploy platforms route public traffic to it. Mount persistent storage at `/app/backend/data`; otherwise data is lost when the container is replaced. The production container runs Prisma migrations before starting the backend and frontend processes.
 
 ## Available Scripts
 

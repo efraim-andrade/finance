@@ -43,8 +43,10 @@ COPY --from=build /app/backend/package.json ./backend/package.json
 COPY --from=build /app/backend/dist ./backend/dist
 COPY --from=build /app/backend/prisma ./backend/prisma
 COPY --from=build /app/docker ./docker
-RUN pnpm --filter backend db:generate
+RUN mkdir -p /app/backend/data && pnpm --filter backend db:generate
 
+ENV DATABASE_URL="file:/app/backend/data/prod.db"
+ENV BACKEND_PORT=4001
 ENV NODE_ENV=production
 
 EXPOSE 3000 4000

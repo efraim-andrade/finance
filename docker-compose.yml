@@ -8,6 +8,7 @@ services:
     ports:
       - "127.0.0.1:4000:4000"
     environment:
+      BACKEND_PORT: 4000
       DATABASE_URL: file:../data/dev.db
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       NODE_ENV: development

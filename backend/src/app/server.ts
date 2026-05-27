@@ -14,7 +14,7 @@ import { errorHandlerMiddleware } from "@/modules/shared/middlewares/error-handl
 import { TransactionResolver } from "@/modules/transactions/transaction.resolver.js";
 import { UserResolver } from "@/modules/users/user.resolver.js";
 
-const DEFAULT_PORT = env.PORT;
+const DEFAULT_PORT = env.BACKEND_PORT;
 
 const ALLOWED_ORIGIN_PATTERN = /^https?:\/\/localhost(?::\d+)?$/;
 const IS_DEV = env.NODE_ENV !== "production";
