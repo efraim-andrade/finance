@@ -1,4 +1,4 @@
-import { useMutation } from "@apollo/client/react";
+import { useApolloClient, useMutation } from "@apollo/client/react";
 import { createContext, useCallback, useContext, useState } from "react";
 import { toast } from "sonner";
 
@@ -19,7 +19,7 @@ type AuthContextType = {
   deletingAccount: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   updateProfile: (name: string) => Promise<void>;
   deleteAccount: () => Promise<void>;
@@ -133,6 +133,7 @@ function clearStorage() {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const apolloClient = useApolloClient();
   const [state, setState] = useState(loadAuth);
   const [error, setError] = useState<string | null>(null);
 
@@ -142,6 +143,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [doDeleteUser, { loading: deletingAccount }] = useMutation(DELETE_USER);
   const [doRequestPasswordReset] = useMutation(REQUEST_PASSWORD_RESET);
   const [doResetPassword] = useMutation(RESET_PASSWORD);
+
+  const clearSessionCache = useCallback(async () => {
+    try {
+      await apolloClient.clearStore();
+    } catch {
+      toast.error("Não foi possível limpar os dados da sessão");
+    }
+  }, [apolloClient]);
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -157,6 +166,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!payload) {
           throw new Error("E-mail ou senha inválidos");
         }
+
+        await clearSessionCache();
 
         setState({
           isAuthenticated: true,
@@ -180,10 +191,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setError(message);
       }
     },
-    [doLogin],
+    [clearSessionCache, doLogin],
   );
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
     setState({
       isAuthenticated: false,
       userId: null,
@@ -191,7 +202,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       userEmail: null,
     });
     clearStorage();
-  }, []);
+    await clearSessionCache();
+  }, [clearSessionCache]);
 
   const register = useCallback(
     async (name: string, email: string, password: string) => {
@@ -205,6 +217,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const payload = data?.createUser;
 
         if (!payload) throw new Error("Falha ao criar usuário");
+
+        await clearSessionCache();
 
         setState({
           isAuthenticated: true,
@@ -229,7 +243,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw err;
       }
     },
-    [doCreateUser],
+    [clearSessionCache, doCreateUser],
   );
 
   const updateProfile = useCallback(
@@ -279,6 +293,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         userEmail: null,
       });
       clearStorage();
+      await clearSessionCache();
       toast.success("Conta excluída com sucesso");
     } catch (err) {
       const message =
@@ -287,7 +302,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       toast.error(message);
       throw err;
     }
-  }, [doDeleteUser, state.userId]);
+  }, [clearSessionCache, doDeleteUser, state.userId]);
 
   const requestPasswordReset = useCallback(
     async (email: string) => {
