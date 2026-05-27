@@ -2,6 +2,8 @@
 
 A full-stack personal finance management web application. Built as a postgraduate final project (TCC) for Rocketseat.
 
+Production: https://finance-production-e82d.up.railway.app/
+
 ## Features
 
 - **Authentication** -- sign up, log in, profile management, password reset via token, account deletion
