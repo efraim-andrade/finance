@@ -1,4 +1,6 @@
-![Finance Logo](./frontend/public/Logo.svg)
+<p align="center">
+  <img src="./frontend/public/Logo.svg" alt="Finance Logo" width="320" />
+</p>
 
 # Finance
 
