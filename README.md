@@ -1,10 +1,26 @@
+![Finance Logo](./frontend/public/Logo.svg)
+
 # Finance
 
 A full-stack personal finance management web application. Built as a postgraduate final project (TCC) for Rocketseat.
 
+> **Postgraduate Project Score:** 49 /50
+> **Status:** Approved
+> [📌 View full feedback](#-postgraduate-project-score)
+
 Production: https://finance-production-e82d.up.railway.app/
 
-## Features
+## 📚 Index
+
+- [✨ Features](#-features)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [🚀 Getting Started](#-getting-started)
+- [📜 Available Scripts](#-available-scripts)
+- [🎓 Academic Context](#-academic-context)
+- [🏆 Postgraduate Project Score](#-postgraduate-project-score)
+- [📝 Feedback Received](#-feedback-received)
+
+## ✨ Features
 
 - **Authentication** -- sign up, log in, profile management, password reset via token, account deletion
 - **Transactions** -- create, list, edit, and delete income and expense entries with category, amount, and date
@@ -12,7 +28,7 @@ Production: https://finance-production-e82d.up.railway.app/
 - **Dashboard** -- summary cards (total income, total expense, balance), category breakdown, and recent transactions
 - **Period filtering** -- filter transactions by month and year
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 ### Frontend
 
@@ -63,7 +79,7 @@ Production: https://finance-production-e82d.up.railway.app/
 | `/app/categorias` | Categories | Authenticated |
 | `/app/profile` | Profile settings | Authenticated |
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
@@ -158,7 +174,7 @@ BACKEND_PORT="4001"
 
 The production image defaults `DATABASE_URL` to `file:/app/backend/data/prod.db` for SQLite deploys and `BACKEND_PORT` to `4001`. `PORT` is reserved for the frontend server because most deploy platforms route public traffic to it. The frontend exposes `/graphql` as a same-origin proxy to the internal backend port. Mount persistent storage at `/app/backend/data`; otherwise data is lost when the container is replaced. The production container runs Prisma migrations before starting the backend and frontend processes.
 
-## Available Scripts
+## 📜 Available Scripts
 
 ### Root
 
@@ -190,7 +206,7 @@ The production image defaults `DATABASE_URL` to `file:/app/backend/data/prod.db`
 | `pnpm db:studio` | Open Prisma Studio |
 | `pnpm db:seed` | Seed the database |
 
-## Academic Context
+## 🎓 Academic Context
 
 This project is a **Trabalho de Conclusao de Curso (TCC)** -- a final project for a postgraduate program at [Rocketseat](https://www.rocketseat.com.br/). It demonstrates full-stack development skills including:
 
@@ -203,118 +219,115 @@ This project is a **Trabalho de Conclusao de Curso (TCC)** -- a final project fo
 - Unit and component testing
 - Monorepo management with pnpm workspaces
 
-## Postgraduate Project Score
+## 🏆 Postgraduate Project Score
 
-> Aprovado
-> Parabéns, seu projeto foi aprovado! Confira o feedback abaixo.
+### Score: 49 /50
 
-### 49 /50
+## 📝 Feedback Received
 
-## Feedback recebido:
+### 📊 Project Feedback
 
-### 📊 Feedback do Projeto
+#### Overview
 
-#### Visão Geral
+Congratulations on the excellent work on this project! You demonstrated an impressive command of several modern technologies, resulting in a robust and well-structured application. The authentication and transaction management features were implemented with great attention to detail and security.
 
-Parabéns pelo excelente trabalho neste projeto! Você demonstrou um domínio impressionante de diversas tecnologias modernas, resultando em uma aplicação robusta e bem estruturada. As funcionalidades de autenticação e gerenciamento de transações foram implementadas com grande atenção aos detalhes e segurança.
+**Strengths:** Authentication, Transaction Management, Security, Code Architecture
 
-**Pontos Fortes:** Autenticação, Gerenciamento de Transações, Segurança, Arquitetura de Código
+**Areas for Improvement:** Monitoring, E2E Tests, Documentation, Loading Optimization
 
-**Áreas de Melhoria:** Monitoramento, Testes E2E, Documentação, Otimização de Carregamento
+### 🧩 Functional Requirements
 
-### 🧩 Requisitos Funcionais
+**Score:** 99 | **Weight:** 60%
 
-**Nota:** 99 | **Peso:** 60%
+#### Strengths
 
-#### Pontos Fortes
+- User model implemented with id, name, email, passwordHash, resetToken fields and relationships with Transaction and Category
+- Authentication service implemented with account creation and login (file exists in the structure)
+- Transaction creation functionality implemented with user validation and association to userId
+- GraphQL resolver for listing transactions with required authentication
+- Transaction model with userId field and index for query optimization
+- Category model with required userId field and relationship with User
+- Complete login implementation with field validation and state management
+- Complete transaction CRUD implementation: create (handleCreate), edit (handleEdit/handleEditSubmit), delete (handleDelete/confirmDelete), and list with pagination and filters
+- Modal for transaction creation with field validation (description, amount, date, category)
+- useAuth hook manages authentication and ensures data isolation per user (userId)
+- useTransactions hook filters transactions by userId, ensuring the user only sees their own data
+- Reusable component for transaction deletion confirmation
+- Login page implemented with complete form and validation
+- Dashboard page implemented with summary cards, recent transactions, and categories section
+- Documented route structure: / (conditional login/dashboard), /login, /criar-conta, /recuperar-senha, /recuperar-senha/$token, /app (dashboard), /app/transacoes, /app/categorias, /app/profile
+- Registration page implemented
+- Modal (Dialog) for new transaction form implemented
 
-- Modelo User implementado com campos id, name, email, passwordHash, resetToken e relacionamentos com Transaction e Category
-- Serviço de autenticação implementado com criação de conta e login (arquivo existe na estrutura)
-- Funcionalidade de criar transação implementada com validação de usuário e associação ao userId
-- Resolver GraphQL para listar transações com autenticação obrigatória
-- Modelo Transaction com campo userId e índice para otimização de consultas
-- Modelo Category com campo userId obrigatório e relacionamento com User
-- Implementação completa de login com validação de campos e gerenciamento de estado
-- Implementação completa de CRUD de transações: criar (handleCreate), editar (handleEdit/handleEditSubmit), deletar (handleDelete/confirmDelete) e listar com paginação e filtros
-- Modal para criação de transações com validação de campos (descrição, valor, data, categoria)
-- Hook useAuth gerencia autenticação e garante isolamento de dados por usuário (userId)
-- Hook useTransactions filtra transações por userId garantindo que usuário veja apenas seus dados
-- Componente reutilizável para confirmação de exclusão de transações
-- Página de login implementada com formulário completo e validação
-- Página dashboard implementada com cards de resumo, transações recentes e seção de categorias
-- Estrutura de rotas documentada: / (login/dashboard condicional), /login, /criar-conta, /recuperar-senha, /recuperar-senha/$token, /app (dashboard), /app/transacoes, /app/categorias, /app/profile
-- Página de cadastro implementada
-- Modal (Dialog) para formulário de nova transação implementado
+### 🧩 Best Practices
 
-### 🧩 Boas Práticas
+**Score:** 92 | **Weight:** 15%
 
-**Nota:** 92 | **Peso:** 15%
+#### Strengths
 
-#### Pontos Fortes
+- CORS correctly enabled with origin and credentials configuration, using the resolveCorsOrigin function to validate allowed origins
+- Robust CORS origin validation implementation with a regex pattern for development and strict validation in production
+- Apollo Server configured with csrfPrevention enabled, showing additional security concern beyond CORS
+- Extensive use of modern libraries such as TanStack Router, Apollo Client, shadcn/ui, Tailwind CSS 4, react-hook-form, zod, and Vitest to facilitate development and maintenance
+- shadcn/ui configuration with organized aliases (@/components, @/utils, @/ui, @/hooks) for better import structure
+- Use of reusable components based on Radix UI with variants via Class Variance Authority
+- Well-organized and modular components (MobileNav, UserMenu) with clear separation of responsibilities
+- Form validation with react-hook-form and consistent error feedback
+- Use of zod for schema validation with error messages in Portuguese
+- Local state management with useState and custom field validation
+- Pagination implemented with state control and synchronization with filters
+- Reusable filter components with shadcn/ui Select
+- Custom CSS animations with CSS variables for smooth transitions
+- Use of useMemo to optimize summary card rendering
+- Linting and formatting configuration with Biome to maintain code consistency
+- Accessible SVG component with appropriate aria-label
+- Multi-step confirmation flow for destructive actions
+- Well-structured empty state with icon, title, description, and action
 
-- CORS habilitado corretamente com configuração de origin e credentials, utilizando função resolveCorsOrigin para validar origens permitidas
-- Implementação robusta de validação de origem CORS com padrão regex para desenvolvimento e validação estrita em produção
-- Servidor Apollo configurado com csrfPrevention ativado, demonstrando preocupação adicional com segurança além do CORS
-- Uso extensivo de bibliotecas modernas como TanStack Router, Apollo Client, shadcn/ui, Tailwind CSS 4, react-hook-form, zod, e Vitest para facilitar desenvolvimento e manutenção
-- Configuração do shadcn/ui com aliases organizados (@/components, @/utils, @/ui, @/hooks) para melhor estrutura de imports
-- Uso de componentes reutilizáveis baseados em Radix UI com variantes através de Class Variance Authority
-- Componentes bem organizados e modulares (MobileNav, UserMenu) com separação clara de responsabilidades
-- Validação de formulários com react-hook-form e feedback de erros consistente
-- Uso de zod para validação de schemas com mensagens de erro em português
-- Gestão de estado local com useState e validação customizada de campos
-- Paginação implementada com controle de estado e sincronização com filtros
-- Componentes de filtro reutilizáveis com Select do shadcn/ui
-- Animações CSS customizadas com variáveis CSS para transições suaves
-- Uso de useMemo para otimização de renderização de cards de resumo
-- Configuração de linting e formatação com Biome para manter consistência de código
-- Componente SVG acessível com aria-label adequado
-- Fluxo de confirmação em múltiplas etapas para ações destrutivas
-- Estado vazio bem estruturado com ícone, título, descrição e ação
+### 🧩 Non-Functional Requirements
 
-### 🧩 Requisitos Não Funcionais
+**Score:** 99 | **Weight:** 25%
 
-**Nota:** 99 | **Peso:** 25%
+#### Strengths
 
-#### Pontos Fortes
+- .env.example file present with all required variables: DATABASE_URL, JWT_SECRET, PORT, and BACKEND_PORT
+- Environment variable validation implemented using Zod, ensuring JWT_SECRET and DATABASE_URL are required
+- Robust error handling that validates and reports invalid or missing environment variables
+- JWT_SECRET configured with placeholder value 'change-me-to-a-random-secret'
+- DATABASE_URL configured for SQLite with 'file:./dev.db'
+- TypeScript configured as a development dependency
+- TypeScript configuration with target ES2022 and module NodeNext
+- GraphQL installed as a dependency (version 16.11.0)
+- Use of type-graphql for GraphQL schema construction
+- Prisma Client generator configuration
+- SQLite configured as the datasource provider in Prisma
+- Import and use of PrismaClient for database access
+- React 19.2.0 implemented as required
+- TailwindCSS 4.1.18 implemented (flexible technology allowed)
+- Integration of @hookform/resolvers with Zod for validation
+- Use of React, TanStack Router, and UI components
+- Custom useCategoryOptions hook with GraphQL
+- Apollo Client useMutation for GraphQL operations
+- VITE_BACKEND_URL variable configured in the build with default value /graphql
+- Clear documentation of required environment variables in the frontend
 
-- Arquivo .env.example presente com todas as variáveis obrigatórias: DATABASE_URL, JWT_SECRET, PORT e BACKEND_PORT
-- Validação de variáveis de ambiente implementada usando Zod, garantindo que JWT_SECRET e DATABASE_URL sejam obrigatórios
-- Tratamento de erro robusto que valida e reporta variáveis de ambiente inválidas ou ausentes
-- JWT_SECRET configurado com valor placeholder 'change-me-to-a-random-secret'
-- DATABASE_URL configurado para SQLite com 'file:./dev.db'
-- TypeScript configurado como dependência de desenvolvimento
-- Configuração TypeScript com target ES2022 e module NodeNext
-- GraphQL instalado como dependência (versão 16.11.0)
-- Uso de type-graphql para construção do schema GraphQL
-- Configuração do Prisma Client generator
-- SQLite configurado como provider do datasource no Prisma
-- Importação e uso do PrismaClient para acesso ao banco de dados
-- React 19.2.0 implementado conforme requisito obrigatório
-- TailwindCSS 4.1.18 implementado (tecnologia flexível permitida)
-- Integração @hookform/resolvers com Zod para validação
-- Uso de React, TanStack Router e componentes UI
-- Hook customizado useCategoryOptions com GraphQL
-- useMutation do Apollo Client para operações GraphQL
-- Variável VITE_BACKEND_URL configurada no build com valor padrão /graphql
-- Documentação clara das variáveis de ambiente necessárias no frontend
+### 🚀 Next Steps
 
-### 🚀 Próximos Passos
+#### 🔴 Required Actions
 
-#### 🔴 Ações Obrigatórias
+No required actions
 
-Nenhuma ação obrigatória
+#### 🟡 Recommended Actions
 
-#### 🟡 Ações Recomendadas
+No recommended actions
 
-Nenhuma ação recomendada
+#### 🟢 Suggested Improvements
 
-#### 🟢 Melhorias Sugeridas
-
-- Verificar a implementação do hook useCategories para garantir o filtro por userId e o isolamento completo de dados de categorias por usuário
-- Adicionar rate limiting à API para proteção contra abuso e ataques de força bruta
-- Implementar logging estruturado para monitoramento de requisições e erros em produção
-- Adicionar um endpoint de health check para facilitar o monitoramento da aplicação
-- Documentar os padrões de componentes e a arquitetura escolhida em um arquivo CONTRIBUTING.md ou similar para facilitar o onboarding de novos desenvolvedores
-- Avaliar a criação de um Storybook ou ferramenta similar para documentar visualmente os componentes reutilizáveis da UI
-- Adicionar testes de integração E2E com Playwright ou Cypress para complementar os testes unitários existentes
-- Avaliar a implementação de code splitting por rota para otimizar o carregamento inicial da aplicação
+- Verify the implementation of the useCategories hook to ensure filtering by userId and complete isolation of category data per user
+- Add rate limiting to the API for protection against abuse and brute-force attacks
+- Implement structured logging to monitor requests and errors in production
+- Add a health check endpoint to make application monitoring easier
+- Document the component patterns and chosen architecture in a CONTRIBUTING.md file or similar to make onboarding new developers easier
+- Evaluate creating a Storybook or similar tool to visually document reusable UI components
+- Add E2E integration tests with Playwright or Cypress to complement the existing unit tests
+- Evaluate implementing route-based code splitting to optimize the application's initial load
