@@ -15,13 +15,13 @@ FROM base AS dev
 COPY --from=deps /app ./
 COPY . .
 RUN pnpm --filter backend db:generate
-EXPOSE 3000 4000
+EXPOSE 3000 4001
 CMD ["pnpm", "dev"]
 
 FROM base AS build
 COPY --from=deps /app ./
 COPY . .
-ARG VITE_BACKEND_URL=http://localhost:4000/graphql
+ARG VITE_BACKEND_URL=/graphql
 ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
 RUN pnpm --filter backend db:generate
 RUN pnpm --filter backend build

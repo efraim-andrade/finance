@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UiRouteImport } from './routes/ui'
+import { Route as GraphqlRouteImport } from './routes/graphql'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as IndexRouteImport } from './routes/index'
@@ -25,6 +26,11 @@ import { Route as PublicRecuperarSenhaTokenRouteImport } from './routes/_public/
 const UiRoute = UiRouteImport.update({
   id: '/ui',
   path: '/ui',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GraphqlRoute = GraphqlRouteImport.update({
+  id: '/graphql',
+  path: '/graphql',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -86,6 +92,7 @@ const PublicRecuperarSenhaTokenRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/graphql': typeof GraphqlRoute
   '/ui': typeof UiRoute
   '/criar-conta': typeof PublicCriarContaRoute
   '/login': typeof PublicLoginRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/graphql': typeof GraphqlRoute
   '/ui': typeof UiRoute
   '/criar-conta': typeof PublicCriarContaRoute
   '/login': typeof PublicLoginRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_public': typeof PublicRouteWithChildren
   '/app': typeof AppRouteWithChildren
+  '/graphql': typeof GraphqlRoute
   '/ui': typeof UiRoute
   '/_public/criar-conta': typeof PublicCriarContaRoute
   '/_public/login': typeof PublicLoginRoute
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/app'
+    | '/graphql'
     | '/ui'
     | '/criar-conta'
     | '/login'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/graphql'
     | '/ui'
     | '/criar-conta'
     | '/login'
@@ -154,6 +165,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_public'
     | '/app'
+    | '/graphql'
     | '/ui'
     | '/_public/criar-conta'
     | '/_public/login'
@@ -169,6 +181,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PublicRoute: typeof PublicRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
+  GraphqlRoute: typeof GraphqlRoute
   UiRoute: typeof UiRoute
 }
 
@@ -179,6 +192,13 @@ declare module '@tanstack/react-router' {
       path: '/ui'
       fullPath: '/ui'
       preLoaderRoute: typeof UiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/graphql': {
+      id: '/graphql'
+      path: '/graphql'
+      fullPath: '/graphql'
+      preLoaderRoute: typeof GraphqlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app': {
@@ -307,6 +327,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PublicRoute: PublicRouteWithChildren,
   AppRoute: AppRouteWithChildren,
+  GraphqlRoute: GraphqlRoute,
   UiRoute: UiRoute,
 }
 export const routeTree = rootRouteImport
