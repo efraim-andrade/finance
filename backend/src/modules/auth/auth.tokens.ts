@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 
+import { env } from "@/lib/env.js";
+
 type JwtPayload = {
   purpose: TokenPurpose;
   userId: string;
@@ -7,17 +9,7 @@ type JwtPayload = {
 
 type TokenPurpose = "access" | "password_reset";
 
-const JWT_SECRET = getJwtSecret();
-
-function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET;
-
-  if (!secret) {
-    throw new Error("JWT_SECRET environment variable is required");
-  }
-
-  return secret;
-}
+const JWT_SECRET = env.JWT_SECRET;
 
 export function signAccessToken(userId: string): string {
   return jwt.sign({ purpose: "access", userId }, JWT_SECRET, { expiresIn: "7d" });

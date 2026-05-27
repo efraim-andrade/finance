@@ -4,7 +4,10 @@ import { gql } from "@apollo/client";
 import type { Transaction } from "#/types/dashboard";
 
 type TransactionsData = {
-  transactions: Transaction[];
+  transactions: {
+    nodes: Transaction[];
+    totalCount: number;
+  };
 };
 
 type CreateTransactionData = {
@@ -38,23 +41,50 @@ export type UpdateTransactionInput = {
 type TransactionsVariables = {
   month?: string | null;
   year?: string | null;
+  skip?: number | null;
+  take?: number | null;
+  limit?: number | null;
+  search?: string | null;
+  type?: string | null;
+  category?: string | null;
 };
 
 export const GET_TRANSACTIONS: TypedDocumentNode<
   TransactionsData,
   TransactionsVariables
 > = gql`
-  query GetTransactions($month: String, $year: String) {
-    transactions(month: $month, year: $year) {
-      id
-      description
-      amount
-      type
-      category
-      date
-      isExample
-      createdAt
-      updatedAt
+  query GetTransactions(
+    $month: String
+    $year: String
+    $skip: Int
+    $take: Int
+    $limit: Int
+    $search: String
+    $type: TransactionType
+    $category: String
+  ) {
+    transactions(
+      month: $month
+      year: $year
+      skip: $skip
+      take: $take
+      limit: $limit
+      search: $search
+      type: $type
+      category: $category
+    ) {
+      nodes {
+        id
+        description
+        amount
+        type
+        category
+        date
+        isExample
+        createdAt
+        updatedAt
+      }
+      totalCount
     }
   }
 `;

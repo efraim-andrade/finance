@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import type { Prisma, TransactionType } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma.js";
 import {
@@ -16,6 +16,12 @@ type TransactionFilters = {
   userId: string;
   month?: string | null;
   year?: string | null;
+  skip?: number | null;
+  take?: number | null;
+  limit?: number | null;
+  search?: string | null;
+  type?: string | null;
+  category?: string | null;
 };
 
 const MIN_MONTH = 1;
@@ -61,13 +67,36 @@ function buildTransactionFilters(filters: TransactionFilters): Prisma.Transactio
     };
   }
 
+  if (filters.search) {
+    where.description = { contains: filters.search };
+  }
+
+  if (filters.type) {
+    where.type = filters.type as TransactionType;
+  }
+
+  if (filters.category) {
+    where.category = filters.category;
+  }
+
   return where;
 }
 
 export async function listTransactions(filters: TransactionFilters) {
+  const skip = filters.skip ?? undefined;
+  const take = filters.limit ?? filters.take ?? undefined;
+
   return prisma.transaction.findMany({
     where: buildTransactionFilters(filters),
     orderBy: { date: "desc" },
+    skip,
+    take,
+  });
+}
+
+export async function countTransactions(filters: TransactionFilters) {
+  return prisma.transaction.count({
+    where: buildTransactionFilters(filters),
   });
 }
 

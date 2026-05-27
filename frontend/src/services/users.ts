@@ -27,6 +27,20 @@ export type CreateUserInput = {
   password: string;
 };
 
+type MeData = {
+  me: User | null;
+};
+
+export const ME_QUERY: TypedDocumentNode<MeData> = gql`
+  query Me {
+    me {
+      id
+      name
+      email
+    }
+  }
+`;
+
 export const CREATE_USER: TypedDocumentNode<
   CreateUserData,
   { input: CreateUserInput }

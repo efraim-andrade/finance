@@ -1,154 +1,249 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
+import {
+  resetSessionExpiredNotification,
+  SESSION_EXPIRED_EVENT,
+  SESSION_EXPIRED_MESSAGE,
+} from "#/lib/session";
 import { AuthProvider, useAuth } from "./useAuth";
 
 const mocks = vi.hoisted(() => ({
-	clearStore: vi.fn(),
-	mutationHandlers: new Map<string, (options?: unknown) => Promise<unknown>>(),
-	toastError: vi.fn(),
-	toastSuccess: vi.fn(),
+  clearStore: vi.fn(),
+  query: vi.fn(),
+  mutationHandlers: new Map<string, (options?: unknown) => Promise<unknown>>(),
+  toastError: vi.fn(),
+  toastSuccess: vi.fn(),
 }));
 
 vi.mock("@apollo/client/react", () => ({
-	useApolloClient: () => ({
-		clearStore: mocks.clearStore,
-	}),
-	useMutation: (document: {
-		definitions?: Array<{ name?: { value?: string } }>;
-	}) => {
-		const operationName = document.definitions?.[0]?.name?.value ?? "";
-		const mutate = vi.fn((options?: unknown) => {
-			const handler = mocks.mutationHandlers.get(operationName);
+  useApolloClient: () => ({
+    clearStore: mocks.clearStore,
+    query: mocks.query,
+  }),
+  useMutation: (document: {
+    definitions?: Array<{ name?: { value?: string } }>;
+  }) => {
+    const operationName = document.definitions?.[0]?.name?.value ?? "";
+    const mutate = vi.fn((options?: unknown) => {
+      const handler = mocks.mutationHandlers.get(operationName);
 
-			return handler?.(options) ?? Promise.resolve({ data: {} });
-		});
+      return handler?.(options) ?? Promise.resolve({ data: {} });
+    });
 
-		return [mutate, { loading: false }];
-	},
+    return [mutate, { loading: false }];
+  },
 }));
 
 vi.mock("sonner", () => ({
-	toast: {
-		error: mocks.toastError,
-		success: mocks.toastSuccess,
-	},
+  toast: {
+    error: mocks.toastError,
+    success: mocks.toastSuccess,
+  },
 }));
 
 function AuthActions() {
-	const { deleteAccount, isAuthenticated, login, logout, register, userId } =
-		useAuth();
+  const { deleteAccount, isAuthenticated, login, logout, register, userId } =
+    useAuth();
 
-	return (
-		<div>
-			<span data-testid="auth-state">{String(isAuthenticated)}</span>
-			<span data-testid="user-id">{userId ?? "none"}</span>
+  return (
+    <div>
+      <span data-testid="auth-state">{String(isAuthenticated)}</span>
+      <span data-testid="user-id">{userId ?? "none"}</span>
 
-			<button type="button" onClick={() => void login("next@test.com", "123456")}>Login</button>
-			<button
-				type="button"
-				onClick={() => void register("Next User", "next@test.com", "123456")}
-			>
-				Register
-			</button>
-			<button type="button" onClick={() => void logout()}>Logout</button>
-			<button type="button" onClick={() => void deleteAccount()}>Delete</button>
-		</div>
-	);
+      <button
+        type="button"
+        onClick={() => void login("next@test.com", "123456")}
+      >
+        Login
+      </button>
+      <button
+        type="button"
+        onClick={() => void register("Next User", "next@test.com", "123456")}
+      >
+        Register
+      </button>
+      <button type="button" onClick={() => void logout()}>
+        Logout
+      </button>
+      <button type="button" onClick={() => void deleteAccount()}>
+        Delete
+      </button>
+    </div>
+  );
 }
 
 function renderAuthProvider() {
-	return render(
-		<AuthProvider>
-			<AuthActions />
-		</AuthProvider>,
-	);
+  return render(
+    <AuthProvider>
+      <AuthActions />
+    </AuthProvider>,
+  );
 }
 
 function persistAuthenticatedUser() {
-	localStorage.setItem("finance:auth", "true");
-	localStorage.setItem("finance:user-id", "previous-user");
-	localStorage.setItem("finance:user-name", "Previous User");
-	localStorage.setItem("finance:user-email", "previous@test.com");
-	localStorage.setItem("finance:token", "previous-token");
+  localStorage.setItem("finance:auth", "true");
+  localStorage.setItem("finance:user-id", "previous-user");
+  localStorage.setItem("finance:user-name", "Previous User");
+  localStorage.setItem("finance:user-email", "previous@test.com");
+  localStorage.setItem("finance:token", "previous-token");
 }
 
 function mockAuthMutation(operationName: "CreateUser" | "Login") {
-	mocks.mutationHandlers.set(operationName, () =>
-		Promise.resolve({
-			data: {
-				[operationName === "Login" ? "login" : "createUser"]: {
-					token: "next-token",
-					user: {
-						id: "next-user",
-						name: "Next User",
-						email: "next@test.com",
-						createdAt: "2026-05-26T00:00:00.000Z",
-						updatedAt: "2026-05-26T00:00:00.000Z",
-					},
-				},
-			},
-		}),
-	);
+  mocks.mutationHandlers.set(operationName, () =>
+    Promise.resolve({
+      data: {
+        [operationName === "Login" ? "login" : "createUser"]: {
+          token: "next-token",
+          user: {
+            id: "next-user",
+            name: "Next User",
+            email: "next@test.com",
+            createdAt: "2026-05-26T00:00:00.000Z",
+            updatedAt: "2026-05-26T00:00:00.000Z",
+          },
+        },
+      },
+    }),
+  );
 }
 
 describe("AuthProvider", () => {
-	beforeEach(() => {
-		localStorage.clear();
-		mocks.clearStore.mockReset();
-		mocks.clearStore.mockResolvedValue(undefined);
-		mocks.mutationHandlers.clear();
-		mocks.toastError.mockReset();
-		mocks.toastSuccess.mockReset();
-	});
+  beforeEach(() => {
+    localStorage.clear();
+    resetSessionExpiredNotification();
+    mocks.clearStore.mockReset();
+    mocks.clearStore.mockResolvedValue(undefined);
+    mocks.query.mockReset();
+    mocks.query.mockResolvedValue({ data: { me: null } });
+    mocks.mutationHandlers.clear();
+    mocks.toastError.mockReset();
+    mocks.toastSuccess.mockReset();
+  });
 
-	it("clears Apollo cache when user logs out", async () => {
-		persistAuthenticatedUser();
-		renderAuthProvider();
+  it("clears Apollo cache when user logs out", async () => {
+    persistAuthenticatedUser();
+    renderAuthProvider();
 
-		await userEvent.click(screen.getByRole("button", { name: "Logout" }));
+    await screen.findByTestId("auth-state");
 
-		await waitFor(() => expect(mocks.clearStore).toHaveBeenCalledTimes(1));
-		expect(screen.getByTestId("auth-state")).toHaveTextContent("false");
-		expect(localStorage.getItem("finance:token")).toBeNull();
-	});
+    await userEvent.click(screen.getByRole("button", { name: "Logout" }));
 
-	it("clears Apollo cache before storing login session", async () => {
-		persistAuthenticatedUser();
-		mockAuthMutation("Login");
-		renderAuthProvider();
+    await waitFor(() => expect(mocks.clearStore).toHaveBeenCalledTimes(1));
+    expect(screen.getByTestId("auth-state")).toHaveTextContent("false");
+    expect(localStorage.getItem("finance:token")).toBeNull();
+  });
 
-		await userEvent.click(screen.getByRole("button", { name: "Login" }));
+  it("clears Apollo cache before storing login session", async () => {
+    persistAuthenticatedUser();
+    mockAuthMutation("Login");
+    renderAuthProvider();
 
-		await waitFor(() => expect(mocks.clearStore).toHaveBeenCalledTimes(1));
-		expect(screen.getByTestId("user-id")).toHaveTextContent("next-user");
-		expect(localStorage.getItem("finance:token")).toBe("next-token");
-	});
+    await screen.findByTestId("auth-state");
 
-	it("clears Apollo cache before storing register session", async () => {
-		persistAuthenticatedUser();
-		mockAuthMutation("CreateUser");
-		renderAuthProvider();
+    await userEvent.click(screen.getByRole("button", { name: "Login" }));
 
-		await userEvent.click(screen.getByRole("button", { name: "Register" }));
+    await waitFor(() => expect(mocks.clearStore).toHaveBeenCalledTimes(1));
+    expect(screen.getByTestId("user-id")).toHaveTextContent("next-user");
+    expect(localStorage.getItem("finance:token")).toBe("next-token");
+  });
 
-		await waitFor(() => expect(mocks.clearStore).toHaveBeenCalledTimes(1));
-		expect(screen.getByTestId("user-id")).toHaveTextContent("next-user");
-		expect(localStorage.getItem("finance:token")).toBe("next-token");
-	});
+  it("clears Apollo cache before storing register session", async () => {
+    persistAuthenticatedUser();
+    mockAuthMutation("CreateUser");
+    renderAuthProvider();
 
-	it("clears Apollo cache after deleting account", async () => {
-		persistAuthenticatedUser();
-		mocks.mutationHandlers.set("DeleteUser", () =>
-			Promise.resolve({ data: { deleteUser: "previous-user" } }),
-		);
-		renderAuthProvider();
+    await screen.findByTestId("auth-state");
 
-		await userEvent.click(screen.getByRole("button", { name: "Delete" }));
+    await userEvent.click(screen.getByRole("button", { name: "Register" }));
 
-		await waitFor(() => expect(mocks.clearStore).toHaveBeenCalledTimes(1));
-		expect(screen.getByTestId("auth-state")).toHaveTextContent("false");
-		expect(localStorage.getItem("finance:token")).toBeNull();
-	});
+    await waitFor(() => expect(mocks.clearStore).toHaveBeenCalledTimes(1));
+    expect(screen.getByTestId("user-id")).toHaveTextContent("next-user");
+    expect(localStorage.getItem("finance:token")).toBe("next-token");
+  });
+
+  it("clears Apollo cache after deleting account", async () => {
+    persistAuthenticatedUser();
+    mocks.mutationHandlers.set("DeleteUser", () =>
+      Promise.resolve({ data: { deleteUser: "previous-user" } }),
+    );
+    renderAuthProvider();
+
+    await screen.findByTestId("auth-state");
+
+    await userEvent.click(screen.getByRole("button", { name: "Delete" }));
+
+    await waitFor(() => expect(mocks.clearStore).toHaveBeenCalledTimes(1));
+    expect(screen.getByTestId("auth-state")).toHaveTextContent("false");
+    expect(localStorage.getItem("finance:token")).toBeNull();
+  });
+
+  it("clears session and shows feedback when session expires", async () => {
+    persistAuthenticatedUser();
+    renderAuthProvider();
+
+    await screen.findByTestId("auth-state");
+
+    window.dispatchEvent(
+      new CustomEvent(SESSION_EXPIRED_EVENT, {
+        detail: { message: SESSION_EXPIRED_MESSAGE },
+      }),
+    );
+
+    await waitFor(() => expect(mocks.clearStore).toHaveBeenCalledTimes(1));
+    expect(screen.getByTestId("auth-state")).toHaveTextContent("false");
+    expect(localStorage.getItem("finance:token")).toBeNull();
+    expect(mocks.toastError).toHaveBeenCalledWith(SESSION_EXPIRED_MESSAGE);
+
+    window.dispatchEvent(
+      new CustomEvent(SESSION_EXPIRED_EVENT, {
+        detail: { message: SESSION_EXPIRED_MESSAGE },
+      }),
+    );
+
+    expect(mocks.toastError).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows loader while initializing then renders children", async () => {
+    let resolveQuery!: (value: { data: { me: null } }) => void;
+
+    mocks.query.mockImplementation(
+      () =>
+        new Promise<{ data: { me: null } }>((resolve) => {
+          resolveQuery = resolve;
+        }),
+    );
+
+    persistAuthenticatedUser();
+    renderAuthProvider();
+
+    expect(screen.queryByTestId("auth-state")).not.toBeInTheDocument();
+
+    resolveQuery({ data: { me: null } });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-state")).toHaveTextContent("true");
+    });
+  });
+
+  it("skips api call when not authenticated", async () => {
+    renderAuthProvider();
+
+    expect(mocks.query).not.toHaveBeenCalled();
+    expect(screen.getByTestId("auth-state")).toHaveTextContent("false");
+  });
+
+  it("clears session on failed me query", async () => {
+    mocks.query.mockRejectedValue(new Error("UNAUTHENTICATED"));
+
+    persistAuthenticatedUser();
+    renderAuthProvider();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-state")).toHaveTextContent("false");
+    });
+
+    expect(localStorage.getItem("finance:token")).toBeNull();
+    expect(localStorage.getItem("finance:auth")).toBeNull();
+  });
 });

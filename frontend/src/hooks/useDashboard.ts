@@ -84,15 +84,25 @@ export function useDashboard(): UseDashboardResult {
     },
   );
 
+  const { data: recentTxData, loading: recentTxLoading } = useQuery(
+    GET_TRANSACTIONS,
+    {
+      variables: { limit: 7 },
+      skip: !userId,
+    },
+  );
+
   const { data: catData, loading: catLoading } = useQuery(LIST_CATEGORIES, {
     skip: !userId,
   });
 
   const categoryMetaMap = buildCategoryMetaMap(catData?.categories ?? []);
 
-  const allRawTransactions: Transaction[] = allTxData?.transactions ?? [];
+  const allRawTransactions: Transaction[] = allTxData?.transactions.nodes ?? [];
   const monthlyRawTransactions: Transaction[] =
-    monthlyTxData?.transactions ?? [];
+    monthlyTxData?.transactions.nodes ?? [];
+  const recentRawTransactions: Transaction[] =
+    recentTxData?.transactions.nodes ?? [];
 
   const allTransactions: Transaction[] = allRawTransactions.map(
     (transaction: Transaction) => ({
@@ -118,24 +128,26 @@ export function useDashboard(): UseDashboardResult {
       .reduce((acc, transaction) => acc + transaction.amount, 0),
   };
 
-  const sortedByLatest = [...allTransactions].sort((a, b) => {
-    const [aDay, aMonth, aYear] = a.date.split("/");
-    const [bDay, bMonth, bYear] = b.date.split("/");
-    const aTime = new Date(
-      Number(aYear),
-      Number(aMonth) - 1,
-      Number(aDay),
-    ).getTime();
-    const bTime = new Date(
-      Number(bYear),
-      Number(bMonth) - 1,
-      Number(bDay),
-    ).getTime();
+  const sortedByLatest = [...recentRawTransactions]
+    .map((t: Transaction) => ({ ...t, date: displayDate(t.date) }))
+    .sort((a, b) => {
+      const [aDay, aMonth, aYear] = a.date.split("/");
+      const [bDay, bMonth, bYear] = b.date.split("/");
+      const aTime = new Date(
+        Number(aYear),
+        Number(aMonth) - 1,
+        Number(aDay),
+      ).getTime();
+      const bTime = new Date(
+        Number(bYear),
+        Number(bMonth) - 1,
+        Number(bDay),
+      ).getTime();
 
-    return bTime - aTime;
-  });
+      return bTime - aTime;
+    });
 
-  const transactions = sortedByLatest.slice(0, 10);
+  const transactions = sortedByLatest;
 
   const categories = aggregateCategorySummaries(
     allTransactions,
@@ -147,7 +159,8 @@ export function useDashboard(): UseDashboardResult {
     transactions,
     categories,
     categoryMetaMap,
-    isLoading: allTxLoading || monthlyTxLoading || catLoading,
+    isLoading:
+      allTxLoading || monthlyTxLoading || recentTxLoading || catLoading,
     error: txError ?? undefined,
   };
 }

@@ -14,6 +14,15 @@ import { Arg, Ctx, FieldResolver, ID, Mutation, Query, Resolver, Root } from "ty
 export class UserResolver {
   @Query(() => UserModel, { nullable: true })
   @Authenticated()
+  me(@Ctx() context: GraphQLContext) {
+    return userService.getUserById(
+      getAuthenticatedUserId(context),
+      getAuthenticatedUserId(context),
+    );
+  }
+
+  @Query(() => UserModel, { nullable: true })
+  @Authenticated()
   user(@Arg("id", () => ID) id: string, @Ctx() context: GraphQLContext) {
     return userService.getUserById(id, getAuthenticatedUserId(context));
   }

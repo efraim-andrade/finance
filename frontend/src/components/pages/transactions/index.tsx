@@ -1,6 +1,6 @@
 import { Plus, Receipt, Trash2 } from "lucide-react";
 import type { CSSProperties } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { EmptyState } from "#/components/empty-state";
 import { NewTransactionModal } from "#/components/new-transaction-modal";
 import { PageHeader } from "#/components/page-header";
@@ -16,7 +16,7 @@ import type {
   UpdateTransactionInput,
 } from "#/services/transactions";
 import type { Transaction } from "#/types/dashboard";
-import { DeleteDialog } from "./delete-dialog";
+import { DeleteDialog } from "#/components/delete-dialog";
 import { EditTransactionModal } from "./edit-transaction-modal";
 import { Filters } from "./filters";
 import { Pagination } from "./pagination";
@@ -34,8 +34,12 @@ export function TransactionsPage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [periodFilter, setPeriodFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const tableRef = useRef<HTMLDivElement>(null);
 
-  const transactionFilters: TransactionFilters = {};
+  const transactionFilters: TransactionFilters = {
+    skip: Math.max(0, (currentPage - 1) * RESULTS_PER_PAGE),
+    take: RESULTS_PER_PAGE,
+  };
 
   if (periodFilter !== "all") {
     const [month, year] = periodFilter.split("/");
@@ -44,8 +48,21 @@ export function TransactionsPage() {
     transactionFilters.year = year;
   }
 
+  if (search.trim()) {
+    transactionFilters.search = search.trim();
+  }
+
+  if (typeFilter !== "all") {
+    transactionFilters.type = typeFilter;
+  }
+
+  if (categoryFilter !== "all") {
+    transactionFilters.category = categoryFilter;
+  }
+
   const {
     transactions,
+    totalCount,
     loading,
     error,
     createTransaction,
@@ -66,38 +83,14 @@ export function TransactionsPage() {
     useState(false);
   const [isDeletingExamples, setIsDeletingExamples] = useState(false);
 
-  const filtered = useMemo(() => {
-    let result = [...transactions];
-
-    if (search.trim()) {
-      const term = search.toLowerCase();
-
-      result = result.filter((t) => t.description.toLowerCase().includes(term));
-    }
-
-    if (typeFilter !== "all") {
-      result = result.filter((t) => t.type === typeFilter);
-    }
-
-    if (categoryFilter !== "all") {
-      result = result.filter((t) => t.category === categoryFilter);
-    }
-
-    return result;
-  }, [transactions, search, typeFilter, categoryFilter]);
-
-  const totalPages = Math.ceil(filtered.length / RESULTS_PER_PAGE);
-  const safePage = Math.max(1, Math.min(currentPage, totalPages));
+  const totalPages = Math.ceil(totalCount / RESULTS_PER_PAGE);
+  const safePage = Math.max(1, Math.min(currentPage, totalPages || 1));
 
   useEffect(() => {
-    setCurrentPage((prev) => Math.min(prev, totalPages));
-  }, [totalPages]);
-
-  const paginated = useMemo(() => {
-    const start = (safePage - 1) * RESULTS_PER_PAGE;
-
-    return filtered.slice(start, start + RESULTS_PER_PAGE);
-  }, [filtered, safePage]);
+    if (!loading && tableRef.current) {
+      tableRef.current.scrollTop = tableRef.current.scrollHeight;
+    }
+  }, [loading]);
 
   const resetPage = () => setCurrentPage(1);
 
@@ -162,55 +155,166 @@ export function TransactionsPage() {
   if (loading) {
     return (
       <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-4 p-4 md:gap-8 md:p-12">
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col gap-0.5">
-            <div className="h-7 w-48 animate-pulse rounded bg-muted" />
-            <div className="h-5 w-64 animate-pulse rounded bg-muted" />
+        <div
+          className="anim-page"
+          style={{
+            animation:
+              "impeccable-fade-slide var(--anim-dur) var(--anim-delay-1) var(--anim-ease) both",
+          }}
+        >
+          <PageHeader
+            title="Transações"
+            description="Gerencie todas as suas transações financeiras"
+            action={
+              <div className="flex items-center gap-2">
+                {hasExamples && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5"
+                      onClick={handleDeleteExamples}
+                      disabled={deleteExamplesLoading}
+                    >
+                      <Trash2 className="size-4" />
+                      <span className="hidden sm:inline">Remover exemplos</span>
+                      <span className="sm:hidden">Exemplos</span>
+                    </Button>
+                    <DeleteDialog
+                      open={showDeleteExamplesDialog}
+                      onOpenChange={setShowDeleteExamplesDialog}
+                      onConfirm={confirmDeleteExamples}
+                      loading={isDeletingExamples}
+                      title="Remover transações de exemplo"
+                      description="Tem certeza que deseja remover todas as transações de exemplo? Suas transações reais não serão afetadas."
+                    />
+                  </>
+                )}
+                <NewTransactionModal onSubmit={handleCreate}>
+                  <Button size="sm" className="gap-1.5">
+                    <Plus className="size-4" />
+                    <span className="hidden sm:inline">Nova transação</span>
+                    <span className="sm:hidden">Nova</span>
+                  </Button>
+                </NewTransactionModal>
+              </div>
+            }
+          />
+        </div>
+
+        <div
+          className="anim-page"
+          style={{
+            animation:
+              "impeccable-fade-slide var(--anim-dur) var(--anim-delay-2) var(--anim-ease) both",
+          }}
+        >
+          <div className="rounded-xl border border-border bg-card p-6">
+            <Filters
+              search={search}
+              onSearchChange={(value) => {
+                setSearch(value);
+                resetPage();
+              }}
+              typeFilter={typeFilter}
+              onTypeFilterChange={(value) => {
+                setTypeFilter(value);
+                resetPage();
+              }}
+              categoryFilter={categoryFilter}
+              onCategoryFilterChange={(value) => {
+                setCategoryFilter(value);
+                resetPage();
+              }}
+              periodFilter={periodFilter}
+              onPeriodFilterChange={(value) => {
+                setPeriodFilter(value);
+                resetPage();
+              }}
+              periodOptions={periodOptions}
+            />
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton
-              <div key={i} className="h-10 animate-pulse rounded-md bg-muted" />
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-border bg-card">
-          {SKELETON_IDS.map((id) => (
-            <div
-              key={id}
-              className="flex h-[72px] items-center border-b border-border px-6"
-            >
-              <div className="flex flex-1 items-center gap-4">
-                <div className="size-10 animate-pulse rounded-lg bg-muted" />
-                <div className="h-4 w-48 animate-pulse rounded bg-muted" />
+        <div
+          className="anim-page"
+          style={{
+            animation:
+              "impeccable-fade-slide var(--anim-dur) var(--anim-delay-3) var(--anim-ease) both",
+          }}
+        >
+          <div className="rounded-xl border border-border bg-card" ref={tableRef}>
+            <div className="hidden h-14 items-center border-b border-border px-6 md:flex">
+              <div className="flex flex-1 items-center">
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Descrição
+                </span>
               </div>
 
               <div className="flex w-28 items-center justify-center">
-                <div className="h-4 w-20 animate-pulse rounded bg-muted" />
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Data
+                </span>
               </div>
 
               <div className="flex w-52 items-center justify-center">
-                <div className="h-6 w-28 animate-pulse rounded-full bg-muted" />
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Categoria
+                </span>
               </div>
 
               <div className="flex w-36 items-center justify-center">
-                <div className="h-5 w-16 animate-pulse rounded bg-muted" />
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Tipo
+                </span>
               </div>
 
               <div className="flex w-52 items-center justify-end">
-                <div className="h-5 w-24 animate-pulse rounded bg-muted" />
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Valor
+                </span>
               </div>
 
-              <div className="flex w-28 items-center justify-center gap-2">
-                <div className="size-8 animate-pulse rounded-md bg-muted" />
-                <div className="size-8 animate-pulse rounded-md bg-muted" />
+              <div className="flex w-28 items-center justify-end">
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Ações
+                </span>
               </div>
             </div>
-          ))}
+
+            {SKELETON_IDS.map((id) => (
+              <div
+                key={id}
+                className="flex h-[72px] items-center border-b border-border px-6"
+              >
+                <div className="flex flex-1 items-center gap-4">
+                  <div className="size-10 animate-pulse rounded-lg bg-muted" />
+                  <div className="h-4 w-48 animate-pulse rounded bg-muted" />
+                </div>
+
+                <div className="flex w-28 items-center justify-center">
+                  <div className="h-4 w-20 animate-pulse rounded bg-muted" />
+                </div>
+
+                <div className="flex w-52 items-center justify-center">
+                  <div className="h-6 w-28 animate-pulse rounded-full bg-muted" />
+                </div>
+
+                <div className="flex w-36 items-center justify-center">
+                  <div className="h-5 w-16 animate-pulse rounded bg-muted" />
+                </div>
+
+                <div className="flex w-52 items-center justify-end">
+                  <div className="h-5 w-24 animate-pulse rounded bg-muted" />
+                </div>
+
+                <div className="flex w-28 items-center justify-center gap-2">
+                  <div className="size-8 animate-pulse rounded-md bg-muted" />
+                  <div className="size-8 animate-pulse rounded-md bg-muted" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -332,7 +436,7 @@ export function TransactionsPage() {
             "impeccable-fade-slide var(--anim-dur) var(--anim-delay-3) var(--anim-ease) both",
         }}
       >
-        <div className="rounded-xl border border-border bg-card">
+        <div className="rounded-xl border border-border bg-card" ref={tableRef}>
           <div className="hidden h-14 items-center border-b border-border px-6 md:flex">
             <div className="flex flex-1 items-center">
               <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -371,8 +475,8 @@ export function TransactionsPage() {
             </div>
           </div>
 
-          {paginated.length > 0 ? (
-            paginated.map((transaction) => (
+          {transactions.length > 0 ? (
+            transactions.map((transaction) => (
               <TransactionRow
                 key={transaction.id}
                 transaction={transaction}
@@ -395,12 +499,13 @@ export function TransactionsPage() {
                 </NewTransactionModal>
               }
             />
-          )}
+)
 
+          }
           <Pagination
             currentPage={safePage}
             totalPages={totalPages}
-            totalResults={filtered.length}
+            totalResults={totalCount}
             resultsPerPage={RESULTS_PER_PAGE}
             onPageChange={setCurrentPage}
           />

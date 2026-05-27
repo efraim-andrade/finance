@@ -48,6 +48,10 @@ export function NewCategoryModal({
       if (value.trim().length < 2) {
         return "Nome deve ter pelo menos 2 caracteres";
       }
+
+      if (value.trim().length > 24) {
+        return "Nome deve ter no máximo 24 caracteres";
+      }
     }
 
     return "";
@@ -159,6 +163,7 @@ export function NewCategoryModal({
             label="Título"
             placeholder="Ex. Alimentação"
             value={title}
+            maxLength={24}
             onChange={(e) => {
               setTitle(e.target.value);
               setFieldValue("title", e.target.value);

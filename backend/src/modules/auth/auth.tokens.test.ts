@@ -4,6 +4,7 @@ describe("auth tokens", () => {
   beforeEach(() => {
     vi.resetModules();
     process.env.JWT_SECRET = "test-secret";
+    process.env.DATABASE_URL = "file:./test.db";
   });
 
   it("does not accept password reset token as access token", async () => {

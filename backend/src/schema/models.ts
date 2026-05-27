@@ -1,5 +1,5 @@
 import { TransactionType } from "@prisma/client";
-import { Field, Float, ID, ObjectType, registerEnumType } from "type-graphql";
+import { Field, Float, ID, Int, ObjectType, registerEnumType } from "type-graphql";
 
 registerEnumType(TransactionType, {
   name: "TransactionType",
@@ -84,6 +84,15 @@ export class CategoryModel {
 
   @Field(() => Date)
   updatedAt!: Date;
+}
+
+@ObjectType("TransactionsConnection")
+export class TransactionsConnection {
+  @Field(() => [TransactionModel])
+  nodes!: TransactionModel[];
+
+  @Field(() => Int)
+  totalCount!: number;
 }
 
 @ObjectType("TransactionPeriod")

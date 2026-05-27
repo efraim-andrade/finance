@@ -19,6 +19,11 @@ import { useAuth } from "./useAuth";
 export type TransactionFilters = {
   month?: string;
   year?: string;
+  search?: string;
+  type?: string;
+  category?: string;
+  skip?: number;
+  take?: number;
 };
 
 function displayDate(iso: string): string {
@@ -52,6 +57,11 @@ export function useTransactions(filters?: TransactionFilters) {
     variables: {
       month: filters?.month ?? undefined,
       year: filters?.year ?? undefined,
+      skip: filters?.skip ?? undefined,
+      take: filters?.take ?? undefined,
+      search: filters?.search ?? undefined,
+      type: filters?.type ?? undefined,
+      category: filters?.category ?? undefined,
     },
     skip: !userId,
   });
@@ -83,9 +93,11 @@ export function useTransactions(filters?: TransactionFilters) {
   });
 
   const transactions = useMemo(
-    () => (data?.transactions ?? []).map(normalizeTransaction),
+    () => (data?.transactions.nodes ?? []).map(normalizeTransaction),
     [data],
   );
+
+  const totalCount = data?.transactions.totalCount ?? 0;
 
   const createTransaction = useCallback(
     async (input: CreateTransactionInput) => {
@@ -129,19 +141,17 @@ export function useTransactions(filters?: TransactionFilters) {
     },
   );
 
-  const deleteExampleTransactions = useCallback(
-    async () => {
-      if (!userId) {
-        throw new Error("Usuário não autenticado. Faça login novamente.");
-      }
+  const deleteExampleTransactions = useCallback(async () => {
+    if (!userId) {
+      throw new Error("Usuário não autenticado. Faça login novamente.");
+    }
 
-      await doDeleteExamples();
-    },
-    [doDeleteExamples, userId],
-  );
+    await doDeleteExamples();
+  }, [doDeleteExamples, userId]);
 
   return {
     transactions,
+    totalCount,
     categoryMetaMap,
     loading,
     error,

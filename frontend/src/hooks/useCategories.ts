@@ -40,17 +40,20 @@ export function buildCategoryItemCountMap(
 export function selectMostUsedCategory(
   categories: CategoryDetail[],
 ): CategoryDetail | null {
-  return categories.reduce<CategoryDetail | null>((currentMostUsed, category) => {
-    if (category.itemCount <= 0) {
+  return categories.reduce<CategoryDetail | null>(
+    (currentMostUsed, category) => {
+      if (category.itemCount <= 0) {
+        return currentMostUsed;
+      }
+
+      if (!currentMostUsed || category.itemCount > currentMostUsed.itemCount) {
+        return category;
+      }
+
       return currentMostUsed;
-    }
-
-    if (!currentMostUsed || category.itemCount > currentMostUsed.itemCount) {
-      return category;
-    }
-
-    return currentMostUsed;
-  }, null);
+    },
+    null,
+  );
 }
 
 export function useCategories(): UseCategoriesResult {
@@ -68,7 +71,7 @@ export function useCategories(): UseCategoriesResult {
   });
 
   const categoryItemCountMap = useMemo(
-    () => buildCategoryItemCountMap(transactionData?.transactions ?? []),
+    () => buildCategoryItemCountMap(transactionData?.transactions.nodes ?? []),
     [transactionData],
   );
 

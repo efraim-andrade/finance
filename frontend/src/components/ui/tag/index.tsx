@@ -8,6 +8,7 @@ const tagVariants = cva(
     "inline-flex items-center rounded-full px-3 py-0.5",
     "text-sm font-medium leading-5",
     "transition-colors",
+    "max-w-[200px] truncate",
   ],
   {
     variants: {

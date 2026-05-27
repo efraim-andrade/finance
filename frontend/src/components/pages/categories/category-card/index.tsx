@@ -83,11 +83,7 @@ export function CategoryCard({
             <IconButton
               variant="danger"
               aria-label="Excluir categoria"
-              onClick={() => {
-                if (window.confirm(`Excluir a categoria "${name}"?`)) {
-                  onDelete?.();
-                }
-              }}
+              onClick={onDelete}
             >
               <Trash2 />
             </IconButton>
@@ -104,7 +100,9 @@ export function CategoryCard({
       </div>
 
       <div className="flex flex-col gap-1">
-        <span className="text-base font-semibold text-foreground">{name}</span>
+        <span className="truncate text-base font-semibold text-foreground">
+          {name}
+        </span>
 
         <span className="min-h-10 text-sm text-muted-foreground">
           {description}

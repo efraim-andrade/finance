@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 
 import { prisma } from "@/lib/prisma.js";
+import { createUserSchema, loginSchema, validateOrThrow } from "@/lib/validation.js";
 import { signAccessToken, signResetToken, verifyResetToken } from "@/modules/auth/auth.tokens.js";
 import { badUserInput, unauthenticated } from "@/modules/shared/errors.js";
 import type { CreateUserInput } from "@/modules/users/user.types.js";
@@ -15,7 +16,8 @@ function normalizeEmail(email: string) {
 }
 
 export async function registerUser(input: CreateUserInput) {
-  const email = normalizeEmail(input.email);
+  const parsed = validateOrThrow(createUserSchema, input);
+  const email = normalizeEmail(parsed.email);
   const existingUser = await prisma.user.findUnique({
     where: { email },
   });
@@ -24,12 +26,12 @@ export async function registerUser(input: CreateUserInput) {
     throw badUserInput("Já existe uma conta com este e-mail");
   }
 
-  const passwordHash = await bcrypt.hash(input.password, 10);
+  const passwordHash = await bcrypt.hash(parsed.password, 10);
 
   const user = await prisma.$transaction(async (transaction) => {
     const createdUser = await transaction.user.create({
       data: {
-        name: input.name,
+        name: parsed.name,
         email,
         passwordHash,
       },
@@ -47,7 +49,8 @@ export async function registerUser(input: CreateUserInput) {
 }
 
 export async function loginUser(email: string, password: string) {
-  const normalizedEmail = normalizeEmail(email);
+  const parsed = validateOrThrow(loginSchema, { email, password });
+  const normalizedEmail = normalizeEmail(parsed.email);
   const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
 
   if (!user) {

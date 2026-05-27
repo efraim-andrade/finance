@@ -1,15 +1,33 @@
 import { useApolloClient, useMutation } from "@apollo/client/react";
-import { createContext, useCallback, useContext, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 
+import {
+  clearSession,
+  loadSession,
+  persistSession,
+  resetSessionExpiredNotification,
+  SESSION_EXPIRED_EVENT,
+  SESSION_EXPIRED_MESSAGE,
+} from "#/lib/session";
 import {
   CREATE_USER,
   DELETE_USER,
   LOGIN,
+  ME_QUERY,
   REQUEST_PASSWORD_RESET,
   RESET_PASSWORD,
   UPDATE_USER,
 } from "#/services/users";
+
+import { FullPageLoader } from "~/components/full-page-loader";
 
 type AuthContextType = {
   isAuthenticated: boolean;
@@ -30,11 +48,12 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const AUTH_KEY = "finance:auth";
-const USER_ID_KEY = "finance:user-id";
-const USER_NAME_KEY = "finance:user-name";
-const USER_EMAIL_KEY = "finance:user-email";
-const TOKEN_KEY = "finance:token";
+const loggedOutState = {
+  isAuthenticated: false,
+  userId: null,
+  userName: null,
+  userEmail: null,
+};
 
 export function loadAuth(): {
   isAuthenticated: boolean;
@@ -42,100 +61,18 @@ export function loadAuth(): {
   userName: string | null;
   userEmail: string | null;
 } {
-  if (typeof window === "undefined") {
-    return {
-      isAuthenticated: false,
-      userId: null,
-      userName: null,
-      userEmail: null,
-    };
-  }
-
-  try {
-    const isAuthenticated = localStorage.getItem(AUTH_KEY) === "true";
-    const userId = localStorage.getItem(USER_ID_KEY);
-    const userName = localStorage.getItem(USER_NAME_KEY);
-    const userEmail = localStorage.getItem(USER_EMAIL_KEY);
-
-    return { isAuthenticated, userId, userName, userEmail };
-  } catch {
-    return {
-      isAuthenticated: false,
-      userId: null,
-      userName: null,
-      userEmail: null,
-    };
-  }
-}
-
-export function getToken(): string | null {
-  if (typeof window === "undefined") return null;
-
-  try {
-    return localStorage.getItem(TOKEN_KEY);
-  } catch {
-    return null;
-  }
-}
-
-function persistAuth(
-  value: boolean,
-  userId: string | null,
-  token?: string,
-  userName?: string | null,
-  userEmail?: string | null,
-) {
-  if (typeof window === "undefined") return;
-
-  try {
-    localStorage.setItem(AUTH_KEY, String(value));
-
-    if (userId) {
-      localStorage.setItem(USER_ID_KEY, userId);
-    } else {
-      localStorage.removeItem(USER_ID_KEY);
-    }
-
-    if (token) {
-      localStorage.setItem(TOKEN_KEY, token);
-    } else {
-      localStorage.removeItem(TOKEN_KEY);
-    }
-
-    if (userName) {
-      localStorage.setItem(USER_NAME_KEY, userName);
-    } else {
-      localStorage.removeItem(USER_NAME_KEY);
-    }
-
-    if (userEmail) {
-      localStorage.setItem(USER_EMAIL_KEY, userEmail);
-    } else {
-      localStorage.removeItem(USER_EMAIL_KEY);
-    }
-  } catch {
-    // storage blocked — ignore
-  }
-}
-
-function clearStorage() {
-  if (typeof window === "undefined") return;
-
-  try {
-    localStorage.removeItem(AUTH_KEY);
-    localStorage.removeItem(USER_ID_KEY);
-    localStorage.removeItem(USER_NAME_KEY);
-    localStorage.removeItem(USER_EMAIL_KEY);
-    localStorage.removeItem(TOKEN_KEY);
-  } catch {
-    // ignore
-  }
+  return loadSession();
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const apolloClient = useApolloClient();
   const [state, setState] = useState(loadAuth);
   const [error, setError] = useState<string | null>(null);
+  const [initializing, setInitializing] = useState(true);
+  const isInitializingRef = useRef(true);
+  const sessionExpiredToastShown = useRef(false);
+
+  isInitializingRef.current = initializing;
 
   const [doCreateUser] = useMutation(CREATE_USER);
   const [doLogin] = useMutation(LOGIN);
@@ -151,6 +88,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       toast.error("Não foi possível limpar os dados da sessão");
     }
   }, [apolloClient]);
+
+  useEffect(
+    function subscribeToSessionExpired() {
+      function handleSessionExpired(event: Event) {
+        if (isInitializingRef.current) return;
+
+        const message =
+          event instanceof CustomEvent &&
+          typeof event.detail?.message === "string"
+            ? event.detail.message
+            : SESSION_EXPIRED_MESSAGE;
+
+        setError(null);
+        setState(loggedOutState);
+        clearSession();
+        void clearSessionCache();
+
+        if (!sessionExpiredToastShown.current) {
+          sessionExpiredToastShown.current = true;
+          toast.error(message);
+        }
+      }
+
+      window.addEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
+
+      return function unsubscribeFromSessionExpired() {
+        window.removeEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
+      };
+    },
+    [clearSessionCache],
+  );
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -175,13 +143,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           userName: payload.user.name,
           userEmail: payload.user.email,
         });
-        persistAuth(
-          true,
-          payload.user.id,
-          payload.token,
-          payload.user.name,
-          payload.user.email,
-        );
+        persistSession({
+          isAuthenticated: true,
+          token: payload.token,
+          userId: payload.user.id,
+          userName: payload.user.name,
+          userEmail: payload.user.email,
+        });
+        resetSessionExpiredNotification();
+        sessionExpiredToastShown.current = false;
 
         toast.success("Login efetuado com sucesso!");
       } catch (err) {
@@ -195,13 +165,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    setState({
-      isAuthenticated: false,
-      userId: null,
-      userName: null,
-      userEmail: null,
-    });
-    clearStorage();
+    setState(loggedOutState);
+    clearSession();
+    resetSessionExpiredNotification();
+    sessionExpiredToastShown.current = false;
     await clearSessionCache();
   }, [clearSessionCache]);
 
@@ -226,13 +193,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           userName: payload.user.name,
           userEmail: payload.user.email,
         });
-        persistAuth(
-          true,
-          payload.user.id,
-          payload.token,
-          payload.user.name,
-          payload.user.email,
-        );
+        persistSession({
+          isAuthenticated: true,
+          token: payload.token,
+          userId: payload.user.id,
+          userName: payload.user.name,
+          userEmail: payload.user.email,
+        });
+        resetSessionExpiredNotification();
+        sessionExpiredToastShown.current = false;
 
         toast.success("Conta criada com sucesso!");
       } catch (err) {
@@ -262,13 +231,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         setState((prev) => ({ ...prev, userName: updated.name }));
-        persistAuth(
-          true,
-          state.userId,
-          undefined,
-          updated.name,
-          state.userEmail ?? undefined,
-        );
+        persistSession({
+          isAuthenticated: true,
+          userId: state.userId,
+          userName: updated.name,
+          userEmail: state.userEmail,
+        });
         toast.success("Perfil atualizado");
       } catch (err) {
         const message =
@@ -286,13 +254,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await doDeleteUser({ variables: { id: state.userId } });
 
-      setState({
-        isAuthenticated: false,
-        userId: null,
-        userName: null,
-        userEmail: null,
-      });
-      clearStorage();
+      setState(loggedOutState);
+      clearSession();
+      resetSessionExpiredNotification();
+      sessionExpiredToastShown.current = false;
       await clearSessionCache();
       toast.success("Conta excluída com sucesso");
     } catch (err) {
@@ -334,7 +299,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [doResetPassword],
   );
 
+  useEffect(() => {
+    if (!state.isAuthenticated) {
+      isInitializingRef.current = false;
+      setInitializing(false);
+
+      return;
+    }
+
+    apolloClient
+      .query({ query: ME_QUERY })
+      .then(() => {
+        isInitializingRef.current = false;
+        setInitializing(false);
+      })
+      .catch(() => {
+        clearSession();
+        isInitializingRef.current = false;
+        setState(loggedOutState);
+        setInitializing(false);
+      });
+  }, [apolloClient, state.isAuthenticated]);
+
   const clearError = useCallback(() => setError(null), []);
+
+  if (initializing) {
+    return <FullPageLoader />;
+  }
 
   return (
     <AuthContext.Provider

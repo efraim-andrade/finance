@@ -45,6 +45,7 @@ describe("GraphQL schema contract", () => {
     expect(data.__schema.queryType.fields.map((field) => field.name).sort()).toEqual([
       "categories",
       "category",
+      "me",
       "transaction",
       "transactionPeriods",
       "transactions",
@@ -71,8 +72,9 @@ describe("GraphQL schema contract", () => {
     const operations = [
       'query { user(id: "user-id") { id } }',
       "query { categories { id } }",
+      "query { me { id } }",
       'query { category(id: "category-id") { id } }',
-      "query { transactions { id } }",
+      "query { transactions { nodes { id } totalCount } }",
       'query { transaction(id: "transaction-id") { id } }',
       "query { transactionPeriods { month year } }",
       'mutation { deleteCategory(id: "category-id") }',

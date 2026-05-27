@@ -3,6 +3,7 @@ import { ArrowDownUp, Plus, Tag, Utensils } from "lucide-react";
 import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { DeleteDialog } from "#/components/delete-dialog";
 import { NewCategoryModal } from "#/components/new-category-modal";
 import { PageHeader } from "#/components/page-header";
 import { Button } from "#/components/ui/button";
@@ -31,12 +32,33 @@ export function CategoriesPage() {
   const [editingCategory, setEditingCategory] = useState<CategoryDetail | null>(
     null,
   );
+  const [deletingCategory, setDeletingCategory] =
+    useState<CategoryDetail | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [doDelete] = useMutation(DELETE_CATEGORY, {
     refetchQueries: ["ListCategories"],
     onCompleted: () => toast.success("Categoria excluída"),
     onError: (err) => toast.error(err.message),
   });
+
+  const handleDeleteClick = (category: CategoryDetail) => {
+    setDeletingCategory(category);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingCategory) return;
+    setIsDeleting(true);
+    try {
+      await doDelete({ variables: { id: deletingCategory.id } });
+      setShowDeleteDialog(false);
+      setDeletingCategory(null);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const mostUsed = stats.mostUsedCategory;
   const MostUsedIcon = categoryIconMap[mostUsed.icon] ?? Utensils;
@@ -151,7 +173,7 @@ export function CategoriesPage() {
                 setEditingCategory(category);
                 setIsModalOpen(true);
               }}
-              onDelete={() => doDelete({ variables: { id: category.id } })}
+              onDelete={() => handleDeleteClick(category)}
             />
           ))}
         </div>
@@ -165,6 +187,18 @@ export function CategoriesPage() {
           if (!open) setEditingCategory(null);
         }}
         editCategory={editingCategory}
+      />
+
+      <DeleteDialog
+        open={showDeleteDialog}
+        onOpenChange={(open) => {
+          setShowDeleteDialog(open);
+          if (!open) setDeletingCategory(null);
+        }}
+        onConfirm={confirmDelete}
+        loading={isDeleting}
+        title="Excluir categoria"
+        description={`Tem certeza que deseja excluir a categoria "${deletingCategory?.name}"? Esta ação não pode ser desfeita.`}
       />
     </div>
   );

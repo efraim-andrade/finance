@@ -63,46 +63,81 @@ export function RecentTransactions({
             const isIncome = transaction.type === "INCOME";
 
             return (
-              <div key={transaction.id} className="flex h-20 items-center px-6">
-                <div className="flex flex-1 items-center gap-4">
+              <div key={transaction.id}>
+                {/* Desktop: original layout */}
+                <div className="hidden sm:flex h-20 items-center px-6">
+                  <div className="flex flex-1 items-center gap-4">
+                    <div
+                      className={cn(
+                        "flex size-10 items-center justify-center rounded-lg",
+                        iconBg,
+                      )}
+                    >
+                      <Icon className={cn("size-4", iconColor)} />
+                    </div>
+                    <div>
+                      <p className="text-base font-medium text-foreground">
+                        {transaction.description}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {transaction.date}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex w-40 items-center justify-center">
+                    <Tag variant={variant}>{transaction.category}</Tag>
+                  </div>
+                  <div className="flex w-40 items-center justify-end gap-2">
+                    <span className="text-sm font-semibold text-foreground">
+                      {isIncome ? "+" : "-"}
+                      {transaction.amount.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    </span>
+                    {isIncome ? (
+                      <CircleArrowUp className="size-4 text-green-dark dark:text-green-light" />
+                    ) : (
+                      <CircleArrowDown className="size-4 text-red-dark dark:text-red-light" />
+                    )}
+                  </div>
+                </div>
+                {/* Mobile: hierarchy layout */}
+                <div className="flex sm:hidden items-center min-h-[4.5rem] px-6 gap-3">
                   <div
                     className={cn(
-                      "flex size-10 items-center justify-center rounded-lg",
+                      "flex size-9 items-center justify-center rounded-lg flex-shrink-0",
                       iconBg,
                     )}
                   >
                     <Icon className={cn("size-4", iconColor)} />
                   </div>
-
-                  <div>
-                    <p className="text-base font-medium text-foreground">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-foreground truncate font-medium">
                       {transaction.description}
                     </p>
-
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {transaction.date}
                     </p>
                   </div>
-                </div>
-
-                <div className="flex w-40 items-center justify-center">
-                  <Tag variant={variant}>{transaction.category}</Tag>
-                </div>
-
-                <div className="flex w-40 items-center justify-end gap-2">
-                  <span className="text-sm font-semibold text-foreground">
-                    {isIncome ? "+" : "-"}
-                    {transaction.amount.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    })}
-                  </span>
-
-                  {isIncome ? (
-                    <CircleArrowUp className="size-4 text-green-dark dark:text-green-light" />
-                  ) : (
-                    <CircleArrowDown className="size-4 text-red-dark dark:text-red-light" />
-                  )}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className={cn("size-2 rounded-full", iconBg)} />
+                    <span className="max-w-[120px] truncate text-xs text-muted-foreground hidden sm:inline">
+                      {transaction.category}
+                    </span>
+                    <span className="text-base font-bold whitespace-nowrap text-foreground">
+                      {isIncome ? "+" : "-"}
+                      {transaction.amount.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    </span>
+                    {isIncome ? (
+                      <CircleArrowUp className="size-4 text-green-dark dark:text-green-light" />
+                    ) : (
+                      <CircleArrowDown className="size-4 text-red-dark dark:text-red-light" />
+                    )}
+                  </div>
                 </div>
               </div>
             );
