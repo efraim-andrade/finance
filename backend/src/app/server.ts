@@ -19,6 +19,23 @@ const DEFAULT_PORT = env.PORT;
 const ALLOWED_ORIGIN_PATTERN = /^https?:\/\/localhost(?::\d+)?$/;
 const IS_DEV = env.NODE_ENV !== "production";
 
+function resolveCorsOrigin(
+  requestOrigin: string | undefined,
+  callback: (error: Error | null, origin?: boolean) => void,
+) {
+  if (!requestOrigin) {
+    callback(null, false);
+    return;
+  }
+
+  if (IS_DEV) {
+    callback(null, ALLOWED_ORIGIN_PATTERN.test(requestOrigin));
+    return;
+  }
+
+  callback(null, requestOrigin === env.FRONTEND_ORIGIN);
+}
+
 export function createGraphQLSchema() {
   return buildSchema({
     resolvers: [AuthResolver, UserResolver, CategoryResolver, TransactionResolver],
@@ -44,11 +61,7 @@ export async function startGraphQLServer(port = DEFAULT_PORT) {
   app.use(
     "/graphql",
     cors<cors.CorsRequest>({
-      origin: IS_DEV
-        ? (requestOrigin, callback) => {
-            callback(null, !!requestOrigin && ALLOWED_ORIGIN_PATTERN.test(requestOrigin));
-          }
-        : false,
+      origin: resolveCorsOrigin,
       credentials: true,
     }),
     express.json(),

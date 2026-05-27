@@ -41,33 +41,6 @@ A full-stack personal finance management web application. Built as a postgraduat
 | DataLoader | N+1 query batching |
 | Biome | Linting and formatting |
 
-## Architecture
-
-The project is a **pnpm monorepo** with two packages:
-
-```
-finance/
-├── frontend/             # TanStack Start SPA (port 3000)
-│   ├── src/
-│   │   ├── components/   # UI components (auth, dashboard, transactions, categories, shadcn/ui)
-│   │   ├── hooks/        # useAuth, useTransactions, useCategories, useDashboard, useTheme
-│   │   ├── lib/          # Apollo Client, formatters, utils
-│   │   ├── routes/       # __root, _public (login/signup/password reset), app (dashboard/transactions/categories/profile)
-│   │   └── services/     # GraphQL mutations and queries (users, transactions, categories)
-├── backend/              # GraphQL API (port 4000)
-│   ├── src/
-│   │   ├── index.ts      # Apollo Server setup, JWT auth context
-│   │   ├── schema/       # GraphQL type definitions (User, Transaction, Category, Auth, CRUD)
-│   │   ├── resolvers/    # Query and Mutation resolvers
-│   │   ├── services/     # Business logic (user, transaction, category)
-│   │   ├── loaders/      # DataLoader instances for query batching
-│   │   └── lib/          # Prisma client
-│   └── prisma/
-│       └── schema.prisma # Database schema
-├── package.json          # Workspace root scripts
-└── pnpm-workspace.yaml   # Monorepo package definition
-```
-
 ### Database Schema
 
 - **User** -- id, name, email, passwordHash, resetToken, resetTokenExpiresAt; has many Transactions and Categories
@@ -94,6 +67,7 @@ finance/
 
 - [Node.js](https://nodejs.org/) 22+
 - [pnpm](https://pnpm.io/) 9+
+- [Docker](https://docs.docker.com/get-docker/) with Compose plugin, for containerized development
 
 ### Installation
 
@@ -139,6 +113,38 @@ pnpm dev
 pnpm dev:backend    # GraphQL API at http://localhost:4000
 pnpm dev:frontend   # Web app at http://localhost:3000
 ```
+
+### Running With Docker
+
+Create a local secret first:
+
+```bash
+export JWT_SECRET="$(openssl rand -hex 32)"
+```
+
+```bash
+pnpm docker:up
+```
+
+- Frontend: http://localhost:3000
+- Backend GraphQL: http://localhost:4000/graphql
+- SQLite data: persisted in the `backend-data` Docker volume
+
+Stop containers:
+
+```bash
+pnpm docker:down
+```
+
+For production images, pass the public GraphQL URL at build time because Vite embeds `VITE_BACKEND_URL` into the client bundle:
+
+```bash
+docker build \
+  --build-arg VITE_BACKEND_URL=https://api.example.com/graphql \
+  -t finance .
+```
+
+Production runtime also requires `DATABASE_URL`, `JWT_SECRET`, and `FRONTEND_ORIGIN`. The production container runs Prisma migrations before starting the backend and frontend processes.
 
 ## Available Scripts
 

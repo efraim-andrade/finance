@@ -1,6 +1,7 @@
 {
   "name": "finance",
   "private": true,
+  "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "concurrently \"pnpm --filter backend dev\" \"pnpm --filter frontend dev\" --names \"backend,frontend\" --prefix-colors \"cyan,magenta\"",
     "dev:frontend": "pnpm --filter frontend dev",
@@ -19,6 +20,9 @@
     "format:backend": "pnpm --filter backend format",
     "lint:backend": "pnpm --filter backend lint",
     "check:backend": "pnpm --filter backend check",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
     "prepare": "git config core.hooksPath .githooks"
   },
   "devDependencies": {

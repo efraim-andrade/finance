@@ -1,0 +1,17 @@
+node_modules
+dist
+**/dist
+**/.output
+.git
+.githooks
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.example
+.DS_Store
+.opencode
+.logs
+backend/data
+backend/prisma/dev.db
+frontend/test-results
