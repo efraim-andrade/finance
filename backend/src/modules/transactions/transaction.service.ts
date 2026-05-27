@@ -1,7 +1,11 @@
 import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma.js";
-import { assertAuthenticatedUserId } from "@/modules/shared/authorization.js";
+import {
+  createTransactionSchema,
+  updateTransactionSchema,
+  validateOrThrow,
+} from "@/lib/validation.js";
 import { badUserInput, forbidden, notFound, unauthenticated } from "@/modules/shared/errors.js";
 import type {
   CreateTransactionInput,
@@ -61,25 +65,18 @@ function buildTransactionFilters(filters: TransactionFilters): Prisma.Transactio
 }
 
 export async function listTransactions(filters: TransactionFilters) {
-  const userId = assertAuthenticatedUserId(filters.userId);
-
   return prisma.transaction.findMany({
-    where: buildTransactionFilters({ ...filters, userId }),
+    where: buildTransactionFilters(filters),
     orderBy: { date: "desc" },
   });
 }
 
-export async function getTransactionById(id: string, authenticatedUserId: string) {
-  const userId = assertAuthenticatedUserId(authenticatedUserId);
-
+export async function getTransactionById(id: string, userId: string) {
   return prisma.transaction.findFirst({ where: { id, userId } });
 }
 
-export async function createTransaction(
-  input: CreateTransactionInput,
-  authenticatedUserId: string,
-) {
-  const userId = assertAuthenticatedUserId(authenticatedUserId);
+export async function createTransaction(input: CreateTransactionInput, userId: string) {
+  const parsed = validateOrThrow(createTransactionSchema, input);
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -91,23 +88,19 @@ export async function createTransaction(
 
   return prisma.transaction.create({
     data: {
-      description: input.description,
-      amount: input.amount,
-      type: input.type,
-      category: input.category,
-      date: parseTransactionDate(input.date),
+      description: parsed.description,
+      amount: parsed.amount,
+      type: parsed.type,
+      category: parsed.category,
+      date: parseTransactionDate(parsed.date),
       userId,
       isExample: false,
     },
   });
 }
 
-export async function updateTransaction(
-  id: string,
-  input: UpdateTransactionInput,
-  authenticatedUserId: string,
-) {
-  const userId = assertAuthenticatedUserId(authenticatedUserId);
+export async function updateTransaction(id: string, input: UpdateTransactionInput, userId: string) {
+  const parsed = validateOrThrow(updateTransactionSchema, input);
   const existing = await prisma.transaction.findUnique({ where: { id } });
 
   if (!existing) {
@@ -120,11 +113,11 @@ export async function updateTransaction(
 
   const data: Prisma.TransactionUpdateInput = {};
 
-  if (input.description !== undefined) data.description = input.description;
-  if (input.amount !== undefined) data.amount = input.amount;
-  if (input.type !== undefined) data.type = input.type;
-  if (input.category !== undefined) data.category = input.category;
-  if (input.date !== undefined) data.date = parseTransactionDate(input.date);
+  if (parsed.description !== undefined) data.description = parsed.description;
+  if (parsed.amount !== undefined) data.amount = parsed.amount;
+  if (parsed.type !== undefined) data.type = parsed.type;
+  if (parsed.category !== undefined) data.category = parsed.category;
+  if (parsed.date !== undefined) data.date = parseTransactionDate(parsed.date);
 
   return prisma.transaction.update({
     where: { id },
@@ -132,8 +125,7 @@ export async function updateTransaction(
   });
 }
 
-export async function deleteTransaction(id: string, authenticatedUserId: string): Promise<string> {
-  const userId = assertAuthenticatedUserId(authenticatedUserId);
+export async function deleteTransaction(id: string, userId: string): Promise<string> {
   const existing = await prisma.transaction.findUnique({ where: { id } });
 
   if (!existing) {
@@ -149,8 +141,7 @@ export async function deleteTransaction(id: string, authenticatedUserId: string)
   return id;
 }
 
-export async function listTransactionPeriods(authenticatedUserId: string) {
-  const userId = assertAuthenticatedUserId(authenticatedUserId);
+export async function listTransactionPeriods(userId: string) {
   const transactions = await prisma.transaction.findMany({
     where: { userId },
     select: { date: true },
@@ -175,8 +166,7 @@ export async function listTransactionPeriods(authenticatedUserId: string) {
   return periods;
 }
 
-export async function deleteExampleTransactions(authenticatedUserId: string): Promise<number> {
-  const userId = assertAuthenticatedUserId(authenticatedUserId);
+export async function deleteExampleTransactions(userId: string): Promise<number> {
   const result = await prisma.transaction.deleteMany({
     where: { userId, isExample: true },
   });
